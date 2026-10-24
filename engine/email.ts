@@ -23,7 +23,7 @@ export async function sendViaResend(i: {
 
   const body = JSON.stringify({
     from: i.from,
-    to: [i.email.to],
+    to: [i.email.to.trim().toLowerCase()], // exactly the address that matched the allowlist
     subject: i.email.subject,
     text: i.email.text,
     html: i.email.html,

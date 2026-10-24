@@ -223,3 +223,35 @@ describe("guard rejects markup", () => {
     expect(reasonsOf(r).join("|")).toContain("story: contains markup");
   });
 });
+
+describe("guard audit fixes (H5)", () => {
+  // $25 gift and an estimate of 25 meals: the number alone can't tell them apart.
+  const collide: DonorFacts = {
+    ...facts,
+    estimates: [{ kind: "meals", unit: "meals", approxQuantity: 25, marker: "about" }],
+  };
+
+  it("rejects an unlabeled estimate credited to the donor with no attribution verb", () => {
+    const r = guard(withStory("Thank you, Priya. Your generosity fed 25 meals."), collide);
+    expect(reasonsOf(r).join("|")).toContain("unlabeled estimate credited to donor: 25");
+  });
+
+  it("still accepts the gift amount itself", () => {
+    expect(guard(withStory("Thank you, Priya, for your $25 gift to Juniper Street Pantry."), collide)).toEqual({ ok: true });
+  });
+
+  it("rejects estimates in a thin-data story", () => {
+    const thin: DonorFacts = { ...facts, thinData: true };
+    const r = guard(
+      withStory("Thank you, Priya. Your estimate is a proportional share of pooled gifts: about 12 meals."),
+      thin,
+    );
+    expect(reasonsOf(r).join("|")).toContain("thin data");
+  });
+
+  it("rejects newly listed pressure phrases", () => {
+    for (const p of ["We need to hear from you.", "Supplies are running out.", "The deadline is close."]) {
+      expect(reasonsOf(guard(withStory(`Thank you, Priya. ${p}`), facts)).join("|")).toContain("pressure language");
+    }
+  });
+});

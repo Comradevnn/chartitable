@@ -49,7 +49,7 @@ export function templateFallback(facts: DonorFacts): NarrativeOutput {
       const newest = since.records[since.records.length - 1];
       if (newest) {
         sentences.push(
-          `Since your last visit on ${since.sinceDateLabel}, the latest update is ${describe(newest)} on ${newest.dateLabel}.`,
+          `Since ${since.sinceDateLabel}, ${charity} logged ${describe(newest)} on ${newest.dateLabel}.`,
         );
       } else {
         sentences.push(`Nothing new has been logged since your last visit on ${since.sinceDateLabel}.`);

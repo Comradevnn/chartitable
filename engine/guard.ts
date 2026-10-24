@@ -236,6 +236,15 @@ const PRESSURE_PATTERNS: { label: string; re: RegExp }[] = [
   { label: "desperate", re: /desperat/ },
   { label: "hurry", re: /\bhurry\b/ },
   { label: "act now", re: /\bact now\b/ },
+  { label: "act fast", re: /\bact fast\b/ },
+  { label: "have to", re: /\bhave to\b/ },
+  { label: "need to", re: /\bneeds? to\b/ },
+  { label: "running out", re: /\brunning out\b/ },
+  { label: "last call", re: /\blast call\b/ },
+  { label: "deadline", re: /\bdeadline/ },
+  { label: "limited time", re: /\blimited time\b/ },
+  { label: "don't miss", re: /\bdon't miss\b/ },
+  { label: "now or never", re: /\bnow or never\b/ },
 ];
 
 export function findPressureWords(text: string): string[] {
@@ -272,7 +281,9 @@ function sentenceAround(text: string, index: number): string {
 function creditsDonor(sentence: string, facts: DonorFacts): boolean {
   const refersToDonor =
     DONOR_REF.test(sentence) || (facts.donorFirstName !== null && sentence.includes(facts.donorFirstName));
-  return refersToDonor && ATTRIBUTION.test(sentence);
+  // Any sentence about the donor counts: "Your generosity fed 25 meals" credits them with no
+  // attribution verb. Rare false rejects (a record that equals an estimate) fall back to the template.
+  return refersToDonor || ATTRIBUTION.test(sentence);
 }
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -363,6 +374,9 @@ export function guard(output: unknown, facts: DonorFacts): GuardResult {
   }
 
   // The story must say what an estimate is (D1) whenever it quotes one.
+  if (storyHasEstimate && facts.thinData) {
+    reasons.add("thin data: story must not quote estimates");
+  }
   if (storyHasEstimate) {
     if (!/\bestimat\w*/i.test(story) || !/\b(?:pooled?|proportion\w*|shares?|shared)\b/i.test(story)) {
       reasons.add("story quotes an estimate without explaining it is a proportional share of pooled gifts");

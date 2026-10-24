@@ -41,7 +41,7 @@ describe("sendViaResend", () => {
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer re_test_key");
     expect(JSON.parse(init.body as string)).toEqual({
       from: base.from,
-      to: ["Team@Example.com"],
+      to: ["team@example.com"], // normalized to the allowlisted form
       subject: "S",
       text: "T",
       html: "<p>T</p>",
