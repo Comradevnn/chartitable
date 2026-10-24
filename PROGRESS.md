@@ -1,6 +1,6 @@
 # PROGRESS.md — shared context for all agents and humans
 
-> Read this first. Keep it true. Claim tasks before starting. Append to the Handoff log; never rewrite others' lines.
+> Read this first, but only your lane's parts: see the **Read map** in CLAUDE.md. Tag new Handoff log lines `[A]` product, `[B]` dashboard/demo sites, `[C]` docs/pitch/QA, `[ALL]`. Keep it true. Claim tasks before starting. Append to the Handoff log; never rewrite others' lines.
 > Deadline: **Devpost submission Sun Oct 25, 9:00 AM PT.** Pitch: 3 min + 2 min Q&A. Needs: Devpost page, project image, public GitHub repo, demo video.
 
 ## Snapshot
@@ -158,3 +158,4 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 11:55 PM PT] Claude (main chat): Read the Devpost page (PRIZE_RULES §12). Confirmed hard requirements: **GitHub repo + project image + demo (video recommended on Devpost)**, 3-min pitch + 2-min Q&A (plan unchanged), at venue by Sun 8 AM, submit with teammates by 9 AM. No Anthropic or Annapurna row on Devpost, so ask at the Anthropic booth how to enter the track. Convex prize is $1,308 + hardware; Cartesia $1,516. SpaceXSI wants real space data + Cursor, with no Grok API requirement: a long shot for us, keep T16 paper trail only for the raffle/MLH track. Best People-First Social Impact + MLH Commit Fellowship fit Chartitable: opt in at submission. The public GitHub repo is now a confirmed requirement.
 - [Fri 11:59 PM PT] Claude (main chat): Created PRIVATE repo https://github.com/Comradevnn/chartitable (secret scan of history + pending files clean), committed pending files, pushed main. Added T17 (go public before submission). Other orchestrator session: pull nothing needed, just `git push` as you commit.
 - [Sat 12:35 AM PT] Claude (main chat): Lead decided on a charity dashboard (D12). Wrote `docs/DASHBOARD_SPEC.md` (MVP M1–M3, Next, idea pool, privacy rules, mock data contract) and `docs/TEAMMATE_DASHBOARD_PROMPT.md` (one prompt: Figma first, then `/dashboard` with Impeccable, branch `dashboard`). Added T18 (Teammate 1) and T19 (backend, Revnn). Open: teammate needs a repo invite (private repo); Figma track pick; staff login = PIN stub proposed.
+- [Sat 1:05 AM PT] [ALL] Claude (main chat): Added `docs/PRODUCT_SPEC.md` (Lane A spec: flow, rules, API, failure modes, tests; OPEN items marked) and a Read map in CLAUDE.md saying which files each role reads or skips. Log lines are now tagged by lane.
