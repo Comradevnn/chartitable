@@ -1,8 +1,11 @@
 # Handoff: Teammate 1 (Lane B: dashboard + demo sites)
 
-Last updated: Sat Oct 24, ~2:00 AM PT. Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, ~4:15 AM PT (by Revnn's session; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
 
-## Where things stand
+## Start here (new, Sat ~4 AM PT)
+Your next prompt is **`docs/TEAMMATE_NEXT_PROMPT.md`**. Priority 1: design the returning-donor experience (T22) and deliver `docs/design/ct-slots.css`. Priority 2: dashboard MVP (T18). Leave the four Cursor test hosts alone (fixtures, D14). Demo names are being replaced (T21): "Tansy Street Pantry" is flagged as near-identical to a real business name; don't ship it until Revnn confirms a name. Vercel shows your pushes as Blocked (expected, see below); tell Revnn when you want a deploy.
+
+## Where things stand (older notes below)
 - Not started on the dashboard yet. Spec is in `docs/DASHBOARD_SPEC.md`; your one starting prompt is `docs/TEAMMATE_DASHBOARD_PROMPT.md`.
 - Demo sites T10/T11 (fictional pantries `demo-pantry-a`, `demo-pantry-b`) follow integration contract v1 in PROGRESS.md. Visual directions and homepage order are in `docs/demo-site-reference.md`.
 

@@ -7,6 +7,16 @@ Use: open the repo in Cursor and paste **one part at a time** (Part 1 for T8, Pa
 - Mode: **Agent**. One chat per part. Record the model names and what ran in `docs/cursor-grok-log.md` (SpaceXSI evidence).
 - The backend these pages call is already built and tested in Claude Code (Lane A): `GET /donor-view` (`convex/http.ts`), `impact:log` / `impact:generateUploadUrl` / `impact:recent` (`convex/impact.ts`). **Do not edit `/convex`, `/engine`, `/seed`, `/staff/donate*`, `/frontend`, `/dashboard`, or `/demo-sites/*` outside what a part allows.** If the API looks wrong, write a row in `PROGRESS.md` → Blockers and keep going against the sample JSON.
 
+## Deployed values (use these; updated Sat ~4 AM PT)
+- **Do Part 1 (T8) first. It is the critical path.** Part 2 only after Part 1 passes its self-checks.
+- `CT_API_BASE` = `https://acoustic-donkey-399.convex.site` (dev deployment; verified live: `GET /donor-view?charity=demo-pantry-a` with a valid Bearer token returns the JSON below; a bad token returns `{"recognized":false}`).
+- `CT_DONATE_URL` = `https://chartitable.vercel.app/staff/donate` (the Vercel build uses clean URLs; locally use `http://localhost:5175/donate.html`).
+- Staff pages talk to Convex at `https://acoustic-donkey-399.convex.cloud` (already in `staff/config.js`). The staff PIN is a Convex env var; **never hardcode or print it**; the page asks the user to type it.
+- Test hosts are live at `https://chartitable.vercel.app/sites/<name>/` (`warm-pantry`, `regional-bank`, `volunteer-run`, `church-community`). On Vercel the layer loads from `/layer.js`; locally from `http://localhost:5174/layer.js`.
+- **Demo-donor link for manual testing:** run `npx convex run tokens:issue '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'` and open the returned link's `?ct=` token on a test host. The first view shows a template story; the second shows Claude's (by design: `/donor-view` never waits on Claude).
+- Vercel blocks deployments of commits not authored by Revnn; push your work to `main` as usual and tell Revnn to ship it. Commit with the repo's git identity (already set); do not change it.
+- If `docs/design/ct-slots.css` exists (Teammate 1's returning-donor design, task T22), bundle it as the default styles instead of writing your own: `--loader:.css=text`, inject once in a `<style>`. If it does not exist, use a minimal fallback and keep the styles in one string so it is easy to swap.
+
 ---
 
 ## Part 1 — T8 `layer.js` (writes `/layer/src/**`, `/layer/test/**`, `/layer/package.json` scripts only)

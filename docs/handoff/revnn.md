@@ -1,30 +1,22 @@
 # Handoff: Revnn (Lane A: product)
 
-Last updated: Sat Oct 24, ~1:25 AM PT (after the Lane A backend run). Update this file whenever you stop or switch tools. Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, ~4:15 AM PT. Update this file whenever you stop or switch tools. Team-wide status lives in `PROGRESS.md`.
 
-## Where things stand
-- **Done in code, tested (250 tests green, typecheck + build clean):** T1 scaffold, T2/T12 schema + seed (now with expenses), T5 allocation, T6 narrative + guard + Claude action, T7 tokens + `/donor-view` + visits, T3 donate page, T4 backend (`impact:*`), T9 milestones + email, T19 dashboard backend, calibration test (§16).
-- **Live Claude smoke passed** (Sat 1:08 AM): demo donor got a `source: "claude"` story that passed the guard on the first try, 3.9 s.
-- **Nothing is deployed.** Convex is not linked (`convex/_generated/` doesn't exist; `convex/lib/builders.ts` gives typed builders without it).
-- **Cursor next:** T8 `layer.js` and the T4 staff page. Prompts are in `docs/CURSOR_LAYER_STAFF_PROMPT.md` (Part 1, Part 2). T20 test hosts are in progress in Cursor.
-- Repo: https://github.com/Comradevnn/chartitable (private). `.env` is local only (gitignored) and holds `ANTHROPIC_API_KEY`.
+## Where things stand (Sat ~4:15 AM PT)
+- **Backend is live** on Convex dev (`acoustic-donkey-399`): T3, T4 backend, T6, T7, T9, T19 built and tested (254 tests); env set (TOKEN_SECRET, STAFF_PIN, ANTHROPIC_API_KEY, DONATE_PAGE_URL); seed loaded; live `/donor-view` verified (first view template, second Claude, bad token recognized:false).
+- **Static hosts are live** on Vercel: https://chartitable.vercel.app (`/layer.js`, `/staff/*`, `/sites/<host>`, `/app`). Teammate commits show "Blocked" (Hobby); ship them by pushing an owner-authored commit (D16).
+- **The gap:** `layer/src/layer.ts` is a stub (T8). No host site personalizes anything yet. T4 staff page also not built. Both are Cursor tasks.
+- Cursor's four test hosts (T20) are fixtures only (D14). Teammate 1 owns the returning-donor look (T22) and the dashboard (T18).
+- Four demo names resemble real orgs (T21). Product name "Chartitable" is one letter from the "Charitable" donation-software trademark (WP Charitable LLC): your decision before the repo goes public.
+- Git identity (repo and global) is the GitHub noreply address; history was rewritten once (Sat 3 AM). Old history only in a local bundle in a session scratchpad.
 
-## Next, in order (human steps first)
-1. `npx convex dev` (interactive login; links the deployment, generates `_generated/`, pushes functions). Leave it running in a terminal tab.
-2. Set Convex env (values never in the repo; generate the secret, e.g. `openssl rand -hex 32`):
-   ```bash
-   npx convex env set TOKEN_SECRET <64 hex chars>
-   npx convex env set ANTHROPIC_API_KEY <key>
-   npx convex env set STAFF_PIN <fictional demo PIN>
-   npx convex env set DEMO_INBOXES <resend account owner inbox>
-   npx convex env set RESEND_API_KEY <key>
-   npx convex env set DONATE_PAGE_URL http://localhost:5175/donate.html
-   ```
-3. `npx convex run seed:load` then `npx convex run milestones:setDemoEmail '{"donorId":"donor_a01","email":"<same inbox>"}'` **before** demo step 2 (a donor without an email is marked skipped for good once they cross a threshold).
-4. Demo link for the seeded donor: `npx convex run tokens:issue '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'`.
-5. Put the `.convex.cloud` URL in `staff/config.js` (`convexUrl`) for the donate page; serve it with `npx esbuild --servedir=staff --serve=5175`.
-6. Cursor: T8 then T4 using the prompt doc; build `layer.js` with `--define:CT_API_BASE='"https://<deployment>.convex.site"'`.
-7. Vercel deploy (C4, ~Sat 2 PM); T17 before Sun 8:30 AM (secret scan, README, make repo public).
+## Next, in order
+1. **Cursor, new chat, Part 1 of `docs/CURSOR_LAYER_STAFF_PROMPT.md`** (T8 `layer.js`). Then Part 2 (T4 staff page). Grok 4.7, Fast off, effort high; Composer 2.5 for mechanical steps.
+2. **Claude Code, Opus 5.5, `docs/OPUS_LANE_A_PROMPT_2.md`** in parallel: T21 renames (name-checked), T23 smoke script, health page, gating of Cursor's diffs, audits, docs.
+3. **Teammate 1: `docs/TEAMMATE_NEXT_PROMPT.md`** (T22 returning-donor design first, then dashboard).
+4. **You, by hand:** Resend key in `.env` (`RESEND_API_KEY`) + the account-owner inbox → Convex env set (`DEMO_INBOXES`, `RESEND_API_KEY`) → `npx convex run milestones:setDemoEmail '{"donorId":"donor_a01","email":"<inbox>"}'` **before demo step 2**. Also X Premium pickup / Grok Bot, and ask at the booth how to enter the Anthropic track.
+5. Decide: product name, which host is the demo site (D14), D15 (teammate designs slots).
+6. C3 (~11 AM): demo-done checks 1, 2, 5 on a host site with the real layer. C4 (~2 PM): 1–5 on Vercel. C5 (~7 PM): 1–6 twice. Freeze 10 PM. T17 (public repo, secret scan, README) before Sun 8:30 AM.
 
 ## Resume commands
 ```bash
