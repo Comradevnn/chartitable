@@ -1,11 +1,13 @@
 // Assembles the static site Vercel serves: dist-site/
 //   /layer.js            the embeddable layer (built from /layer)
 //   /staff/*             hosted donate page (and the staff update page when it exists)
-//   /sites/<name>/*      fictional demo/test host sites from /demo-sites/test-hosts
+//   /sites/<name>/*      fictional host sites: the demo hosts from /demo-sites/hosts (cinderwell, brindlecote)
+//                        and the older test fixtures from /demo-sites/test-hosts (kept so old email links work)
 //   /seed/photos/*       fictional placeholder photos for seeded logs (ASSET_BASE_URL)
 //   /app/*               Lane B static pages from /frontend (landing, donor dashboard, staff donors)
 // Only these folders are published. Docs, source, .env and the backend are never copied.
-// Test hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
+// Hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
+// Dev notes (NOTES.md) and donor-view.empty.json are not published from the demo hosts.
 import { execSync } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -37,15 +39,38 @@ if (existsSync(join(root, "frontend"))) {
   cpSync(join(root, "frontend"), join(out, "app"), { recursive: true });
 }
 
-const hosts = join(root, "demo-sites", "test-hosts");
-const siteNames = [];
-if (existsSync(hosts)) {
-  for (const name of readdirSync(hosts)) {
-    const dir = join(hosts, name);
-    if (!statSync(dir).isDirectory()) continue;
-    cpSync(dir, join(out, "sites", name), { recursive: true });
-    siteNames.push(name);
-  }
+const demoHostsDir = join(root, "demo-sites", "hosts");
+const testHostsDir = join(root, "demo-sites", "test-hosts");
+const demoSiteNames = [];
+const testSiteNames = [];
+
+function hostDirs(base) {
+  if (!existsSync(base)) return [];
+  return readdirSync(base).filter((name) => statSync(join(base, name)).isDirectory());
+}
+
+const testDirs = hostDirs(testHostsDir);
+const demoDirs = hostDirs(demoHostsDir).filter((name) => !name.startsWith("_"));
+const clash = demoDirs.filter((name) => testDirs.includes(name));
+if (clash.length) {
+  console.error(`build-site: host name(s) exist in both demo-sites/hosts and demo-sites/test-hosts: ${clash.join(", ")}. Rename one.`);
+  process.exit(1);
+}
+
+// Test fixtures stay published unchanged so old email links do not 404.
+for (const name of testDirs) {
+  cpSync(join(testHostsDir, name), join(out, "sites", name), { recursive: true });
+  testSiteNames.push(name);
+}
+
+// Demo hosts. NOTES.md and donor-view.empty.json are dev-only. preview.js fetches
+// donor-view.sample.json in ?preview=1 mode, so that sample stays published.
+for (const name of demoDirs) {
+  cpSync(join(demoHostsDir, name), join(out, "sites", name), {
+    recursive: true,
+    filter: (src) => !/(^|\/)NOTES\.md$/.test(src) && !/(^|\/)donor-view\.empty\.json$/.test(src),
+  });
+  demoSiteNames.push(name);
 }
 
 // Each host symlinks preview.js etc. to ../_preview. cpSync keeps them as links to this machine,
@@ -77,15 +102,22 @@ function rewrite(dir) {
 }
 rewrite(join(out, "sites"));
 
-const links = siteNames.filter((n) => !n.startsWith("_")).map((n) => `<li><a href="/sites/${n}/">${n}</a> (<a href="/sites/${n}/?preview=1">preview</a>)</li>`).join("\n");
+const li = (n) => `<li><a href="/sites/${n}/">${n}</a> (<a href="/sites/${n}/?preview=1">preview</a>)</li>`;
+const demoLinks = demoSiteNames.map(li).join("\n");
+const testLinks = testSiteNames.filter((n) => !n.startsWith("_")).map(li).join("\n");
 writeFileSync(
   join(out, "index.html"),
   `<!doctype html><meta charset="utf-8"><title>Chartitable demo</title>
 <h1>Chartitable demo hosts</h1>
 <p>Fictional charities for testing a donor personalization layer. Test mode only.</p>
-<ul>${links}
+<h2>Demo hosts</h2>
+<ul>${demoLinks}</ul>
+<h2>Test fixtures</h2>
+<ul>${testLinks}</ul>
+<h2>Other</h2>
+<ul>
 <li><a href="/app/">Lane B frontend pages</a></li>
 <li><a href="/staff/donate.html?charity=demo-pantry-a">Test-mode donate page</a></li></ul>`,
 );
 
-console.log(`dist-site ready: layer.js, staff/, ${siteNames.length} site(s)`);
+console.log(`dist-site ready: layer.js, staff/, ${demoSiteNames.length} demo host(s), ${testSiteNames.length} test host(s)`);
