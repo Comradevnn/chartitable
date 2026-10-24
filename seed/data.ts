@@ -32,13 +32,13 @@ const CHARITIES: Charity[] = [
   {
     id: "demo-pantry-a",
     name: "Cinderwell Pantry",
-    siteUrl: "http://localhost:5501",
+    siteUrl: "https://chartitable.vercel.app/sites/warm-pantry/", // Vercel test host (D14 default; lead may repoint)
     fictional: true,
   },
   {
     id: "demo-pantry-b",
     name: "Brindlecote Food Bank",
-    siteUrl: "http://localhost:5502",
+    siteUrl: "https://chartitable.vercel.app/sites/regional-bank/",
     fictional: true,
   },
 ];
