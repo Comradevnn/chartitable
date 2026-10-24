@@ -3,462 +3,593 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Donors · Second Helping Staff</title>
+<meta name="description" content="Fictional demo: staff view of donors, who is ready for a thank-you and who may be slipping away.">
+<title>Donors · Chartitable Staff</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* ===== Shared design tokens (identical in index.html, dashboard.html, admin.html) ===== */
   :root {
-    --bg: #f4f6f3;
-    --panel: #ffffff;
-    --ink: #16201a;
-    --ink-soft: #4d5a52;
-    --rule: #dde4de;
-    --brand: #1d6b3f;
-    --brand-dark: #144f2d;
-    --brand-tint: #e6f1ea;
-    --accent: #ffc94d;
-    --accent-tint: #fff4d6;
-    --risk: #a3341f;
-    --risk-tint: #fbe7e2;
-    --dark: #10241a;
-    --on-dark: #ffffff;
-    --on-dark-soft: #c3d3c9;
+    /* color */
+    --bg: #f6f5ef; --surface: #ffffff; --surface-2: #efeee6;
+    --ink: #14231a; --ink-soft: #4a584f; --rule: #dcdfd3;
+    --brand: #1d6b3f; --brand-strong: #144f2d; --brand-tint: #e3efe7;
+    --accent: #ffc94d; --accent-strong: #f4b21b; --accent-tint: #fff2cb; --accent-ink: #6b4700; --estimate-line: #a56f00;
+    --risk: #a3341f; --risk-tint: #fbe6e0; --info: #2c4a7a; --info-tint: #e6edf8;
+    --dark: #10241a; --on-dark: #ffffff; --on-dark-soft: #c3d3c9;
+    /* type */
+    --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem; --text-lg: 1.375rem; --text-xl: 1.75rem; --text-2xl: 2.25rem;
+    --text-display: clamp(2rem, 4.6vw + .6rem, 3.5rem);
+    --leading-tight: 1.1; --leading-snug: 1.3; --leading-body: 1.55; --tracking-tight: -.025em;
+    /* space */
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
+    /* shape + depth + motion */
+    --radius-sm: 8px; --radius: 14px; --radius-lg: 22px; --radius-pill: 999px;
+    --shadow-1: 0 1px 2px rgba(20,35,26,.06), 0 6px 16px -10px rgba(20,35,26,.18);
+    --shadow-2: 0 2px 4px rgba(20,35,26,.08), 0 18px 40px -18px rgba(20,35,26,.32);
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --container: 1160px;
+    /* Chartitable layer theming (integration contract v1) */
+    --ct-accent: var(--brand); --ct-fg: var(--ink); --ct-bg: var(--surface); --ct-muted: var(--ink-soft); --ct-font: var(--font); --ct-radius: var(--radius);
   }
+
+  /* ===== Base ===== */
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Hanken Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; font-size: 15px; }
+  [hidden] { display: none !important; }
+  html { scroll-padding-top: 80px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-base)/var(--leading-body) var(--font); -webkit-font-smoothing: antialiased; }
   ::selection { background: var(--accent); color: var(--ink); }
-  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   a { color: inherit; text-underline-offset: 3px; }
-  h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; margin: 0; }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, h3 { line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  h1 { font-size: var(--text-xl); font-weight: 800; }
+  h2 { font-size: var(--text-md); font-weight: 800; }
+  h3 { font-size: var(--text-sm); font-weight: 800; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  main:focus { outline: none; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; border-radius: 4px; }
+  .on-dark :focus-visible { outline-color: var(--accent); box-shadow: none; }
+  .wrap { max-width: var(--container); margin: 0 auto; padding-left: var(--space-4); padding-right: var(--space-4); }
+  @media (min-width: 720px) { .wrap { padding-left: var(--space-5); padding-right: var(--space-5); } }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: var(--space-3); top: -100px; z-index: 60; background: var(--accent); color: var(--ink); font-weight: 700; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); }
+  .skip:focus { top: var(--space-3); }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 700 14px/1.3 "Hanken Grotesk", sans-serif; padding: 10px 16px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s; white-space: nowrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; font: 700 var(--text-base)/1.2 var(--font); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--ink); }
+  .btn-primary:hover { background: var(--accent-strong); }
   .btn-brand { background: var(--brand); color: #fff; }
-  .btn-brand:hover { background: var(--brand-dark); }
-  .btn-quiet { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
+  .btn-brand:hover { background: var(--brand-strong); }
+  .btn-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
   .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
-  .btn[disabled] { opacity: .55; cursor: default; }
+  .btn.sm { min-height: 40px; padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: .6; cursor: default; }
 
-  /* top bar */
+  /* ===== Honesty: records vs estimates (D1) ===== */
+  .ct-record { font-weight: 700; }
+  .ct-record::before { content: ""; display: inline-block; width: .85em; height: .85em; margin-right: .35em; vertical-align: -.08em; background: var(--brand);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .ct-estimate { display: inline; padding: .04em .38em; border: 1.5px dashed var(--estimate-line); background: var(--accent-tint); color: var(--accent-ink); border-radius: var(--radius-sm); font-weight: 700; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .on-dark .ct-record::before { background: var(--accent); }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 800; letter-spacing: .02em; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
+  .tag.rec { background: var(--brand-tint); color: var(--brand-strong); }
+  .tag.est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
+  .ct-tip { position: relative; display: inline-block; }
+  .ct-why { font: 600 var(--text-sm)/1.3 var(--font); color: inherit; background: none; border: 0; cursor: help; padding: var(--space-2) 2px; min-height: 32px; text-decoration: underline dotted; text-underline-offset: 4px; }
+  .ct-tip-body { position: absolute; z-index: 40; top: calc(100% + 2px); left: 0; width: min(320px, calc(100vw - 32px)); background: var(--ink); color: #fff; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; line-height: 1.45; box-shadow: var(--shadow-2); text-align: left; }
+
+  /* ===== Top bar ===== */
   .top { background: var(--dark); color: var(--on-dark); }
-  .top .in { max-width: 1280px; margin: 0 auto; padding: 0 16px; height: 60px; display: flex; align-items: center; gap: 16px; }
-  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; white-space: nowrap; text-decoration: none; }
-  .logo svg { width: 22px; height: 22px; }
-  .logo em { font-style: normal; font-weight: 600; color: var(--on-dark-soft); font-size: 14px; }
-  .top nav { display: none; gap: 4px; margin-left: 16px; }
-  .top nav a { text-decoration: none; padding: 8px 12px; border-radius: 8px; color: var(--on-dark-soft); font-weight: 600; font-size: 14px; }
-  .top nav a[aria-current] { background: rgba(255,255,255,.1); color: #fff; }
-  @media (min-width: 860px) { .top nav { display: flex; } }
-  .top .who { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--on-dark-soft); }
-  .top .who b { color: #fff; font-weight: 600; }
-  .top .av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
-  @media (max-width: 520px) { .top .who span { display: none; } }
+  .top .wrap { display: flex; align-items: center; gap: var(--space-4); height: 60px; }
+  .logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 800; font-size: var(--text-md); letter-spacing: var(--tracking-tight); text-decoration: none; white-space: nowrap; }
+  .logo svg { width: 24px; height: 24px; flex: none; }
+  .logo em { font-style: normal; font-weight: 600; color: var(--on-dark-soft); font-size: var(--text-sm); }
+  .top nav { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
+  .top nav a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); color: var(--on-dark-soft); font-weight: 600; font-size: var(--text-sm); }
+  .top nav a:hover { color: #fff; background: rgba(255,255,255,.08); }
+  .top nav a[aria-current="page"] { background: rgba(255,255,255,.14); color: #fff; }
+  .who { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); color: var(--on-dark-soft); }
+  .who b { color: #fff; font-weight: 600; }
+  .who .av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-weight: 800; font-size: var(--text-xs); }
+  @media (max-width: 760px) { .who span { display: none; } .top nav a.opt { display: none; } .top .wrap { gap: var(--space-2); } }
+  @media (max-width: 420px) { .logo em { display: none; } }
 
-  main { max-width: 1280px; margin: 0 auto; padding: 24px 16px 64px; }
-  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-  .head h1 { font-size: 28px; }
-  .head p { margin: 4px 0 0; color: var(--ink-soft); }
+  /* ===== Demo ribbon (same look as the demo bar on index.html) ===== */
+  .demo { background: #0b1a12; color: var(--on-dark-soft); font-size: var(--text-sm); }
+  .demo .wrap { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+  .demo b { color: #fff; font-weight: 600; }
 
-  /* KPIs */
-  .kpis { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 18px; }
-  @media (min-width: 900px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
-  .kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
-  .kpi span { display: block; color: var(--ink-soft); font-size: 13px; }
-  .kpi b { display: block; font-size: 26px; letter-spacing: -0.02em; line-height: 1.25; font-variant-numeric: tabular-nums; }
-  .kpi small { font-size: 13px; color: var(--ink-soft); }
-  .kpi small.up { color: var(--brand); font-weight: 600; }
-  .kpi small.down { color: var(--risk); font-weight: 600; }
-  button.kpi { font: inherit; color: inherit; text-align: left; cursor: pointer; transition: border-color .2s; }
-  button.kpi:hover { border-color: var(--risk); }
+  /* ===== Page ===== */
+  main { padding-block: var(--space-5) var(--space-8); }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3) var(--space-5); margin-bottom: var(--space-5); }
+  .head p { margin-top: var(--space-1); color: var(--ink-soft); max-width: 60ch; }
+  .head .per { font-size: var(--text-sm); }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow-1); }
+  .sub { color: var(--ink-soft); font-size: var(--text-sm); }
 
-  .layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
-  .layout > * { min-width: 0; }
-  @media (min-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
-  .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; }
-  .card-h { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 16px 18px 12px; }
-  .card-h h2 { font-size: 18px; }
+  .kpis { display: grid; gap: var(--space-3); grid-template-columns: repeat(2, 1fr); margin-bottom: var(--space-4); }
+  @media (min-width: 900px) { .kpis { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); } }
+  .kpi { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+  .kpi .k-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-soft); font-weight: 600; flex-wrap: wrap; }
+  .kpi .val { font-size: var(--text-xl); font-weight: 800; letter-spacing: var(--tracking-tight); line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .kpi .ct-record::before { display: none; }
+  .kpi .ct-estimate { font-size: var(--text-lg); }
+  .kpi small { font-size: var(--text-sm); color: var(--ink-soft); }
+  .sbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; margin-block: var(--space-1); }
+  .sbar i { display: block; min-width: 4px; }
+  .s-new { background: var(--info); } .s-active { background: var(--brand); } .s-at_risk { background: var(--accent-strong); } .s-lapsed { background: var(--risk); }
 
-  /* toolbar */
-  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 0 18px 14px; }
-  .search { flex: 1 1 200px; position: relative; }
-  .search input { width: 100%; font: 400 15px/1.4 "Hanken Grotesk", sans-serif; padding: 9px 12px 9px 36px; border: 1.5px solid var(--rule); border-radius: 999px; background: #fff; color: var(--ink); }
-  .search input:focus { outline: none; border-color: var(--brand); }
-  .search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--ink-soft); }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chips button { font: 600 13px/1.3 "Hanken Grotesk", sans-serif; padding: 8px 12px; border-radius: 999px; border: 1.5px solid var(--rule); background: #fff; color: var(--ink); cursor: pointer; }
+  .queues { display: grid; gap: var(--space-4); margin-bottom: var(--space-4); }
+  @media (min-width: 900px) { .queues { grid-template-columns: 1fr 1fr; } }
+  .q { padding: var(--space-4) var(--space-4) var(--space-2); }
+  .q h2 { display: flex; align-items: center; gap: var(--space-2); }
+  .count { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding-inline: 8px; border-radius: var(--radius-pill); background: var(--brand-tint); color: var(--brand-strong); font-size: var(--text-sm); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .q.warn .count { background: var(--accent-tint); color: var(--accent-ink); }
+  .q .sub { margin-top: var(--space-1); }
+  .q ul { margin-top: var(--space-3); }
+  .q li { display: flex; align-items: center; gap: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--rule); }
+  .q li > div { flex: 1; min-width: 0; }
+  .q li b { display: block; }
+  .q li span { display: block; color: var(--ink-soft); font-size: var(--text-sm); }
+  .q .none { color: var(--ink-soft); padding-block: var(--space-4); border-top: 1px solid var(--rule); display: block; font-size: var(--text-sm); }
+  @media (max-width: 480px) { .q li { flex-wrap: wrap; } .q li .btn { width: 100%; } }
+
+  /* donors table */
+  .tools { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; padding: 0 var(--space-4) var(--space-3); }
+  .card-h { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: baseline; justify-content: space-between; padding: var(--space-4) var(--space-4) var(--space-3); }
+  .search { flex: 1 1 220px; position: relative; }
+  .search input { width: 100%; min-height: 44px; font: 400 var(--text-base)/1.4 var(--font); padding: var(--space-2) var(--space-3) var(--space-2) 40px; border: 1.5px solid var(--rule); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); }
+  .search input:focus-visible { border-color: var(--brand); }
+  .search svg { position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--ink-soft); pointer-events: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .chips button { min-height: 40px; font: 600 var(--text-sm)/1.3 var(--font); padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); border: 1.5px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
   .chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
-  .chips button span { font-variant-numeric: tabular-nums; opacity: .7; margin-left: 4px; }
-
-  /* table */
+  .chips button span { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
   .table-wrap { overflow-x: auto; border-top: 1px solid var(--rule); }
   table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 11px 12px; }
-  @media (max-width: 699px) { .c-total, .c-gifts, .c-last, .c-inv { display: none; } td .name .tag { display: none; } }
-  @media (min-width: 700px) and (max-width: 1279px) { .c-inv { display: none; } }
-  @media (min-width: 700px) and (max-width: 1279px) { .c-gifts { display: none; } }
-  @media (max-width: 699px) { table th, table td { white-space: normal; padding: 10px; } td .name { gap: 8px; } td .name button { min-width: 0; } }
-  @media (max-width: 399px) { td .name .av-s { display: none; } table th, table td { padding: 10px 6px; } table th:first-child, table td:first-child { padding-left: 14px; } table th:last-child, table td:last-child { padding-right: 14px; } }
-  @media (max-width: 699px) { th button { white-space: normal; text-align: right; } th { font-size: 11px; letter-spacing: .03em; } .tag { white-space: nowrap; } }
-  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
-  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 700; background: #fafbfa; }
-  th button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
-  th button:hover { color: var(--ink); }
-  th[aria-sort] button { color: var(--ink); }
-  th .arr { width: 10px; display: inline-block; }
+  th, td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--rule); }
+  th { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 800; background: #faf9f5; white-space: nowrap; }
+  th button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: var(--space-2) 0; min-height: 32px; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+  th button:hover, th[aria-sort] button { color: var(--ink); }
   th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
   th.num button { flex-direction: row-reverse; }
   tbody tr { cursor: pointer; transition: background .15s; }
-  tbody tr:hover { background: #f7faf8; }
-  tbody tr[aria-selected="true"] { background: var(--brand-tint); }
-  td .name { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-  td .name button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
-  .av-s { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #fff; flex: none; }
-  .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
-  .tag.top { background: var(--accent-tint); color: #7a5200; }
-  .tag.risk { background: var(--risk-tint); color: var(--risk); }
-  .tag.new { background: var(--brand-tint); color: var(--brand-dark); }
-  .tag.monthly { background: #e8eef8; color: #2c4a7a; }
-  .tag.ok { background: #f0f2f0; color: var(--ink-soft); }
-  .inv { font-size: 13px; color: var(--ink-soft); }
-  .inv.sent { color: var(--brand); font-weight: 600; }
-  .empty td { text-align: center; color: var(--ink-soft); padding: 32px; cursor: default; }
-  .count { color: var(--ink-soft); font-size: 13px; padding: 10px 18px; }
+  tbody tr:hover { background: #faf9f5; }
+  td .name { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
+  td .name button { font: inherit; color: inherit; background: none; border: 0; padding: var(--space-1) 0; min-height: 32px; cursor: pointer; text-align: left; }
+  .av-s { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-xs); font-weight: 800; color: #fff; flex: none; }
+  .s-tag { display: inline-block; font-size: var(--text-xs); font-weight: 800; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
+  .s-tag.new { background: var(--info-tint); color: var(--info); }
+  .s-tag.active { background: var(--brand-tint); color: var(--brand-strong); }
+  .s-tag.at_risk { background: var(--accent-tint); color: var(--accent-ink); }
+  .s-tag.lapsed { background: var(--risk-tint); color: var(--risk); }
+  .mut { color: var(--ink-soft); font-size: var(--text-sm); }
+  .empty-row td { text-align: center; color: var(--ink-soft); padding: var(--space-6); cursor: default; }
+  .empty-row .btn { margin-top: var(--space-3); }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); }
+  @media (max-width: 699px) { .c-total, .c-gifts, .c-thx { display: none; } th, td { padding-inline: var(--space-3); } td .name .av-s { display: none; } }
+  @media (min-width: 700px) and (max-width: 959px) { .c-gifts { display: none; } }
 
-  /* side */
-  .side { display: grid; gap: 16px; }
-  .att { list-style: none; margin: 0; padding: 0 18px 14px; }
-  .att li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); }
-  .att li:first-child { border-top: 0; }
-  .att b { font-size: 14px; }
-  .att span { color: var(--ink-soft); font-size: 13px; grid-column: 1; }
-  .att .btn { grid-row: span 2; grid-column: 2; padding: 8px 12px; font-size: 13px; }
-  .bars { padding: 4px 18px 18px; }
-  .bars .r { display: grid; grid-template-columns: 74px 1fr 40px; gap: 8px; align-items: center; font-size: 13px; margin: 6px 0; }
-  .bars .t { height: 10px; background: #eef1ee; border-radius: 5px; overflow: hidden; }
-  .bars .t i { display: block; height: 100%; background: var(--brand); border-radius: 5px; }
-  .bars .r b { text-align: right; font-variant-numeric: tabular-nums; }
-  .bars p { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
+  /* states */
+  .state { max-width: 520px; margin: var(--space-7) auto; text-align: center; padding: var(--space-5); }
+  .state h2 { font-size: var(--text-lg); }
+  .state p { margin-top: var(--space-2); color: var(--ink-soft); }
+  .state .btn { margin-top: var(--space-4); }
+  .sk { background: linear-gradient(90deg, var(--surface-2) 25%, #f9f8f3 50%, var(--surface-2) 75%); background-size: 200% 100%; border-radius: var(--radius-sm); animation: sk 1.4s linear infinite; }
+  @keyframes sk { to { background-position: -200% 0; } }
 
   /* drawer */
-  .scrim { position: fixed; inset: 0; background: rgba(16,36,26,.35); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20; }
+  .scrim { position: fixed; inset: 0; background: rgba(16,36,26,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 30; }
   .scrim.on { opacity: 1; pointer-events: auto; }
-  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%); background: #fff; z-index: 21; transform: translateX(100%); transition: transform .3s cubic-bezier(.16,1,.3,1); display: flex; flex-direction: column; box-shadow: -20px 0 40px -20px rgba(16,36,26,.35); visibility: hidden; }
-  .drawer.on { transform: none; visibility: visible; }
-  .d-head { padding: 18px 20px; border-bottom: 1px solid var(--rule); display: flex; gap: 12px; align-items: center; }
-  .d-head .av-s { width: 44px; height: 44px; font-size: 16px; }
-  .d-head h2 { font-size: 20px; }
-  .d-head p { margin: 0; color: var(--ink-soft); font-size: 13px; }
-  .d-close { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg); cursor: pointer; display: grid; place-items: center; color: var(--ink); flex: none; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); background: var(--surface); z-index: 31; transform: translateX(100%); transition: transform .3s var(--ease), visibility 0s linear .3s; display: flex; flex-direction: column; box-shadow: -20px 0 40px -20px rgba(16,36,26,.35); visibility: hidden; }
+  .drawer.on { transform: none; visibility: visible; transition-delay: 0s; }
+  .d-head { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--rule); display: flex; gap: var(--space-3); align-items: center; }
+  .d-head .av-s { width: 44px; height: 44px; font-size: var(--text-base); }
+  .d-head h2 { font-size: var(--text-lg); }
+  .d-head p { color: var(--ink-soft); font-size: var(--text-sm); }
+  .d-close { margin-left: auto; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--bg); cursor: pointer; display: grid; place-items: center; color: var(--ink); flex: none; }
   .d-close svg { width: 18px; height: 18px; }
-  .d-body { padding: 18px 20px 28px; overflow-y: auto; flex: 1; }
-  .d-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
-  .d-stats div { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
-  .d-stats span { display: block; font-size: 12px; color: var(--ink-soft); }
-  .d-stats b { font-size: 19px; font-variant-numeric: tabular-nums; }
-  .d-stats .hi { background: var(--accent-tint); }
-  .d-sec { margin-top: 18px; }
-  .d-sec h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin-bottom: 8px; }
-  .gl { list-style: none; margin: 0; padding: 0; }
-  .gl li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+  .d-body { padding: var(--space-4) var(--space-5) var(--space-6); overflow-y: auto; flex: 1; }
+  .d-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+  .d-stats div { background: var(--bg); border-radius: var(--radius-sm); padding: var(--space-3); }
+  .d-stats span { display: block; font-size: var(--text-xs); color: var(--ink-soft); font-weight: 600; }
+  .d-stats b { font-size: var(--text-md); font-variant-numeric: tabular-nums; }
+  .d-sec { margin-top: var(--space-5); }
+  .d-sec h3 { color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: var(--space-2); }
+  .gl li { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-2); border-top: 1px solid var(--rule); font-size: var(--text-sm); }
   .gl li:first-child { border-top: 0; }
   .gl b { font-variant-numeric: tabular-nums; }
-  .eng { font-size: 14px; display: grid; gap: 6px; }
-  .eng div { display: flex; justify-content: space-between; gap: 10px; }
+  .eng { font-size: var(--text-sm); display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .eng div { display: flex; justify-content: space-between; gap: var(--space-3); }
   .eng span { color: var(--ink-soft); }
-  .invite-box { margin-top: 20px; background: var(--brand-tint); border-radius: 12px; padding: 16px; }
-  .invite-box h3 { font-size: 16px; text-transform: none; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 4px; }
-  .invite-box p { margin: 0 0 10px; font-size: 14px; color: var(--ink-soft); }
-  .invite-box textarea { width: 100%; min-height: 110px; resize: vertical; font: 400 14px/1.5 "Hanken Grotesk", sans-serif; padding: 10px 12px; border: 1.5px solid #c9dccf; border-radius: 10px; color: var(--ink); background: #fff; }
-  .invite-box textarea:focus { outline: none; border-color: var(--brand); }
-  .invite-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .status { font-size: 13px; margin: 8px 0 0; min-height: 1.5em; color: var(--brand-dark); font-weight: 600; }
+  .compose { margin-top: var(--space-5); background: var(--brand-tint); border-radius: var(--radius); padding: var(--space-4); }
+  .compose h3 { text-transform: none; letter-spacing: -.01em; font-size: var(--text-md); color: var(--ink); margin-bottom: var(--space-1); }
+  .compose p { font-size: var(--text-sm); color: var(--ink-soft); margin-bottom: var(--space-3); }
+  .compose label { display: block; font-weight: 700; font-size: var(--text-sm); margin-bottom: var(--space-1); }
+  textarea { width: 100%; min-height: 150px; resize: vertical; font: 400 var(--text-sm)/1.5 var(--font); padding: var(--space-3); border: 1.5px solid #bcd3c4; border-radius: var(--radius-sm); color: var(--ink); background: var(--surface); }
+  textarea:focus-visible { border-color: var(--brand); }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+  .status { font-size: var(--text-sm); margin-top: var(--space-3); min-height: 1.5em; color: var(--brand-strong); font-weight: 600; }
+  .status.err { color: var(--risk); }
+  .batch li { padding-block: var(--space-4); border-top: 1px solid var(--rule); }
+  .batch li:first-child { border-top: 0; padding-top: 0; }
+  .batch .inc { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-weight: 700; }
+  .batch .inc input { width: 20px; height: 20px; accent-color: var(--brand); }
+  .batch textarea { min-height: 110px; }
+  .toast { position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 50; background: var(--ink); color: #fff; padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); box-shadow: var(--shadow-2); font-size: var(--text-sm); font-weight: 600; max-width: calc(100vw - 32px); text-align: center; }
 
-  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 0 16px 28px; }
-  @media (prefers-reduced-motion: reduce) { .drawer, .scrim { transition: none; } }
+  footer.page { color: var(--ink-soft); font-size: var(--text-sm); padding-block: var(--space-5) var(--space-6); border-top: 1px solid var(--rule); background: var(--surface); }
+  footer.page .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between; }
+  footer.page nav { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+  footer.page nav a { padding: var(--space-2) 0; }
+  footer.page label { font-weight: 600; margin-right: var(--space-2); }
+  footer.page select { font: inherit; padding: var(--space-2) var(--space-3); border: 1.5px solid var(--rule); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); min-height: 40px; }
+  footer.page .fine { flex-basis: 100%; }
+  @media (prefers-reduced-motion: reduce) { .sk { animation: none; } .drawer, .scrim, .btn, tbody tr { transition: none; } html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
-  <header class="top">
-    <div class="in">
-      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#ffc94d" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg>Second Helping <em>Staff</em></a>
-      <nav aria-label="Staff"><a href="#" aria-current="page">Donors</a><a href="#">Campaigns</a><a href="#">Updates</a><a href="#">Reports</a></nav>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="top on-dark" id="top">
+    <div class="wrap">
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#ffc94d" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Chartitable</span> <em>Staff</em></a>
+      <nav aria-label="Staff">
+        <a href="admin.html" aria-current="page">Donors</a>
+        <a class="opt" href="index.html">Public site</a>
+        <a class="opt" href="dashboard.html">Donor view</a>
+      </nav>
       <div class="who"><span>Signed in as <b>Jordan L.</b></span><div class="av" aria-hidden="true">JL</div></div>
     </div>
   </header>
 
-  <main>
-    <div class="head">
-      <div>
-        <h1>Donors</h1>
-        <p>Who's giving, who's slipping away, and who to invite back to see their impact.</p>
-      </div>
-      <a class="btn btn-quiet" href="index.html">View public site</a>
-    </div>
+  <div class="demo" role="note"><div class="wrap"><b>Demo</b> · sample data (fictional)</div></div>
 
-    <section class="kpis" aria-label="This year at a glance">
-      <div class="kpi"><span>Active donors</span><b id="k-active"></b><small id="k-repeat"></small></div>
-      <div class="kpi"><span>Donor retention</span><b id="k-ret"></b><small>gave again within 12 months</small></div>
-      <div class="kpi"><span>Raised this year</span><b id="k-raised"></b><small id="k-avg"></small></div>
-      <button class="kpi" type="button" id="k-risk-btn"><span>At risk</span><b id="k-risk"></b><small class="down">no gift in 6+ months</small></button>
-    </section>
-
-    <div class="layout">
-      <section class="card" aria-labelledby="donors-h">
-        <div class="card-h"><h2 id="donors-h">All donors</h2><span class="inv" id="invited-count"></span></div>
-        <div class="tools">
-          <label class="search"><span class="sr-only">Search donors</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-            <input id="q" type="search" placeholder="Search by name or email" autocomplete="off">
-          </label>
-          <div class="chips" role="group" aria-label="Filter donors" id="chips"></div>
-        </div>
-        <div class="table-wrap">
-          <table aria-describedby="count">
-            <thead><tr>
-              <th scope="col" data-k="name"><button type="button">Donor<span class="arr"></span></button></th>
-              <th scope="col">Status</th>
-              <th scope="col" class="num c-total" data-k="total"><button type="button">Total<span class="arr"></span></button></th>
-              <th scope="col" class="num" data-k="highest"><button type="button">Highest gift<span class="arr"></span></button></th>
-              <th scope="col" class="num c-gifts" data-k="gifts"><button type="button">Gifts<span class="arr"></span></button></th>
-              <th scope="col" class="c-last" data-k="last"><button type="button">Last gift<span class="arr"></span></button></th>
-              <th scope="col" class="c-inv">Invite</th>
-            </tr></thead>
-            <tbody id="rows"></tbody>
-          </table>
-        </div>
-        <div class="count" id="count" aria-live="polite"></div>
-      </section>
-
-      <aside class="side">
-        <section class="card" aria-labelledby="att-h">
-          <div class="card-h"><h2 id="att-h">Needs attention</h2></div>
-          <ul class="att" id="att"></ul>
-        </section>
-        <section class="card" aria-labelledby="top-h">
-          <div class="card-h"><h2 id="top-h">Top donors by highest gift</h2></div>
-          <div class="bars" id="bars"></div>
-        </section>
-      </aside>
-    </div>
+  <main id="main" tabindex="-1">
+    <div class="wrap" id="app" aria-busy="true"><noscript><div class="card state"><h2>This demo page needs JavaScript</h2></div></noscript></div>
   </main>
-  <footer>Concept 6 · staff donor dashboard · fictional donors and sample data</footer>
+
+  <footer class="page" id="foot">
+    <div class="wrap">
+      <nav aria-label="Demo pages"><a href="index.html">Home</a><a href="dashboard.html">My impact</a><a href="admin.html">Staff view</a></nav>
+      <div><label for="state-sel">Preview state (demo only)</label>
+        <select id="state-sel">
+          <option value="">Donors loaded</option>
+          <option value="loading">Loading</option>
+          <option value="error">Error</option>
+          <option value="empty">No donors yet</option>
+        </select></div>
+      <p class="fine"><span data-charity-name>Chartitable</span> is a fictional organization. Staff, donors, gifts and expenses on this page are sample data, and no email is ever sent from this demo. Real staff sign-in is not built; the live version needs it.</p>
+    </div>
+  </footer>
 
   <div class="scrim" id="scrim"></div>
-  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-name" aria-hidden="true">
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title">
     <div class="d-head">
       <div class="av-s" id="d-av" aria-hidden="true"></div>
-      <div><h2 id="d-name"></h2><p id="d-meta"></p></div>
-      <button class="d-close" type="button" id="d-close" aria-label="Close donor details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div><h2 id="d-title"></h2><p id="d-meta"></p></div>
+      <button class="d-close" type="button" id="d-close" aria-label="Close panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="d-body" id="d-body"></div>
   </div>
+  <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
-  const TODAY = "2026-10-23";
-  const colors = ["#1d6b3f", "#2c4a7a", "#7a3d6b", "#a3341f", "#5b6b1d", "#1d5f6b", "#6b4a1d"];
-  // fictional donors; gifts as [date, amount, run]
-  const donors = [
-    { id: "maya", name: "Maya Rodriguez", email: "maya.r@example.com", monthly: false, viewed: "2026-09-30", gifts: [["2026-03-03", 15, "Citrus run"], ["2026-05-20", 50, "Spring planting run"], ["2026-08-12", 25, "Stone fruit run"], ["2026-10-01", 10, "Winter squash run"]] },
-    { id: "devon", name: "Devon Price", email: "devon.p@example.com", monthly: true, viewed: "2026-10-20", gifts: [["2025-11-01", 40, "Monthly"], ["2026-02-01", 40, "Monthly"], ["2026-05-01", 40, "Monthly"], ["2026-08-01", 40, "Monthly"], ["2026-10-01", 40, "Monthly"]] },
-    { id: "aiko", name: "Aiko Tanaka", email: "aiko.t@example.com", monthly: false, viewed: null, gifts: [["2025-12-10", 500, "Year-end drive"], ["2026-04-02", 250, "Spring planting run"]] },
-    { id: "luis", name: "Luis Ortega", email: "luis.o@example.com", monthly: false, viewed: "2026-01-15", gifts: [["2025-12-18", 100, "Year-end drive"]] },
-    { id: "priya", name: "Priya Shah", email: "priya.s@example.com", monthly: true, viewed: "2026-10-02", gifts: [["2026-06-01", 25, "Monthly"], ["2026-07-01", 25, "Monthly"], ["2026-08-01", 25, "Monthly"], ["2026-09-01", 25, "Monthly"], ["2026-10-01", 25, "Monthly"]] },
-    { id: "sam", name: "Sam Whitaker", email: "sam.w@example.com", monthly: false, viewed: null, gifts: [["2026-10-14", 30, "Winter squash run"]] },
-    { id: "grace", name: "Grace Kim", email: "grace.k@example.com", monthly: false, viewed: "2026-03-01", gifts: [["2025-09-05", 1000, "Warehouse fund"], ["2026-02-20", 200, "Citrus run"]] },
-    { id: "omar", name: "Omar Haddad", email: "omar.h@example.com", monthly: false, viewed: null, gifts: [["2026-01-08", 20, "Citrus run"]] },
-    { id: "bea", name: "Beatriz Souza", email: "bea.s@example.com", monthly: false, viewed: "2026-09-12", gifts: [["2026-04-15", 60, "Spring planting run"], ["2026-09-02", 75, "Stone fruit run"]] },
-    { id: "ken", name: "Ken Okafor", email: "ken.o@example.com", monthly: false, viewed: null, gifts: [["2026-10-19", 150, "Winter squash run"]] },
-    { id: "hana", name: "Hana Novak", email: "hana.n@example.com", monthly: false, viewed: null, gifts: [["2025-10-30", 45, "Harvest run"], ["2026-03-28", 45, "Citrus run"]] },
-    { id: "tom", name: "Tom Becker", email: "tom.b@example.com", monthly: true, viewed: "2026-10-05", gifts: [["2026-01-01", 15, "Monthly"], ["2026-04-01", 15, "Monthly"], ["2026-07-01", 15, "Monthly"], ["2026-10-01", 15, "Monthly"]] }
-  ];
-  const MEALS_PER_DOLLAR = 0.8; // sample ratio
-  const days = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5);
-  const fmt = (d, y) => new Date(d + "T12:00").toLocaleDateString("en-US", y ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", day: "numeric" });
-  const money = n => "$" + n.toLocaleString("en-US");
+  const DAY = 864e5, ts = s => Date.parse(s + "T12:00:00Z"); // noon UTC so dates never drift across timezones
+  const G = (d, cents, label) => ({ at: ts(d), amountCents: cents, label });
+
+  // DEMO DATA (fictional) — swap for Convex query
+  // Shapes follow DASHBOARD_SPEC.md: DashDonor / DashOverview / DashExpense. Money is integer cents; times are ms epoch.
+  // The backend returns `status`, `totalGiven`, `giftCount`, first/lastGiftAt and the overview totals; the mock derives them in buildModel().
+  // Extras the donor detail needs beyond DashDonor: email, gifts, viewToken (opaque ?ct= stand-in).
+  const DEMO = {
+    now: ts("2026-10-24"),
+    charity: { id: "demo-pantry-a", name: "Chartitable", staffName: "Jordan" },
+    period: { from: ts("2026-09-24"), to: ts("2026-10-24"), label: "Last 30 days" },
+    donors: [
+      { id: "donor_a01", displayName: "Maya Rodriguez", email: "maya.r@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-03"), viewToken: "k7q2m9",
+        gifts: [G("2026-03-03", 1500, "Citrus run"), G("2026-05-20", 5000, "Spring planting run"), G("2026-08-12", 2500, "Stone fruit run"), G("2026-10-01", 1000, "Winter squash run"), G("2026-10-15", 2500, "General fund")] },
+      { id: "donor_a02", displayName: "Devon Price", email: "devon.p@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
+        gifts: ["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => G(d, 4000, "Monthly gift")) },
+      { id: "donor_a03", displayName: "Aiko Tanaka", email: "aiko.t@example.com", hideFromTopDonors: false, thankedAt: ts("2026-04-03"), viewToken: null,
+        gifts: [G("2025-12-10", 50000, "Year-end drive"), G("2026-04-02", 25000, "Spring planting run")] },
+      { id: "donor_a04", displayName: "Luis Ortega", email: "luis.o@example.com", hideFromTopDonors: false, thankedAt: ts("2025-12-19"), viewToken: null,
+        gifts: [G("2025-12-18", 10000, "Year-end drive")] },
+      { id: "donor_a05", displayName: "Priya Shah", email: "priya.s@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
+        gifts: ["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => G(d, 2500, "Monthly gift")) },
+      { id: "donor_a06", displayName: "Sam Whitaker", email: "sam.w@example.com", hideFromTopDonors: false, thankedAt: null, viewToken: "t3x8v5",
+        gifts: [G("2026-10-23", 3000, "General fund")] },
+      { id: "donor_a07", displayName: "Grace Kim", email: "grace.k@example.com", hideFromTopDonors: false, thankedAt: ts("2026-02-21"), viewToken: null,
+        gifts: [G("2025-09-05", 100000, "Warehouse fund"), G("2026-02-20", 20000, "Citrus run")] },
+      { id: "donor_a08", displayName: "Omar Haddad", email: "omar.h@example.com", hideFromTopDonors: false, thankedAt: ts("2026-01-09"), viewToken: null,
+        gifts: [G("2026-01-08", 2000, "Citrus run")] },
+      { id: "donor_a09", displayName: "Beatriz Souza", email: "bea.s@example.com", hideFromTopDonors: false, thankedAt: ts("2026-09-03"), viewToken: null,
+        gifts: [G("2026-04-15", 6000, "Spring planting run"), G("2026-09-02", 7500, "Stone fruit run")] },
+      { id: "donor_a10", displayName: "Ken Okafor", email: "ken.o@example.com", hideFromTopDonors: false, thankedAt: null, viewToken: null,
+        gifts: [G("2026-10-19", 10000, "Winter squash run")] },
+      { id: "donor_a11", displayName: "Hana Novak", email: "hana.n@example.com", hideFromTopDonors: false, thankedAt: ts("2026-09-06"), viewToken: null,
+        gifts: [G("2026-06-12", 4500, "Citrus run"), G("2026-09-05", 4500, "Stone fruit run")] },
+      { id: "donor_a12", displayName: "Tom Becker", email: "tom.b@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
+        gifts: ["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"].map(d => G(d, 1500, "Quarterly gift")) },
+      { id: "donor_a13", displayName: "Rosa Delgado", email: "rosa.d@example.com", hideFromTopDonors: false, thankedAt: ts("2026-07-29"), viewToken: null,
+        gifts: [G("2026-07-28", 3500, "Stone fruit run")] },
+      { id: "donor_a14", displayName: "Anonymous", email: null, hideFromTopDonors: true, thankedAt: null, viewToken: null,
+        gifts: [G("2026-09-28", 7500, "General fund")] }
+    ],
+    expenses: [ // DashExpense
+      { id: "e0", date: ts("2026-09-10"), amount: 12000, category: "facility", note: "Cold-room repair (before this period)" },
+      { id: "e1", date: ts("2026-09-28"), amount: 18200, category: "food", note: "Bulk staples to fill gaps" },
+      { id: "e2", date: ts("2026-10-02"), amount: 5420, category: "transport", note: "Fuel, pickup truck" },
+      { id: "e3", date: ts("2026-10-08"), amount: 5425, category: "supplies", note: "Crates and gloves" },
+      { id: "e4", date: ts("2026-10-16"), amount: 4220, category: "transport", note: "Fuel, pickup truck" }
+    ],
+    impactLogs: [ // staff-logged records (what DashOverview.recentUpdates and mealsServed are built from)
+      { id: "l0", kind: "meals", count: 70, unit: "meals", note: null, loggedAt: ts("2026-09-12") },
+      { id: "l1", kind: "meals", count: 45, unit: "meals", note: null, loggedAt: ts("2026-09-27") },
+      { id: "l2", kind: "meals", count: 60, unit: "meals", note: null, loggedAt: ts("2026-10-06") },
+      { id: "l3", kind: "produce", count: 410, unit: "lb", note: null, loggedAt: ts("2026-10-09") },
+      { id: "l4", kind: "meals", count: 50, unit: "meals", note: null, loggedAt: ts("2026-10-14") },
+      { id: "l5", kind: "meals", count: 80, unit: "meals", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", loggedAt: ts("2026-10-20") },
+      { id: "l6", kind: "produce", count: 220, unit: "lb", note: null, loggedAt: ts("2026-10-22") }
+    ]
+  };
+
+  // ---- helpers ----
+  const money = c => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: c % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(c / 100); // the one money formatter (integer cents in)
+  const fmt = (t, y) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" });
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const initials = n => n.split(" ").map(p => p[0]).join("").slice(0, 2);
+  const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
+  const initials = n => n === "Anonymous" ? "?" : n.split(" ").map(p => p[0]).join("").slice(0, 2);
+  const colors = ["#1d6b3f", "#2c4a7a", "#7a3d6b", "#a3341f", "#5b6b1d", "#1d5f6b", "#6b4a1d"];
+  const STATUS = { new: "New", active: "Active", at_risk: "At risk", lapsed: "Lapsed" };
+  const RULES = "New: first gift in this period. Active: gave within 45 days. At risk: 46 to 90 days. Lapsed: more than 90 days.";
+  document.querySelectorAll("[data-charity-name]").forEach(el => el.textContent = DEMO.charity.name);
 
-  donors.forEach((d, i) => {
-    d.color = colors[i % colors.length];
-    d.total = d.gifts.reduce((s, g) => s + g[1], 0);
-    d.highestGift = d.gifts.reduce((a, b) => (b[1] > a[1] ? b : a));
-    d.highest = d.highestGift[1];
-    d.count = d.gifts.length;
-    d.first = d.gifts[0][0];
-    d.last = d.gifts[d.gifts.length - 1][0];
-    d.since = days(d.last, TODAY);
-    d.meals = Math.round(d.total * MEALS_PER_DOLLAR);
-    d.invited = null;
-    d.status = d.since > 180 ? "risk" : d.count === 1 && days(d.first, TODAY) < 45 ? "new" : d.monthly ? "monthly" : "ok";
-  });
-  const byHighest = [...donors].sort((a, b) => b.highest - a.highest);
-  const topIds = new Set(byHighest.slice(0, 3).map(d => d.id));
-  const statusLabel = { risk: "At risk", new: "New", monthly: "Monthly", ok: "Active" };
-
-  // KPIs
-  const active = donors.filter(d => d.since <= 365).length;
-  const repeatable = donors.filter(d => days(d.first, TODAY) > 90);
-  const retained = repeatable.filter(d => d.count > 1).length;
-  const raisedYear = donors.reduce((s, d) => s + d.gifts.filter(g => g[0] >= "2026-01-01").reduce((t, g) => t + g[1], 0), 0);
-  document.getElementById("k-active").textContent = active;
-  document.getElementById("k-repeat").textContent = `${donors.filter(d => d.count > 1).length} have given more than once`;
-  document.getElementById("k-ret").textContent = Math.round((retained / repeatable.length) * 100) + "%";
-  document.getElementById("k-raised").textContent = money(raisedYear);
-  document.getElementById("k-avg").textContent = `avg gift ${money(Math.round(raisedYear / donors.reduce((s, d) => s + d.gifts.filter(g => g[0] >= "2026-01-01").length, 0)))}`;
-  document.getElementById("k-risk").textContent = donors.filter(d => d.status === "risk").length;
-
-  // table state
-  const state = { q: "", filter: "all", sort: "highest", dir: -1, selected: null };
-  const filters = [
-    ["all", "All", () => true],
-    ["top", "Top donors", d => topIds.has(d.id)],
-    ["risk", "At risk", d => d.status === "risk"],
-    ["new", "New", d => d.status === "new"],
-    ["monthly", "Monthly", d => d.monthly],
-    ["uninvited", "Not invited yet", d => !d.invited]
-  ];
-  const chips = document.getElementById("chips");
-  function renderChips() {
-    chips.innerHTML = filters.map(([k, l, f]) => `<button type="button" data-f="${k}" aria-pressed="${state.filter === k}">${l}<span>${donors.filter(f).length}</span></button>`).join("");
-  }
-  chips.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; state.filter = b.dataset.f; render(); });
-  document.getElementById("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
-  document.querySelectorAll("th[data-k] button").forEach(b => b.addEventListener("click", () => {
-    const k = b.parentElement.dataset.k;
-    if (state.sort === k) state.dir *= -1; else { state.sort = k; state.dir = k === "name" ? 1 : -1; }
-    render();
-  }));
-  document.getElementById("k-risk-btn").addEventListener("click", () => { state.filter = "risk"; render(); document.getElementById("donors-h").scrollIntoView({ behavior: "smooth" }); });
-
-  const sortVal = { name: d => d.name, total: d => d.total, highest: d => d.highest, gifts: d => d.count, last: d => d.last };
-  function render() {
-    const f = filters.find(x => x[0] === state.filter)[2];
-    const list = donors.filter(f).filter(d => !state.q || (d.name + " " + d.email).toLowerCase().includes(state.q))
-      .sort((a, b) => { const x = sortVal[state.sort](a), y = sortVal[state.sort](b); return (x > y ? 1 : x < y ? -1 : 0) * state.dir; });
-    document.querySelectorAll("th[data-k]").forEach(th => {
-      const on = th.dataset.k === state.sort;
-      if (on) th.setAttribute("aria-sort", state.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort");
-      th.querySelector(".arr").textContent = on ? (state.dir > 0 ? "↑" : "↓") : "";
+  // ---- adapter: the one place to swap for dashboard:overview / dashboard:donors ----
+  function buildModel(raw) {
+    const { from, to } = raw.period, prevFrom = from - (to - from);
+    const inP = t => t >= from && t <= to, inPrev = t => t >= prevFrom && t < from;
+    const donors = raw.donors.map((d, i) => {
+      const g = [...d.gifts].sort((a, b) => a.at - b.at), firstGiftAt = g[0].at, lastGiftAt = g[g.length - 1].at, days = Math.floor((to - lastGiftAt) / DAY);
+      const status = firstGiftAt >= from ? "new" : days <= 45 ? "active" : days <= 90 ? "at_risk" : "lapsed"; // spec status rules
+      return { id: d.id, displayName: d.displayName, hideFromTopDonors: d.hideFromTopDonors, totalGiven: sum(g, x => x.amountCents), giftCount: g.length, firstGiftAt, lastGiftAt, status, thankedAt: d.thankedAt,
+        email: d.email, gifts: g, viewToken: d.viewToken, days, color: colors[i % colors.length], checkedInAt: null };
     });
-    const rows = document.getElementById("rows");
-    rows.innerHTML = list.length ? list.map(d => `
-      <tr data-id="${d.id}" aria-selected="${state.selected === d.id}">
-        <td><span class="name"><span class="av-s" style="background:${d.color}" aria-hidden="true">${initials(d.name)}</span><button type="button" data-open="${d.id}">${esc(d.name)}</button>${topIds.has(d.id) ? '<span class="tag top">Top donor</span>' : ""}</span></td>
-        <td><span class="tag ${d.status}">${statusLabel[d.status]}</span></td>
-        <td class="num c-total">${money(d.total)}</td>
-        <td class="num"><b>${money(d.highest)}</b></td>
-        <td class="num c-gifts">${d.count}</td>
-        <td class="c-last">${fmt(d.last)}<span class="inv"> · ${d.since}d ago</span></td>
-        <td class="c-inv">${d.invited ? `<span class="inv sent">Sent ${d.invited}</span>` : d.viewed ? `<span class="inv">Viewed ${fmt(d.viewed)}</span>` : '<span class="inv">Never viewed</span>'}</td>
-      </tr>`).join("") : `<tr class="empty"><td colspan="7">No donors match. <button class="btn btn-quiet" type="button" id="clear">Clear filters</button></td></tr>`;
-    const c = document.getElementById("clear");
-    if (c) c.addEventListener("click", () => { state.q = ""; state.filter = "all"; document.getElementById("q").value = ""; render(); });
-    document.getElementById("count").textContent = `Showing ${list.length} of ${donors.length} donors`;
-    const inv = donors.filter(d => d.invited).length;
-    document.getElementById("invited-count").textContent = inv ? `${inv} impact ${inv === 1 ? "invite" : "invites"} sent today` : "";
-    renderChips(); renderAttention();
+    const logs = raw.impactLogs.filter(l => inP(l.loggedAt)), meals = sum(logs.filter(l => l.kind === "meals"), l => l.count), lb = sum(logs.filter(l => l.kind === "produce"), l => l.count);
+    const expensesTotal = sum(raw.expenses.filter(e => inP(e.date)), e => e.amount);
+    const all = donors.flatMap(d => d.gifts);
+    const cpm = meals ? Math.round(expensesTotal / meals) : null;
+    const overview = {
+      period: raw.period, totalRaised: sum(all.filter(x => inP(x.at)), x => x.amountCents), prevPeriodRaised: sum(all.filter(x => inPrev(x.at)), x => x.amountCents),
+      donorCounts: { total: donors.length, new: donors.filter(d => d.status === "new").length, returning: donors.filter(d => d.status === "active" || d.status === "at_risk").length, lapsed: donors.filter(d => d.status === "lapsed").length },
+      mealsServed: meals, produceLb: lb, expensesTotal,
+      costPerMeal: { value: cpm, isEstimate: true, formula: meals ? `Expenses ÷ meals served in the period: ${money(expensesTotal)} ÷ ${meals} meals = $${(expensesTotal / meals / 100).toFixed(4)}, shown as about ${money(cpm)}.` : "Expenses ÷ meals served in the period. No meals are logged yet, so there is nothing to divide by." }
+    };
+    return { overview, donors, logs: raw.impactLogs };
   }
-  document.getElementById("rows").addEventListener("click", e => {
-    const tr = e.target.closest("tr[data-id]"); if (tr) open(tr.dataset.id, e.target.closest("button") || tr);
-  });
-
-  // needs attention
-  function renderAttention() {
-    const items = [];
-    donors.filter(d => d.status === "risk" && !d.invited).forEach(d => items.push([d, `No gift in ${Math.round(d.since / 30)} months · gave ${money(d.total)}`, "Invite back"]));
-    donors.filter(d => topIds.has(d.id) && !d.viewed && !d.invited).forEach(d => items.push([d, `Top donor (${money(d.highest)} gift) has never seen their impact`, "Invite"]));
-    donors.filter(d => d.status === "new" && !d.invited).forEach(d => items.push([d, `First gift ${d.since} days ago · send a welcome`, "Welcome"]));
-    const seen = new Set(); items.splice(0, items.length, ...items.filter(([d]) => !seen.has(d.id) && seen.add(d.id)));
-    document.getElementById("att").innerHTML = items.length ? items.slice(0, 6).map(([d, why, cta]) =>
-      `<li><b>${esc(d.name)}</b><span>${why}</span><button class="btn btn-quiet" type="button" data-open="${d.id}" data-invite="1">${cta}</button></li>`).join("") : '<li><span>All caught up. Nobody needs a nudge right now.</span></li>';
+  async function load() {
+    await new Promise(r => setTimeout(r, 300)); // stands in for network latency
+    const st = params.get("state");
+    if (st === "error") throw new Error("demo error");
+    if (st === "empty") return buildModel({ ...DEMO, donors: [], expenses: [], impactLogs: [] });
+    return buildModel(DEMO);
   }
-  document.getElementById("att").addEventListener("click", e => { const b = e.target.closest("[data-open]"); if (b) open(b.dataset.open, b, true); });
 
-  // top bars
-  const maxH = byHighest[0].highest;
-  document.getElementById("bars").innerHTML = byHighest.slice(0, 5).map(d =>
-    `<div class="r"><span>${esc(d.name.split(" ")[0])}</span><span class="t"><i style="width:${(d.highest / maxH) * 100}%;${topIds.has(d.id) ? "" : "background:#9cc8ad"}"></i></span><b>${money(d.highest)}</b></div>`).join("") +
-    `<p>Highest single gift per donor. Top 3 are tagged in the table.</p>`;
+  const params = new URLSearchParams(location.search);
+  const app = document.getElementById("app");
+  let model, tipN = 0;
+  const view = { q: "", filter: "all", sort: "last", dir: -1 };
 
-  // drawer
-  const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
-  let lastFocus = null;
-  function message(d) {
-    const first = d.name.split(" ")[0];
-    return `Hi ${first},\n\nThank you for your ${d.count > 1 ? d.count + " gifts" : "gift"} to Second Helping. Together they've provided about ${d.meals} meals for East Bay families, and your ${money(d.highest)} gift on ${fmt(d.highestGift[0])} was one of the biggest boosts we got for the ${d.highestGift[2].toLowerCase()}.\n\nWe made you a page that shows exactly where your money went. Come take a look:`;
+  const tip = (label, text) => { const id = "tip" + ++tipN; return `<span class="ct-tip"><button type="button" class="ct-why" aria-expanded="false" aria-describedby="${id}">${label}</button><span role="tooltip" id="${id}" class="ct-tip-body" hidden>${esc(text)}</span></span>`; };
+  const isReady = d => d.email && d.status !== "lapsed" && DEMO.now - d.lastGiftAt <= 14 * DAY && (!d.thankedAt || d.thankedAt < d.lastGiftAt);
+  const lastGift = d => d.gifts[d.gifts.length - 1];
+  const thanksText = d => !d.thankedAt ? "Not yet" : d.thankedAt >= d.lastGiftAt ? `Thanked ${fmt(d.thankedAt)}` : `Last thanked ${fmt(d.thankedAt)}`;
+
+  // drafts use records only (the donor's own gifts and what staff logged since): never an invented number
+  function draft(d, kind) {
+    const first = d.displayName.split(" ")[0], lg = lastGift(d), since = model.logs.filter(l => l.loggedAt > lg.at && l.loggedAt <= DEMO.now);
+    const m = sum(since.filter(l => l.kind === "meals"), l => l.count), lb = sum(since.filter(l => l.kind === "produce"), l => l.count);
+    const parts = [m ? `${m} meals served` : "", lb ? `${lb} lb of produce received` : ""].filter(Boolean).join(" and ");
+    const sign = `\n\n${DEMO.charity.staffName}\n${DEMO.charity.name}`;
+    if (kind === "checkin") return `Hi ${first},\n\nIt has been a little while, so here is a quick look at what has happened since your last gift on ${fmt(lg.at)}.${parts ? ` The pantry has logged ${parts}.` : ""}\n\nThere is nothing you need to do. If you would like to see more, your page has the details, with estimates labeled as estimates.${sign}`;
+    return `Hi ${first},\n\nThank you for your ${money(lg.amountCents)} gift on ${fmt(lg.at)}.${parts ? ` Since then the pantry has logged ${parts}.` : " We will add updates to your page as the pantry logs them."}\n\nGifts are pooled, so we cannot point to a single dollar. Your page shows what the pantry logged and your estimated share, clearly marked as an estimate.${sign}`;
   }
-  function open(id, from, focusInvite) {
-    const d = donors.find(x => x.id === id); if (!d) return;
-    lastFocus = from && from.matches && !from.matches("button, a") ? (from.closest("tr") ? from.closest("tr").querySelector("button") : from) : from || document.activeElement; state.selected = id;
-    document.querySelectorAll("#rows tr[data-id]").forEach(tr => tr.setAttribute("aria-selected", tr.dataset.id === id));
-    const av = document.getElementById("d-av"); av.textContent = initials(d.name); av.style.background = d.color;
-    document.getElementById("d-name").textContent = d.name;
-    document.getElementById("d-meta").textContent = `${d.email} · donor since ${fmt(d.first, true)}`;
-    const link = new URL(`dashboard.html?donor=${d.id}`, location.href).href;
-    document.getElementById("d-body").innerHTML = `
-      <div class="d-stats">
-        <div><span>Total</span><b>${money(d.total)}</b></div>
-        <div class="hi"><span>Highest gift</span><b>${money(d.highest)}</b></div>
-        <div><span>Meals</span><b>${d.meals}</b></div>
+
+  // ---- render ----
+  function skeleton() { return `<div class="sk" style="height:56px;width:min(420px,100%);margin-bottom:24px"></div><div class="kpis">${'<div class="card kpi"><div class="sk" style="height:88px"></div></div>'.repeat(4)}</div><div class="card" style="padding:16px"><div class="sk" style="height:44px;margin-bottom:12px"></div>${'<div class="sk" style="height:40px;margin-top:10px"></div>'.repeat(5)}</div><span class="sr-only">Loading donors…</span>`; }
+  function msg(h, p, btn) { return `<div class="card state" role="status"><h2>${h}</h2><p>${p}</p>${btn || ""}</div>`; }
+
+  function renderPage() {
+    const o = model.overview, ready = model.donors.filter(isReady);
+    if (!model.donors.length) {
+      app.innerHTML = `<div class="head"><div><h1>Donors</h1><p>${esc(o.period.label)}</p></div></div>` + msg("No donors yet", "Donors appear here after the first test donation. Once a gift comes in, you will see who gave, who is ready for a thank-you, and who may be slipping away.", '<a class="btn btn-brand" href="index.html">Open the public site</a>');
+      return;
+    }
+    app.innerHTML = `
+      <div class="head">
+        <div><h1>Donors</h1><p>Who gave, who is ready for a thank-you, and who may be slipping away.</p><p class="per">${esc(o.period.label)}: ${fmt(o.period.from)} to ${fmt(o.period.to, true)}</p></div>
+        <div id="primary"></div>
       </div>
-      <div class="eng">
-        <div><span>Status</span><b>${statusLabel[d.status]}${topIds.has(d.id) ? " · Top donor" : ""}</b></div>
-        <div><span>Last gift</span><b>${fmt(d.last, true)} (${d.since} days ago)</b></div>
-        <div><span>Impact page</span><b id="d-viewed">${d.invited ? "Invite sent " + d.invited : d.viewed ? "Last viewed " + fmt(d.viewed, true) : "Never viewed"}</b></div>
-      </div>
-      <div class="d-sec"><h3>What ${esc(d.name.split(" ")[0])} has done</h3>
-        <ul class="gl">${[...d.gifts].reverse().map(g => `<li><span>${fmt(g[0], true)} · ${esc(g[2])}${g === d.highestGift ? ' <span class="tag top">Highest</span>' : ""}</span><b>${money(g[1])}</b></li>`).join("")}</ul>
-      </div>
-      <div class="invite-box">
-        <h3>Invite ${esc(d.name.split(" ")[0])} to see their impact</h3>
-        <p>Sends a personal link to their impact page. Edit the note first if you like.</p>
-        <label class="sr-only" for="d-msg">Invite message</label>
-        <textarea id="d-msg">${esc(message(d))}</textarea>
-        <div class="invite-actions">
-          <button class="btn btn-brand" type="button" id="d-send">${d.invited ? "Send again" : "Send invite"}</button>
-          <button class="btn btn-quiet" type="button" id="d-copy">Copy link</button>
-          <a class="btn btn-quiet" href="${d.id === "maya" ? "dashboard.html" : link}" target="_blank" id="d-preview">Preview their page</a>
+      <section class="kpis" id="kpis" aria-label="${esc(o.period.label)} at a glance"></section>
+      <div class="queues" id="queues"></div>
+      <section class="card" aria-labelledby="all-h">
+        <div class="card-h"><h2 id="all-h">All donors</h2><span class="sub" id="rules">${tip("How statuses work", RULES)}</span></div>
+        <div class="tools">
+          <div class="search"><label class="sr-only" for="q">Search donors by name</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="q" type="search" placeholder="Search by name" autocomplete="off"></div>
+          <div class="chips" role="group" aria-label="Filter by status" id="chips"></div>
         </div>
-        <p class="status" id="d-status" role="status"></p>
-      </div>`;
-    document.getElementById("d-send").addEventListener("click", () => {
-      const msg = document.getElementById("d-msg").value.trim(), st = document.getElementById("d-status");
-      if (!msg) { st.style.color = "var(--risk)"; st.textContent = "Add a message before sending."; document.getElementById("d-msg").focus(); return; }
-      d.invited = "today"; st.style.color = ""; st.textContent = `Invite queued for ${d.email}. Demo only, no email was sent.`;
-      document.getElementById("d-send").textContent = "Send again";
-      document.getElementById("d-viewed").textContent = "Invite sent today";
-      render();
-    });
-    document.getElementById("d-copy").addEventListener("click", async () => {
-      const b = document.getElementById("d-copy");
-      try { await navigator.clipboard.writeText(link); b.textContent = "Copied"; } catch { b.textContent = "Copy failed"; }
-      setTimeout(() => (b.textContent = "Copy link"), 1800);
-    });
-    drawer.classList.add("on"); scrim.classList.add("on"); drawer.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    setTimeout(() => (focusInvite ? document.getElementById("d-msg") : document.getElementById("d-close")).focus(), 50);
+        <div class="table-wrap"><table>
+          <caption class="sr-only">Donors, sortable by column. Select a name to open details.</caption>
+          <thead><tr>
+            <th scope="col" data-k="name"><button type="button">Donor<span class="arr"></span></button></th>
+            <th scope="col">Status</th>
+            <th scope="col" data-k="last"><button type="button">Last gift<span class="arr"></span></button></th>
+            <th scope="col" class="num c-gifts" data-k="gifts"><button type="button">Gifts<span class="arr"></span></button></th>
+            <th scope="col" class="num c-total" data-k="total"><button type="button">Total given<span class="arr"></span></button></th>
+            <th scope="col" class="c-thx">Thank-you</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+        <div class="foot"><span id="count" aria-live="polite"></span><span>Anonymous donors are counted but cannot be contacted.</span></div>
+      </section>`;
+    document.getElementById("q").addEventListener("input", e => { view.q = e.target.value.trim().toLowerCase(); renderTable(); });
+    document.getElementById("chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { view.filter = b.dataset.f; renderTable(); } });
+    document.querySelectorAll("th[data-k] button").forEach(b => b.addEventListener("click", () => { const k = b.parentElement.dataset.k; if (view.sort === k) view.dir *= -1; else { view.sort = k; view.dir = k === "name" ? 1 : -1; } renderTable(); }));
+    document.getElementById("rows").addEventListener("click", e => { const tr = e.target.closest("tr[data-id]"); if (tr) openDonor(tr.dataset.id, tr.querySelector("button")); });
+    renderKpis(); renderQueues(); renderTable();
   }
-  function close() {
-    drawer.classList.remove("on"); scrim.classList.remove("on"); drawer.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = ""; const openId = state.selected; state.selected = null;
-    document.querySelectorAll("#rows tr[data-id]").forEach(tr => tr.setAttribute("aria-selected", "false"));
-    if (lastFocus && !document.contains(lastFocus)) lastFocus = document.querySelector(`#rows tr[data-id="${openId}"] button`) || document.querySelector(`#att [data-open="${openId}"]`) || document.getElementById("q");
-    const back = lastFocus && document.contains(lastFocus) ? (lastFocus.matches("button, a") ? lastFocus : lastFocus.closest("tr")?.querySelector("button")) : null;
+
+  function renderKpis() {
+    const o = model.overview, c = model.donors, cnt = s => c.filter(d => d.status === s).length, diff = o.totalRaised - o.prevPeriodRaised;
+    document.getElementById("kpis").innerHTML = `
+      <div class="card kpi"><div class="k-top">Raised <span class="tag rec">Logged</span></div><span class="val ct-record">${money(o.totalRaised)}</span><small>${diff >= 0 ? "Up" : "Down"} ${money(Math.abs(diff))} from ${money(o.prevPeriodRaised)} in the 30 days before</small></div>
+      <div class="card kpi"><div class="k-top">Donors <span class="tag rec">Logged</span></div><span class="val ct-record">${o.donorCounts.total}</span>
+        <div class="sbar" role="img" aria-label="${["new", "active", "at_risk", "lapsed"].map(s => cnt(s) + " " + STATUS[s].toLowerCase()).join(", ")}">${["new", "active", "at_risk", "lapsed"].map(s => `<i class="s-${s}" style="flex:${cnt(s) || 0}"></i>`).join("")}</div>
+        <small>${cnt("new")} new · ${cnt("active")} active · ${cnt("at_risk")} at risk · ${cnt("lapsed")} lapsed</small></div>
+      <div class="card kpi"><div class="k-top">Meals served <span class="tag rec">Logged</span></div><span class="val ct-record">${o.mealsServed}</span><small>Counted by staff${o.produceLb ? `, plus ${o.produceLb} lb of produce received` : ""}</small></div>
+      <div class="card kpi"><div class="k-top">Cost per meal <span class="tag est">Estimate</span></div>${o.costPerMeal.value === null ? '<span class="val">Not yet</span><small>No meals logged in this period</small>' : `<span class="val"><span class="ct-estimate">about ${money(o.costPerMeal.value)}</span></span>`}<small>Expenses ÷ meals served ${tip("See the math", o.costPerMeal.formula)}</small></div>`;
+  }
+
+  function renderQueues() {
+    const ready = model.donors.filter(isReady).sort((a, b) => b.lastGiftAt - a.lastGiftAt);
+    const slip = model.donors.filter(d => d.status === "at_risk" && !d.checkedInAt).sort((a, b) => b.days - a.days);
+    const row = (d, why, label, cls) => `<li><div><b>${esc(d.displayName)}</b><span>${why}</span></div><button type="button" class="btn sm ${cls}" data-open="${d.id}" aria-label="${label}: ${esc(d.displayName)}">${label}</button></li>`;
+    document.getElementById("queues").innerHTML = `
+      <section class="card q" aria-labelledby="q1"><h2 id="q1">Ready for a thank-you <span class="count">${ready.length}</span></h2><p class="sub">Gave in the last 14 days and have not been thanked since.</p>
+        <ul>${ready.length ? ready.map(d => row(d, `Gave ${money(lastGift(d).amountCents)} on ${fmt(d.lastGiftAt)} · ${d.days === 0 ? "today" : d.days + (d.days === 1 ? " day" : " days") + " ago"}`, "Write thank-you", "btn-brand")).join("") : '<li class="none">Everyone who gave recently has been thanked.</li>'}</ul></section>
+      <section class="card q warn" aria-labelledby="q2"><h2 id="q2">May be slipping away <span class="count">${slip.length}</span></h2><p class="sub">Last gift 46 to 90 days ago. A gentle check-in, never a guilt trip.</p>
+        <ul>${slip.length ? slip.map(d => row(d, `Last gift ${d.days} days ago · gave ${money(d.totalGiven)} in ${d.giftCount} ${d.giftCount === 1 ? "gift" : "gifts"}`, "Write check-in", "btn-quiet")).join("") : '<li class="none">Nobody is between 46 and 90 days since their last gift.</li>'}</ul></section>`;
+    document.getElementById("queues").onclick = e => { const b = e.target.closest("[data-open]"); if (b) openDonor(b.dataset.open, b, true); };
+    const p = document.getElementById("primary");
+    p.innerHTML = ready.length ? `<button class="btn btn-brand" type="button" id="review">Review ${ready.length} ${ready.length === 1 ? "thank-you" : "thank-yous"}</button>` : `<span class="btn btn-quiet" aria-disabled="true">No thank-yous waiting</span>`;
+    const r = document.getElementById("review"); if (r) r.addEventListener("click", () => openBatch(r));
+  }
+
+  const filters = { all: ["All", () => true], new: ["New", d => d.status === "new"], active: ["Active", d => d.status === "active"], at_risk: ["At risk", d => d.status === "at_risk"], lapsed: ["Lapsed", d => d.status === "lapsed"] };
+  const sortVal = { name: d => d.displayName, last: d => d.lastGiftAt, gifts: d => d.giftCount, total: d => d.totalGiven };
+  function renderTable() {
+    const f = filters[view.filter][1];
+    const list = model.donors.filter(f).filter(d => !view.q || d.displayName.toLowerCase().includes(view.q))
+      .sort((a, b) => { const x = sortVal[view.sort](a), y = sortVal[view.sort](b); return (x > y ? 1 : x < y ? -1 : 0) * view.dir; });
+    document.getElementById("chips").innerHTML = Object.entries(filters).map(([k, [l, fn]]) => `<button type="button" data-f="${k}" aria-pressed="${view.filter === k}">${l}<span>${model.donors.filter(fn).length}</span></button>`).join("");
+    document.querySelectorAll("th[data-k]").forEach(th => { const on = th.dataset.k === view.sort; if (on) th.setAttribute("aria-sort", view.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort"); th.querySelector(".arr").textContent = on ? (view.dir > 0 ? "↑" : "↓") : ""; });
+    document.getElementById("rows").innerHTML = list.length ? list.map(d => `<tr data-id="${d.id}">
+        <td><span class="name"><span class="av-s" style="background:${d.color}" aria-hidden="true">${initials(d.displayName)}</span><button type="button" data-open="${d.id}">${esc(d.displayName)}</button></span></td>
+        <td><span class="s-tag ${d.status}">${STATUS[d.status]}</span></td>
+        <td>${fmt(d.lastGiftAt)}<span class="mut"> · ${d.days}d ago</span></td>
+        <td class="num c-gifts">${d.giftCount}</td>
+        <td class="num c-total"><b>${money(d.totalGiven)}</b></td>
+        <td class="c-thx mut">${d.email ? thanksText(d) : "No contact"}</td></tr>`).join("")
+      : `<tr class="empty-row"><td colspan="6">No donors match${view.q ? ` “${esc(view.q)}”` : ""}.<br><button class="btn btn-quiet sm" type="button" id="clear">Clear filters</button></td></tr>`;
+    const c = document.getElementById("clear"); if (c) c.addEventListener("click", () => { view.q = ""; view.filter = "all"; document.getElementById("q").value = ""; renderTable(); });
+    document.getElementById("count").textContent = `Showing ${list.length} of ${model.donors.length} donors`;
+  }
+
+  // ---- drawer ----
+  const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim"), body = document.getElementById("d-body");
+  let lastFocus = null;
+  const background = [document.getElementById("top"), document.getElementById("main"), document.getElementById("foot")];
+  function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 4500); }
+  function showDrawer(from, title, meta, av, color) {
+    lastFocus = from || document.activeElement;
+    document.getElementById("d-title").textContent = title; document.getElementById("d-meta").textContent = meta;
+    const a = document.getElementById("d-av"); a.textContent = av || ""; a.style.background = color || "transparent"; a.hidden = !av;
+    drawer.classList.add("on"); scrim.classList.add("on"); document.body.style.overflow = "hidden"; background.forEach(el => el.inert = true);
+    setTimeout(() => document.getElementById("d-close").focus(), 60);
+  }
+  function closeDrawer() {
+    drawer.classList.remove("on"); scrim.classList.remove("on"); document.body.style.overflow = ""; background.forEach(el => el.inert = false);
+    const back = lastFocus && document.contains(lastFocus) ? lastFocus : document.getElementById("review") || document.getElementById("q");
     if (back) back.focus();
   }
-  document.getElementById("d-close").addEventListener("click", close);
-  scrim.addEventListener("click", close);
-  document.addEventListener("keydown", e => {
-    if (!drawer.classList.contains("on")) return;
-    if (e.key === "Escape") close();
-    if (e.key === "Tab") { // keep focus inside the drawer
-      const f = [...drawer.querySelectorAll("button, a, textarea")]; const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-  });
+  document.getElementById("d-close").addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDrawer(); });
 
-  render();
+  function openDonor(id, from, focusDraft) {
+    const d = model.donors.find(x => x.id === id); if (!d) return;
+    const kind = !isReady(d) && (d.status === "at_risk" || d.status === "lapsed") ? "checkin" : "thanks", first = esc(d.displayName.split(" ")[0]), lg = lastGift(d);
+    showDrawer(from, d.displayName, d.email || "No contact details on file", initials(d.displayName), d.color);
+    const compose = !d.email
+      ? `<div class="compose"><h3>Nothing to send</h3><p>This gift was left anonymous, so there is no way to contact the donor. It still counts in your totals.</p></div>`
+      : `<div class="compose"><h3>${kind === "checkin" ? `Check in with ${first}` : `Thank ${first}`}</h3>
+          <p>${kind === "checkin" ? "A short note with what has been logged since their last gift. Edit it first if you like." : "A personal note built from their gift and what staff have logged since. Edit it first if you like."}</p>
+          <label for="d-msg">Message</label><textarea id="d-msg">${esc(draft(d, kind))}</textarea>
+          <div class="actions"><button class="btn btn-brand" type="button" id="d-send">${kind === "checkin" ? "Send check-in" : "Send thank-you"}</button>
+          ${d.viewToken ? `<a class="btn btn-quiet" href="dashboard.html?ct=${d.viewToken}" target="_blank" rel="noopener">Preview their page</a>` : '<span class="mut" style="align-self:center">No donor page in this demo</span>'}</div>
+          <p class="status" id="d-status" role="status"></p></div>`;
+    body.innerHTML = `
+      <div class="d-stats"><div><span>Total given</span><b class="ct-record">${money(d.totalGiven)}</b></div><div><span>Gifts</span><b class="ct-record">${d.giftCount}</b></div><div><span>Last gift</span><b class="ct-record">${fmt(d.lastGiftAt)}</b></div></div>
+      <div class="eng"><div><span>Status</span><b><span class="s-tag ${d.status}">${STATUS[d.status]}</span></b></div>
+        <div><span>Donor since</span><b>${fmt(d.firstGiftAt, true)}</b></div>
+        <div><span>Last gift</span><b>${money(lg.amountCents)}, ${d.days} ${d.days === 1 ? "day" : "days"} ago</b></div>
+        <div><span>Thank-you</span><b id="d-thx">${d.email ? thanksText(d) : "No contact on file"}</b></div></div>
+      <div class="d-sec"><h3>Gifts</h3><ul class="gl">${[...d.gifts].reverse().map(g => `<li><span>${fmt(g.at, true)} · ${esc(g.label)}</span><b>${money(g.amountCents)}</b></li>`).join("")}</ul></div>${compose}`;
+    const send = document.getElementById("d-send");
+    if (send) send.addEventListener("click", () => {
+      const st = document.getElementById("d-status"), text = document.getElementById("d-msg").value.trim();
+      if (!text) { st.className = "status err"; st.textContent = "Add a message before sending."; document.getElementById("d-msg").focus(); return; }
+      if (kind === "checkin") d.checkedInAt = DEMO.now; else d.thankedAt = DEMO.now;
+      st.className = "status"; st.textContent = `Queued for ${d.email}. Demo only: no email was sent.`;
+      send.textContent = "Queued"; send.disabled = true; document.getElementById("d-thx").textContent = d.thankedAt && d.thankedAt >= d.lastGiftAt ? thanksText(d) : document.getElementById("d-thx").textContent;
+      renderKpis(); renderQueues(); renderTable();
+    });
+    if (focusDraft && document.getElementById("d-msg")) setTimeout(() => document.getElementById("d-msg").focus(), 90);
+  }
+
+  function openBatch(from) {
+    const list = model.donors.filter(isReady).sort((a, b) => b.lastGiftAt - a.lastGiftAt);
+    showDrawer(from, `Review ${list.length} ${list.length === 1 ? "thank-you" : "thank-yous"}`, "Each note uses only logged facts. Edit or untick before sending.");
+    body.innerHTML = `<ul class="batch">${list.map(d => `<li><label class="inc" for="inc-${d.id}"><input type="checkbox" id="inc-${d.id}" checked> ${esc(d.displayName)}</label>
+        <label class="sr-only" for="msg-${d.id}">Message to ${esc(d.displayName)}</label><textarea id="msg-${d.id}">${esc(draft(d, "thanks"))}</textarea></li>`).join("")}</ul>
+      <div class="actions"><button class="btn btn-brand" type="button" id="b-send"></button></div><p class="status" id="b-status" role="status"></p>`;
+    const send = document.getElementById("b-send"), boxes = () => list.filter(d => document.getElementById("inc-" + d.id).checked);
+    const label = () => { const n = boxes().length; send.textContent = n ? `Send ${n} ${n === 1 ? "thank-you" : "thank-yous"}` : "Nothing selected"; send.disabled = !n; };
+    body.addEventListener("change", label); label();
+    send.addEventListener("click", () => {
+      const sel = boxes(); sel.forEach(d => d.thankedAt = DEMO.now);
+      document.getElementById("b-status").textContent = `Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"}. Demo only: no email was sent.`;
+      send.disabled = true; send.textContent = "Queued";
+      renderQueues(); renderTable(); toast(`Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"} (demo only, nothing sent)`);
+      setTimeout(closeDrawer, 1200);
+    });
+  }
+
+  // formula tooltips: hover, keyboard focus and tap/click (click pins it open); Escape or an outside tap closes
+  (function () {
+    const place = b => { b.style.left = "0"; const r = b.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12); if (over > 0) b.style.left = -over + "px"; };
+    const parts = t => ({ b: t.querySelector(".ct-why"), body: t.querySelector(".ct-tip-body") });
+    const open = t => { const { b, body } = parts(t); body.hidden = false; b.setAttribute("aria-expanded", "true"); place(body); };
+    const close = t => { const { b, body } = parts(t); body.hidden = true; b.setAttribute("aria-expanded", "false"); delete t.dataset.pinned; };
+    const tipOf = e => e.target.closest && e.target.closest(".ct-tip");
+    app.addEventListener("mouseover", e => { const t = tipOf(e); if (t) open(t); });
+    app.addEventListener("mouseout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget) && !t.dataset.pinned && !t.contains(document.activeElement)) close(t); });
+    app.addEventListener("focusin", e => { const t = tipOf(e); if (t) open(t); });
+    app.addEventListener("focusout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget)) close(t); });
+    app.addEventListener("click", e => { const t = tipOf(e); if (!t) return; if (t.dataset.pinned) close(t); else { t.dataset.pinned = "1"; open(t); } });
+    document.addEventListener("click", e => { app.querySelectorAll(".ct-tip[data-pinned]").forEach(t => { if (!t.contains(e.target)) close(t); }); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") app.querySelectorAll(".ct-tip").forEach(t => { if (!parts(t).body.hidden) close(t); }); });
+  })();
+
+  async function boot() {
+    app.setAttribute("aria-busy", "true"); app.innerHTML = skeleton();
+    if (params.get("state") === "loading") return;
+    try { model = await load(); renderPage(); }
+    catch {
+      app.innerHTML = msg("Donors did not load", "Something went wrong on our side. Nothing was changed. Try again in a moment.", '<button class="btn btn-brand" type="button" id="retry">Try again</button>');
+      document.getElementById("retry").addEventListener("click", () => { params.delete("state"); document.getElementById("state-sel").value = ""; history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); boot(); });
+    }
+    app.setAttribute("aria-busy", "false");
+  }
+  const sel = document.getElementById("state-sel"); sel.value = params.get("state") || "";
+  sel.addEventListener("change", () => { if (sel.value) params.set("state", sel.value); else params.delete("state"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); boot(); });
+  boot();
 </script>
 </body>
 </html>

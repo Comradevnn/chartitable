@@ -3,429 +3,466 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Impact · Second Helping</title>
+<meta name="description" content="Fictional demo: a returning donor's impact page, with logged facts and labeled estimates kept apart.">
+<title>My Impact · Chartitable</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* ===== Shared design tokens (identical in index.html, dashboard.html, admin.html) ===== */
   :root {
-    --bg: #ffffff;
-    --soft: #f4f6f3;
-    --ink: #16201a;
-    --ink-soft: #4d5a52;
-    --rule: #dde4de;
-    --brand: #1d6b3f;
-    --brand-dark: #144f2d;
-    --brand-tint: #e6f1ea;
-    --accent: #ffc94d;
-    --accent-tint: #fff4d6;
-    --dark: #10241a;
-    --on-dark: #ffffff;
-    --on-dark-soft: #c3d3c9;
+    /* color */
+    --bg: #f6f5ef; --surface: #ffffff; --surface-2: #efeee6;
+    --ink: #14231a; --ink-soft: #4a584f; --rule: #dcdfd3;
+    --brand: #1d6b3f; --brand-strong: #144f2d; --brand-tint: #e3efe7;
+    --accent: #ffc94d; --accent-strong: #f4b21b; --accent-tint: #fff2cb; --accent-ink: #6b4700; --estimate-line: #a56f00;
+    --risk: #a3341f; --risk-tint: #fbe6e0; --info: #2c4a7a; --info-tint: #e6edf8;
+    --dark: #10241a; --on-dark: #ffffff; --on-dark-soft: #c3d3c9;
+    /* type */
+    --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem; --text-lg: 1.375rem; --text-xl: 1.75rem; --text-2xl: 2.25rem;
+    --text-display: clamp(2rem, 4.6vw + .6rem, 3.5rem);
+    --leading-tight: 1.1; --leading-snug: 1.3; --leading-body: 1.55; --tracking-tight: -.025em;
+    /* space */
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
+    /* shape + depth + motion */
+    --radius-sm: 8px; --radius: 14px; --radius-lg: 22px; --radius-pill: 999px;
+    --shadow-1: 0 1px 2px rgba(20,35,26,.06), 0 6px 16px -10px rgba(20,35,26,.18);
+    --shadow-2: 0 2px 4px rgba(20,35,26,.08), 0 18px 40px -18px rgba(20,35,26,.32);
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --container: 1160px;
+    /* Chartitable layer theming (integration contract v1) */
+    --ct-accent: var(--brand); --ct-fg: var(--ink); --ct-bg: var(--surface); --ct-muted: var(--ink-soft); --ct-font: var(--font); --ct-radius: var(--radius);
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--soft); color: var(--ink); font-family: "Hanken Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; }
-  ::selection { background: var(--accent); color: var(--ink); }
-  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-  a { color: inherit; text-underline-offset: 3px; }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  h1, h2, h3 { line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
-  h2 { font-size: 22px; }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 700 15px/1.3 "Hanken Grotesk", sans-serif; padding: 12px 20px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none; transition: background .2s, transform .1s; }
+  /* ===== Base ===== */
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-padding-top: 80px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-base)/var(--leading-body) var(--font); -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent); color: var(--ink); }
+  a { color: inherit; text-underline-offset: 3px; }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, h3 { line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  h2 { font-size: var(--text-lg); font-weight: 800; }
+  h3 { font-size: var(--text-md); font-weight: 700; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  main:focus { outline: none; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; border-radius: 4px; }
+  .on-dark :focus-visible { outline-color: var(--accent); box-shadow: none; }
+  .wrap { max-width: var(--container); margin: 0 auto; padding-left: var(--space-4); padding-right: var(--space-4); }
+  @media (min-width: 720px) { .wrap { padding-left: var(--space-5); padding-right: var(--space-5); } }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: var(--space-3); top: -100px; z-index: 50; background: var(--accent); color: var(--ink); font-weight: 700; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); }
+  .skip:focus { top: var(--space-3); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; font: 700 var(--text-base)/1.2 var(--font); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s, transform .1s; }
   .btn:active { transform: translateY(1px); }
   .btn-primary { background: var(--accent); color: var(--ink); }
-  .btn-primary:hover { background: #ffb81f; }
+  .btn-primary:hover { background: var(--accent-strong); }
   .btn-brand { background: var(--brand); color: #fff; }
-  .btn-brand:hover { background: var(--brand-dark); }
-  .btn-quiet { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
+  .btn-brand:hover { background: var(--brand-strong); }
+  .btn-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
   .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
+  .btn-ghost { background: transparent; color: inherit; box-shadow: inset 0 0 0 2px currentColor; }
 
-  /* nav (shared with homepage) */
-  .nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--rule); }
-  .nav .wrap { display: flex; align-items: center; gap: 12px; height: 64px; }
-  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; text-decoration: none; white-space: nowrap; }
-  .logo svg { width: 22px; height: 22px; }
-  .nav .me { margin-left: auto; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: none; }
-  .nav .back { font-size: 15px; font-weight: 600; color: var(--ink-soft); text-decoration: none; padding: 8px 0; }
-  .nav .back:hover { color: var(--ink); }
-  @media (max-width: 520px) { .nav .me span { display: none; } }
+  /* ===== Honesty: records vs estimates (D1) ===== */
+  .ct-record { font-weight: 700; }
+  .ct-record::before { content: ""; display: inline-block; width: .85em; height: .85em; margin-right: .35em; vertical-align: -.08em; background: var(--brand);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .ct-estimate { display: inline; padding: .04em .38em; border: 1.5px dashed var(--estimate-line); background: var(--accent-tint); color: var(--accent-ink); border-radius: var(--radius-sm); font-weight: 700; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .on-dark .ct-record::before { background: var(--accent); }
+  .on-dark .ct-estimate { background: rgba(255,201,77,.14); color: var(--accent); border-color: var(--accent); }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 800; letter-spacing: .02em; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
+  .tag.rec { background: var(--brand-tint); color: var(--brand-strong); }
+  .tag.est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
+  .tag.why { background: var(--surface-2); color: var(--ink-soft); }
+  /* formula on hover, focus and tap */
+  .ct-tip { position: relative; display: inline-block; }
+  .ct-why { font: 600 var(--text-sm)/1.3 var(--font); color: inherit; background: none; border: 0; cursor: help; padding: var(--space-2) 2px; min-height: 32px; text-decoration: underline dotted; text-underline-offset: 4px; }
+  .ct-tip-body { position: absolute; z-index: 40; top: calc(100% + 2px); left: 0; width: min(320px, calc(100vw - 32px)); background: var(--ink); color: #fff; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; line-height: 1.45; box-shadow: var(--shadow-2); text-align: left; }
+  .on-dark .ct-tip-body { background: #fff; color: var(--ink); }
+  .ct-tip-body .in { display: block; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
+  .ct-tip-body .in-h { margin-top: var(--space-3); font-weight: 700; }
 
-  /* welcome */
-  .welcome { background: var(--dark); color: var(--on-dark); }
-  .welcome .wrap { padding-top: 40px; padding-bottom: 88px; display: grid; gap: 20px; }
-  @media (min-width: 860px) { .welcome .wrap { grid-template-columns: 1fr auto; align-items: end; } }
-  .welcome h1 { font-size: clamp(30px, 4.4vw, 48px); max-width: 20ch; text-wrap: balance; }
-  .welcome p { margin: 10px 0 0; color: var(--on-dark-soft); font-size: 18px; max-width: 52ch; }
-  .welcome .new { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; margin-top: 18px; }
-  .welcome .new i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-  .welcome .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  /* ===== Nav ===== */
+  .nav { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--rule); }
+  .nav .wrap { display: flex; align-items: center; gap: var(--space-4); height: 64px; }
+  .logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 800; font-size: var(--text-md); letter-spacing: var(--tracking-tight); text-decoration: none; white-space: nowrap; }
+  .logo svg { width: 24px; height: 24px; flex: none; }
+  .nav-links { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
+  .nav-links a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); font-weight: 600; font-size: var(--text-sm); color: var(--ink-soft); }
+  .nav-links a:hover { color: var(--ink); background: var(--surface-2); }
+  .nav-links a[aria-current="page"] { color: var(--ink); background: var(--brand-tint); }
+  .me { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); font-weight: 600; font-size: var(--text-sm); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: var(--text-sm); flex: none; }
+  @media (max-width: 520px) { .me span { display: none; } .nav-links a { padding-inline: var(--space-2); } .nav .wrap { gap: var(--space-2); } }
 
-  /* summary tiles */
-  .summary { margin-top: -56px; display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
-  @media (min-width: 860px) { .summary { grid-template-columns: repeat(4, 1fr); } }
-  .tile { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 10px 30px -22px rgba(16,36,26,.4); border: 1px solid var(--rule); text-align: left; font: inherit; color: inherit; cursor: pointer; transition: border-color .2s, transform .15s; }
-  .tile:hover { border-color: var(--brand); transform: translateY(-2px); }
-  .tile span { display: block; color: var(--ink-soft); font-size: 14px; }
-  .tile b { display: block; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.03em; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
-  .tile small { color: var(--ink-soft); font-size: 13px; }
-  .tile.top { background: var(--accent-tint); border-color: #f3dc98; }
-  .tile.top b::after { content: ""; display: inline-block; width: 18px; height: 18px; margin-left: 8px; vertical-align: 2px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a06a00' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.7 5.6 6.1.8-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.8z'/%3E%3C/svg%3E") center / contain no-repeat; }
+  /* ===== Demo ribbon (same look as the demo bar on index.html) ===== */
+  .demo { background: #0b1a12; color: var(--on-dark-soft); font-size: var(--text-sm); }
+  .demo .wrap { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+  .demo b { color: #fff; font-weight: 600; }
 
-  /* tabs */
-  .tabs { display: flex; gap: 4px; margin: 32px 0 20px; border-bottom: 1px solid var(--rule); overflow-x: auto; scrollbar-width: none; }
-  .tabs button { font: 700 15px/1.3 "Hanken Grotesk", sans-serif; background: none; border: 0; padding: 12px 14px; color: var(--ink-soft); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
-  .tabs button:hover { color: var(--ink); }
-  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
-  .panel { padding-bottom: 72px; }
-  .panel[hidden] { display: none; }
-  .card { background: #fff; border-radius: 14px; border: 1px solid var(--rule); padding: 22px; }
-  .grid2 { display: grid; gap: 16px; }
-  @media (min-width: 900px) { .grid2 { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+  /* ===== Hero ===== */
+  main { padding-bottom: var(--space-8); }
+  .hero { background: var(--dark); color: var(--on-dark); }
+  .hero-grid { display: grid; gap: var(--space-6); padding-block: var(--space-6) var(--space-7); }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.5fr .5fr; align-items: center; padding-block: var(--space-7) var(--space-8); gap: var(--space-7); } }
+  .hero h1 { font-size: var(--text-display); font-weight: 800; line-height: 1.08; max-width: 21ch; letter-spacing: -.03em; }
+  .hero h1 .ct-estimate { padding: 0 .2em; white-space: nowrap; }
+  .hero .tip-row { margin-top: var(--space-2); color: var(--on-dark-soft); font-size: var(--text-sm); }
+  .hero .story { margin-top: var(--space-4); font-size: var(--text-md); color: var(--on-dark-soft); max-width: 58ch; }
+  .hero .facts { margin-top: var(--space-4); font-size: var(--text-sm); color: var(--on-dark); display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
+  .hero .cta { margin-top: var(--space-5); display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .hero .art { display: none; }
+  @media (min-width: 900px) { .hero .art { display: block; border-radius: var(--radius-lg); overflow: hidden; background: #2c6342; aspect-ratio: 4 / 5; } .hero .art svg { width: 100%; height: 100%; display: block; } }
 
-  /* giving chart */
-  .chart { display: flex; align-items: flex-end; gap: 10px; height: 180px; margin: 18px 0 8px; padding-bottom: 26px; position: relative; }
-  .chart::after { content: ""; position: absolute; left: 0; right: 0; bottom: 26px; border-top: 1px solid var(--rule); }
-  .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; position: relative; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
-  .bar i { display: block; width: 100%; max-width: 44px; background: #9cc8ad; border-radius: 6px 6px 0 0; transition: background .2s; }
-  .bar.is-top i { background: var(--accent); }
-  .bar:hover i, .bar[aria-pressed="true"] i { background: var(--brand); }
-  .bar.is-top:hover i, .bar.is-top[aria-pressed="true"] i { background: #e6a800; }
-  .bar em { position: absolute; bottom: -24px; font-style: normal; font-size: 12px; color: var(--ink-soft); }
-  .bar strong { font-size: 12px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-  .chart-note { font-size: 14px; color: var(--ink-soft); margin: 10px 0 0; min-height: 1.5em; }
+  /* ===== Layout blocks ===== */
+  .block { padding-top: var(--space-7); }
+  .sub { color: var(--ink-soft); font-size: var(--text-sm); max-width: 64ch; margin-top: var(--space-1); }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--space-5); box-shadow: var(--shadow-1); }
+  .legend { display: grid; gap: var(--space-3); margin-top: var(--space-5); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--space-4) var(--space-5); font-size: var(--text-sm); }
+  @media (min-width: 720px) { .legend { grid-template-columns: auto 1fr 1fr; align-items: center; gap: var(--space-5); } }
+  .legend p { color: var(--ink-soft); }
 
-  /* lists */
-  .list { list-style: none; margin: 0; padding: 0; }
-  .list > li { border-top: 1px solid var(--rule); }
-  .list > li:first-child { border-top: 0; }
-  .row { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 14px 0; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
-  .row b { font-size: 16px; }
-  .row span { color: var(--ink-soft); font-size: 14px; }
-  .row .amt { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; text-align: right; }
-  .row .chev { width: 18px; height: 18px; transition: transform .2s; color: var(--ink-soft); }
-  .row[aria-expanded="true"] .chev { transform: rotate(180deg); }
-  .row .right { display: flex; align-items: center; gap: 10px; grid-row: span 2; }
-  .detail { padding: 0 0 16px; color: var(--ink-soft); font-size: 15px; }
-  .detail[hidden] { display: none; }
-  .detail ol { margin: 6px 0 0; padding-left: 18px; }
-  .pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--brand-tint); color: var(--brand-dark); margin-left: 6px; vertical-align: 1px; }
-  .pill.gold { background: var(--accent-tint); color: #7a5200; }
-  .pill.new { background: var(--accent); color: var(--ink); }
+  /* since last visit */
+  .since { display: grid; gap: var(--space-5); margin-top: var(--space-4); }
+  @media (min-width: 720px) { .since { grid-template-columns: 1.2fr 1fr; } }
+  .since h3 { font-size: var(--text-sm); color: var(--ink-soft); font-weight: 700; margin-bottom: var(--space-2); }
+  .since li { padding-block: var(--space-2); border-top: 1px solid var(--rule); }
+  .since li:first-child { border-top: 0; padding-top: 0; }
+  time { color: var(--ink-soft); font-size: var(--text-sm); }
+  .note { margin-top: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--surface-2); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+  .note small { display: block; color: var(--ink-soft); margin-top: 2px; }
 
-  /* impact feed */
-  .feed { list-style: none; margin: 0; padding: 0; }
-  .feed li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 14px 0; border-top: 1px solid var(--rule); }
-  .feed li:first-child { border-top: 0; }
-  .feed .ico { width: 40px; height: 40px; border-radius: 12px; background: var(--brand-tint); display: grid; place-items: center; color: var(--brand); }
-  .feed .ico svg { width: 20px; height: 20px; }
-  .feed time { font-size: 13px; color: var(--ink-soft); }
-  .feed p { margin: 2px 0 0; }
-  .feed blockquote { margin: 8px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 10px; font-size: 15px; }
-  .feed blockquote cite { display: block; font-style: normal; color: var(--ink-soft); font-size: 13px; margin-top: 4px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
-  .filters button { font: 600 14px/1.3 "Hanken Grotesk", sans-serif; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--rule); background: #fff; cursor: pointer; }
-  .filters button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .empty { color: var(--ink-soft); padding: 20px 0; text-align: center; }
+  /* journey */
+  .journey { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
+  @media (min-width: 960px) { .journey { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); } }
+  .step { position: relative; border-radius: var(--radius); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); background: var(--surface); border: 1px solid var(--rule); }
+  .step.est { background: var(--accent-tint); border: 2px dashed var(--estimate-line); color: var(--accent-ink); }
+  .step.why { background: var(--surface-2); border-color: transparent; }
+  .step .big { font-size: var(--text-xl); font-weight: 800; letter-spacing: var(--tracking-tight); line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .step p { font-size: var(--text-sm); color: var(--ink-soft); }
+  .step.est p { color: var(--accent-ink); }
+  .step .tag { align-self: flex-start; }
+  @media (min-width: 960px) { .step:not(:last-child)::after { content: ""; position: absolute; top: 24px; right: -17px; width: 18px; height: 18px; z-index: 1;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a584f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat; } }
 
-  /* milestones */
-  .ms { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
-  .ms li { display: flex; gap: 12px; align-items: center; font-size: 15px; }
-  .ms .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--brand); color: #fff; }
-  .ms .dot svg { width: 14px; height: 14px; }
-  .ms li.todo { color: var(--ink-soft); }
-  .ms li.todo .dot { background: #fff; border: 2px dashed #b6c4ba; color: transparent; }
-  .goal { height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; margin: 10px 0 6px; }
-  .goal i { display: block; height: 100%; background: var(--brand); border-radius: 5px; }
+  /* timeline + next step */
+  .cols { display: grid; gap: var(--space-4); }
+  @media (min-width: 960px) { .cols { grid-template-columns: 1.35fr 1fr; align-items: start; } .cols .sticky { position: sticky; top: 80px; } }
+  .tl { margin-top: var(--space-4); }
+  .tl li { position: relative; padding: 0 0 var(--space-4) 44px; }
+  .tl li::before { content: ""; position: absolute; left: 15px; top: 30px; bottom: 0; width: 2px; background: var(--rule); }
+  .tl li:last-child { padding-bottom: 0; }
+  .tl li:last-child::before { display: none; }
+  .tl .dot { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: #fff; }
+  .tl .dot svg { width: 16px; height: 16px; }
+  .tl li.log .dot { width: 20px; height: 20px; left: 6px; top: 2px; background: var(--surface); border: 2px solid var(--brand); color: var(--brand); }
+  .tl li.log .dot svg { width: 10px; height: 10px; }
+  .tl li.log::before { top: 24px; }
+  .tl .row1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); }
+  .tl .gift .ct-record { font-size: var(--text-md); }
+  .tl .what { color: var(--ink-soft); font-size: var(--text-sm); }
+  .pill { display: inline-block; font-size: var(--text-xs); font-weight: 800; padding: 2px 9px; border-radius: var(--radius-pill); background: var(--accent); color: var(--ink); }
+  .more { margin-top: var(--space-4); }
 
-  /* invite */
-  .invite-preview { border: 1.5px dashed #b6c4ba; border-radius: 14px; padding: 18px; background: var(--soft); }
-  .invite-preview b { display: block; font-size: 18px; margin-bottom: 4px; }
-  label.f { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 6px; }
-  .field { display: flex; gap: 8px; flex-wrap: wrap; }
-  .field input, textarea { flex: 1 1 200px; font: 400 16px/1.4 "Hanken Grotesk", sans-serif; padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: 10px; background: #fff; color: var(--ink); }
-  textarea { width: 100%; resize: vertical; min-height: 84px; }
-  .field input:focus, textarea:focus { outline: none; border-color: var(--brand); }
-  .field input[aria-invalid="true"] { border-color: #b3261e; }
-  .msg { font-size: 14px; margin: 8px 0 0; min-height: 1.5em; color: var(--ink-soft); }
-  .msg.err { color: #b3261e; }
-  .sent { list-style: none; padding: 0; margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
-  .sent li { padding: 6px 0; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 8px; }
+  .progress { height: 12px; border-radius: 6px; background: var(--surface-2); margin: var(--space-3) 0 var(--space-2); overflow: hidden; border: 1.5px dashed var(--estimate-line); }
+  .progress i { display: block; height: 100%; background: repeating-linear-gradient(135deg, var(--accent) 0 8px, #ffd978 8px 16px); }
+  .next .ask { margin-top: var(--space-4); color: var(--ink-soft); max-width: 46ch; }
+  .next .btn { margin-top: var(--space-4); }
 
-  /* shared (friend) view */
-  .shared-banner { background: var(--accent); color: var(--ink); font-weight: 600; font-size: 15px; }
-  .shared-banner .wrap { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding-top: 12px; padding-bottom: 12px; }
-  .shared-banner a { margin-left: auto; }
-  body.shared .owner-only { display: none !important; }
-  body:not(.shared) .shared-only { display: none !important; }
+  /* states */
+  .state { max-width: 560px; margin: var(--space-8) auto var(--space-6); text-align: center; padding-inline: var(--space-4); }
+  .state h1 { font-size: var(--text-xl); font-weight: 800; }
+  .state p { margin-top: var(--space-3); color: var(--ink-soft); }
+  .state .btn { margin-top: var(--space-5); }
+  .sk { background: linear-gradient(90deg, var(--surface-2) 25%, #f9f8f3 50%, var(--surface-2) 75%); background-size: 200% 100%; border-radius: var(--radius-sm); animation: sk 1.4s linear infinite; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  .sk-hero { background: var(--dark); }
+  .sk-hero .sk { background: linear-gradient(90deg, #1c3a2a 25%, #254b36 50%, #1c3a2a 75%); background-size: 200% 100%; }
+  @media (prefers-reduced-motion: reduce) { .sk { animation: none; } html { scroll-behavior: auto; } .btn { transition: none; } }
 
-  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 0 16px 32px; }
+  footer.page { color: var(--ink-soft); font-size: var(--text-sm); padding-block: var(--space-5) var(--space-6); border-top: 1px solid var(--rule); background: var(--surface); }
+  footer.page .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between; }
+  footer.page nav { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+  footer.page nav a { padding: var(--space-2) 0; }
+  footer.page label { font-weight: 600; margin-right: var(--space-2); }
+  footer.page select { font: inherit; padding: var(--space-2) var(--space-3); border: 1.5px solid var(--rule); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); min-height: 40px; }
+  footer.page .fine { flex-basis: 100%; }
 </style>
 </head>
 <body>
-  <div class="shared-banner shared-only"><div class="wrap"><span>Maya invited you to see what her giving has done.</span><a class="btn btn-brand" href="index.html#give">Give alongside Maya</a></div></div>
+  <a class="skip" href="#main">Skip to content</a>
 
   <header class="nav">
     <div class="wrap">
-      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg>Second Helping</a>
-      <div class="me owner-only"><a class="back" href="index.html">Home</a><span>Maya R.</span><div class="avatar" aria-hidden="true">M</div></div>
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Chartitable</span></a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html" aria-current="page">My impact</a>
+      </nav>
+      <div class="me" id="me" hidden><span id="me-name"></span><div class="avatar" id="me-av" aria-hidden="true"></div></div>
     </div>
   </header>
 
-  <main>
-  <section class="welcome">
-    <div class="wrap">
-      <div>
-        <h1><span class="owner-only" id="greet">Welcome back, Maya.</span><span class="shared-only">Maya's impact at Second Helping</span></h1>
-        <p class="owner-only">You've been feeding neighbors since March. Here's everything your giving has done, and what's new since you last came by.</p>
-        <p class="shared-only">Maya has given 4 times since March. Here's what her gifts did.</p>
-        <div class="new owner-only" id="new-badge"><i></i><span>2 new updates since Sep 30</span></div>
-      </div>
-      <div class="actions owner-only">
-        <button class="btn btn-quiet" type="button" data-goto="invite">Invite a friend</button>
-        <a class="btn btn-primary" href="index.html#give">Give again</a>
-      </div>
-    </div>
-  </section>
+  <div class="demo" role="note"><div class="wrap"><b>Demo</b> · sample data (fictional)</div></div>
 
-  <div class="wrap">
-    <div class="summary" aria-label="Your giving at a glance">
-      <button class="tile" type="button" data-goto="gifts"><span>Total given</span><b id="t-total">$100</b><small>4 gifts since Mar 2026</small></button>
-      <button class="tile top" type="button" data-goto="gifts" data-gift="g2"><span>Highest gift</span><b id="t-top">$50</b><small id="t-top-when">May 20 · Spring planting run</small></button>
-      <button class="tile" type="button" data-goto="impact"><span>Meals provided</span><b id="t-meals">80</b><small>across 3 pantries</small></button>
-      <button class="tile" type="button" data-goto="impact"><span>Food rescued</span><b>560 lb</b><small>from 4 partner farms</small></button>
-    </div>
-
-    <div class="tabs" role="tablist" aria-label="Dashboard sections">
-      <button role="tab" id="tab-overview" aria-controls="p-overview" aria-selected="true">Overview</button>
-      <button role="tab" id="tab-gifts" aria-controls="p-gifts" aria-selected="false" tabindex="-1" data-shared="Maya's gifts">My gifts</button>
-      <button role="tab" id="tab-impact" aria-controls="p-impact" aria-selected="false" tabindex="-1">Impact</button>
-      <button role="tab" id="tab-invite" aria-controls="p-invite" aria-selected="false" tabindex="-1" class="owner-only">Invite</button>
-    </div>
-
-    <!-- overview -->
-    <section class="panel" id="p-overview" role="tabpanel" aria-labelledby="tab-overview">
-      <div class="grid2">
-        <div class="card">
-          <h2>Giving over time</h2>
-          <div class="chart" id="chart" role="group" aria-label="Gift amounts by date. Select a bar for details."></div>
-          <p class="chart-note" id="chart-note" aria-live="polite" data-shared="Select a bar to see what that gift did. Maya's highest gift is in yellow.">Select a bar to see what that gift did. Your highest gift is in yellow.</p>
-        </div>
-        <div class="card">
-          <h2 data-shared="Maya's milestones">Your milestones</h2>
-          <ul class="ms" id="ms"></ul>
-          <div class="owner-only">
-            <p style="margin:18px 0 0;font-size:15px"><b>Next: 100 meals.</b> You're 20 away, about $25.</p>
-            <div class="goal" role="img" aria-label="80 of 100 meals"><i style="width:80%"></i></div>
-            <a class="btn btn-brand" href="index.html#give" style="margin-top:10px">Reach 100 meals</a>
-          </div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:16px">
-        <h2 data-shared="Latest from Maya's gifts">Latest from your gifts</h2>
-        <ul class="feed" id="feed-latest"></ul>
-        <button class="btn btn-quiet" type="button" data-goto="impact" style="margin-top:8px">See all updates</button>
-      </div>
-    </section>
-
-    <!-- gifts -->
-    <section class="panel" id="p-gifts" role="tabpanel" aria-labelledby="tab-gifts" hidden>
-      <div class="card">
-        <h2 data-shared="Maya's gifts">My gifts</h2>
-        <p style="margin:6px 0 4px;color:var(--ink-soft);font-size:15px"><span data-shared="Select a gift to see where it went.">Select a gift to see where it went.</span></p>
-        <ul class="list" id="gift-list"></ul>
-      </div>
-    </section>
-
-    <!-- impact -->
-    <section class="panel" id="p-impact" role="tabpanel" aria-labelledby="tab-impact" hidden>
-      <div class="card">
-        <h2 data-shared="Everything Maya's gifts did">Everything your gifts did</h2>
-        <div class="filters" role="group" aria-label="Filter updates" id="filters"></div>
-        <ul class="feed" id="feed-all"></ul>
-      </div>
-    </section>
-
-    <!-- invite -->
-    <section class="panel owner-only" id="p-invite" role="tabpanel" aria-labelledby="tab-invite" hidden>
-      <div class="grid2">
-        <div class="card">
-          <h2>Invite a friend to see your impact</h2>
-          <p style="margin:6px 0 0;color:var(--ink-soft);font-size:15px">They'll see a read-only version of this page: your totals, your gifts' journey, and a way to give alongside you. They won't see your payment details.</p>
-          <label class="f" for="link">Your share link</label>
-          <div class="field">
-            <input id="link" readonly>
-            <button class="btn btn-brand" type="button" id="copy">Copy link</button>
-          </div>
-          <form id="invite-form" novalidate>
-            <label class="f" for="friend">Or send an invite by email</label>
-            <div class="field">
-              <input id="friend" type="email" placeholder="friend@example.com" autocomplete="off">
-              <button class="btn btn-primary" type="submit">Send invite</button>
-            </div>
-            <label class="f" for="note">Add a note (optional)</label>
-            <textarea id="note">I've been giving to Second Helping. They rescue food from farms and send it to pantries. Here's what my gifts did.</textarea>
-            <p class="msg" id="invite-msg" role="status"></p>
-          </form>
-          <ul class="sent" id="sent" aria-label="Invites sent"></ul>
-        </div>
-        <div class="card">
-          <h2>What your friend sees</h2>
-          <div class="invite-preview" style="margin-top:14px">
-            <b>Maya invited you to see what her giving has done.</b>
-            <span style="color:var(--ink-soft);font-size:15px">$100 given · 80 meals · 560 lb of food rescued</span>
-          </div>
-          <a class="btn btn-quiet" id="preview-link" href="dashboard.html?view=shared" target="_blank" style="margin-top:14px">Open their view</a>
-        </div>
-      </div>
-    </section>
-  </div>
+  <main id="main" tabindex="-1">
+    <div id="app" aria-busy="true"><noscript><div class="state"><h1>This demo page needs JavaScript</h1></div></noscript></div>
   </main>
-  <footer>Concept 6 · donor dashboard · fictional donor and sample data</footer>
+
+  <footer class="page">
+    <div class="wrap">
+      <nav aria-label="Demo pages"><a href="index.html">Home</a><a href="dashboard.html">My impact</a><a href="admin.html">Staff view</a></nav>
+      <div><label for="state-sel">Preview state (demo only)</label>
+        <select id="state-sel">
+          <option value="">Returning donor</option>
+          <option value="thin">First gift, no updates yet</option>
+          <option value="loading">Loading</option>
+          <option value="error">Error</option>
+          <option value="unrecognized">Link not recognized</option>
+        </select></div>
+      <p class="fine"><span data-charity-name>Chartitable</span> is a fictional organization. All names, gifts and numbers on this page are sample data for a hackathon demo.</p>
+    </div>
+  </footer>
 
 <script>
-  const gifts = [
-    { id: "g1", d: "2026-03-03", amt: 15, run: "Citrus run", meals: 12, lbs: 90, farm: "Ruiz Family Orchard", pantry: "Fruitvale Community Pantry" },
-    { id: "g2", d: "2026-05-20", amt: 50, run: "Spring planting run", meals: 40, lbs: 300, farm: "Sunol Greens", pantry: "Eastlake Pantry" },
-    { id: "g3", d: "2026-08-12", amt: 25, run: "Stone fruit run", meals: 20, lbs: 140, farm: "Alvarado Creek Farm", pantry: "Eastlake Pantry" },
-    { id: "g4", d: "2026-10-01", amt: 10, run: "Winter squash run", meals: 8, lbs: 30, farm: "Pescadero Fields", pantry: "San Antonio Pantry", pending: true }
-  ];
-  const updates = [
-    { d: "2026-03-10", g: "g1", type: "rescue", t: "90 lb of oranges picked up from Ruiz Family Orchard." },
-    { d: "2026-03-24", g: "g1", type: "meals", t: "12 meals served at Fruitvale Community Pantry." },
-    { d: "2026-05-28", g: "g2", type: "rescue", t: "300 lb of greens rescued from Sunol Greens." },
-    { d: "2026-06-15", g: "g2", type: "meals", t: "40 meals served at Eastlake Pantry." },
-    { d: "2026-08-19", g: "g3", type: "rescue", t: "140 lb of peaches picked up from Alvarado Creek Farm." },
-    { d: "2026-09-28", g: "g3", type: "rescue", t: "Peaches delivered to Eastlake Pantry." },
-    { d: "2026-10-06", g: "g3", type: "meals", t: "20 meals served at Eastlake Pantry." },
-    { d: "2026-10-18", g: "g3", type: "note", t: "A note from Dee, Eastlake Pantry coordinator.", q: "Fresh peaches on a Tuesday. Kids were eating them in line.", by: "Dee, Eastlake Pantry" }
-  ];
-  const icons = {
-    rescue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
-    meals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0zM12 3v4M8 5v2M16 5v2"/></svg>',
-    note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>'
+  const ts = s => Date.parse(s + "T12:00:00Z"); // noon UTC so dates never drift across timezones
+  const NOW = ts("2026-10-24");
+
+  // DEMO DATA (fictional) — same pool as admin.html
+  // Shape follows DonorView in engine/types.ts (hero, records, estimates, sinceLastVisit, nextStep, photos).
+  // No estimate is stored here. `pool` is every donor's gifts (integer cents, copied from admin.html's DEMO.donors) and `logs` are the staff impact logs;
+  // allocate() below computes every number on this page from them (rule: docs/PRODUCT_SPEC.md §3).
+  // Extras this page needs that DonorView does not carry yet: the donor's own `gifts` and `loggedAt` on records (timeline order).
+  const P = (donor, d, cents, label) => ({ donor, at: ts(d), cents, label });
+  const DEMO = {
+    charity: { id: "demo-pantry-a", name: "Chartitable", windowDays: 30, milestones: [25, 50, 100, 250],
+      formula: "Your estimated share = your gifts ÷ all gifts in the 30-day window × what the pantry logged. A log only counts gifts made on or before its date. Rounded down, never up." },
+    tokens: { k7q2m9: "donor_a01", t3x8v5: "donor_a06" }, // opaque ?ct= stand-ins; no names in URLs
+    pool: [ // every donor's gifts, integer cents
+      P("donor_a01", "2026-03-03", 1500, "Citrus run"), P("donor_a01", "2026-05-20", 5000, "Spring planting run"), P("donor_a01", "2026-08-12", 2500, "Stone fruit run"), P("donor_a01", "2026-10-01", 1000, "Winter squash run"), P("donor_a01", "2026-10-15", 2500, "General fund"),
+      ...["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => P("donor_a02", d, 4000, "Monthly gift")),
+      P("donor_a03", "2025-12-10", 50000, "Year-end drive"), P("donor_a03", "2026-04-02", 25000, "Spring planting run"),
+      P("donor_a04", "2025-12-18", 10000, "Year-end drive"),
+      ...["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => P("donor_a05", d, 2500, "Monthly gift")),
+      P("donor_a06", "2026-10-23", 3000, "General fund"),
+      P("donor_a07", "2025-09-05", 100000, "Warehouse fund"), P("donor_a07", "2026-02-20", 20000, "Citrus run"),
+      P("donor_a08", "2026-01-08", 2000, "Citrus run"),
+      P("donor_a09", "2026-04-15", 6000, "Spring planting run"), P("donor_a09", "2026-09-02", 7500, "Stone fruit run"),
+      P("donor_a10", "2026-10-19", 10000, "Winter squash run"),
+      P("donor_a11", "2026-06-12", 4500, "Citrus run"), P("donor_a11", "2026-09-05", 4500, "Stone fruit run"),
+      ...["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"].map(d => P("donor_a12", d, 1500, "Quarterly gift")),
+      P("donor_a13", "2026-07-28", 3500, "Stone fruit run"),
+      P("donor_a14", "2026-09-28", 7500, "General fund")
+    ],
+    logs: [ // charity-wide, logged by staff
+      { id: "l0", kind: "meals", count: 70, unit: "meals", note: null, loggedAt: ts("2026-09-12") },
+      { id: "l1", kind: "meals", count: 45, unit: "meals", note: null, loggedAt: ts("2026-09-27") },
+      { id: "l2", kind: "meals", count: 60, unit: "meals", note: null, loggedAt: ts("2026-10-06") },
+      { id: "l3", kind: "produce", count: 410, unit: "lb", note: null, loggedAt: ts("2026-10-09") },
+      { id: "l4", kind: "meals", count: 50, unit: "meals", note: null, loggedAt: ts("2026-10-14") },
+      { id: "l5", kind: "meals", count: 80, unit: "meals", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", loggedAt: ts("2026-10-20") },
+      { id: "l6", kind: "produce", count: 220, unit: "lb", note: null, loggedAt: ts("2026-10-22") }
+    ],
+    donorViews: {
+      donor_a01: { id: "donor_a01", recognized: true, displayName: "Maya R.", lastVisitAt: ts("2026-10-15"), hero: { firstName: "Maya", source: "template" },
+        nextStep: { kind: "give_monthly", href: "index.html#give",
+          text: "If you would like to keep this going, a monthly gift would show up here as it happens. No pressure: this page stays just as it is either way." },
+        photos: []
+      },
+      donor_a06: { id: "donor_a06", recognized: true, displayName: "Sam W.", lastVisitAt: null, hero: { firstName: "Sam", source: "template" }, // brand-new donor: thin data, say less
+        nextStep: { kind: "share", href: "index.html", text: "Nothing to do right now. Your page fills in as the pantry logs updates." },
+        photos: []
+      }
+    }
   };
-  const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
-  const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
-  const fmt = (d, y) => new Date(d + "T12:00").toLocaleDateString("en-US", y ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", day: "numeric" });
+
+  // ---- helpers ----
+  const money = c => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: c % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(c / 100); // the one money formatter (integer cents in)
+  const fmtDate = (t, y) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" });
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
+  const DAY = 864e5;
+  const monthOf = t => new Date(t).toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
+  const dateLabel = t => new Date(t).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+  // PRODUCT_SPEC §3 rounding: below 1 shows 0, below 100 rounds down to a whole number, 100 and up rounds down to a multiple of 5. Never overstates.
+  const roundEstimate = v => { v += 1e-9; return !(v >= 1) ? 0 : v < 100 ? Math.floor(v) : Math.floor(v / 5) * 5; };
+  // PRODUCT_SPEC §3 allocation: for each staff log in the 30-day window, this donor's share = their gift cents ÷ everyone's gift cents,
+  // counting only gifts inside the window made on or before the log's date. Per-log quantity = share × log count (kept exact, rounded only after summing).
+  function allocate(donorId) {
+    const from = NOW - DEMO.charity.windowDays * DAY;
+    return DEMO.logs.filter(l => l.loggedAt >= from && l.loggedAt <= NOW).sort((a, b) => a.loggedAt - b.loggedAt).map(log => {
+      const elig = DEMO.pool.filter(g => g.cents > 0 && g.at >= from && g.at <= log.loggedAt);
+      const poolCents = sum(elig, g => g.cents), mineCents = sum(elig.filter(g => g.donor === donorId), g => g.cents);
+      return { log, poolCents, mineCents, share: poolCents ? mineCents / poolCents : 0, qty: poolCents ? mineCents * log.count / poolCents : 0 };
+    }).filter(r => r.poolCents > 0 && r.mineCents > 0);
+  }
+  const estimatesOf = rows => ["meals", "produce"].map(kind => ({ kind, unit: kind === "meals" ? "meals" : "lb", approxQuantity: roundEstimate(sum(rows.filter(r => r.log.kind === kind), r => r.qty)), marker: "about" })).filter(e => e.approxQuantity > 0);
+  const recordOf = l => ({ logId: l.id, kind: l.kind, count: l.count, unit: l.unit, dateLabel: dateLabel(l.loggedAt), note: l.note, hasPhoto: false, loggedAt: l.loggedAt });
+  // the one computed result every section below reads: gifts, records, estimates, since-last-visit
+  function resultFor(dv) {
+    const rows = allocate(dv.id);
+    const gifts = DEMO.pool.filter(g => g.donor === dv.id).sort((a, b) => b.at - a.at).map(g => ({ at: g.at, amountCents: g.cents, label: g.label })); // newest first
+    const firstAt = gifts.length ? gifts[gifts.length - 1].at : NOW, from = NOW - DEMO.charity.windowDays * DAY;
+    const records = DEMO.logs.filter(l => l.loggedAt >= Math.max(from, firstAt) && l.loggedAt <= NOW).sort((a, b) => b.loggedAt - a.loggedAt).map(recordOf);
+    const sRecords = dv.lastVisitAt ? records.filter(r => r.loggedAt > dv.lastVisitAt) : [], sRows = dv.lastVisitAt ? rows.filter(r => r.log.loggedAt > dv.lastVisitAt) : [];
+    return { gifts, rows, records, estimates: estimatesOf(rows),
+      sinceLastVisit: sRecords.length ? { sinceDateLabel: fmtDate(dv.lastVisitAt), records: sRecords, rows: sRows, estimates: estimatesOf(sRows) } : null };
+  }
+  const recText = r => r.kind === "produce" ? `${r.count} ${r.unit} of produce received` : `${r.count} ${r.count === 1 ? "meal" : "meals"} served`;
+  const estShort = e => `about ${e.approxQuantity} ${e.kind === "produce" ? e.unit : e.approxQuantity === 1 ? "meal" : "meals"}`;
+  const estText = e => `about ${e.approxQuantity} ${e.kind === "produce" ? e.unit + " of produce" : e.approxQuantity === 1 ? "meal" : "meals"}`;
+  const ICON = {
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>'
+  };
+  let tipN = 0;
+  // an estimate always shows the visible word "about" and its formula is reachable by hover, keyboard focus and tap
+  const fl2 = n => (Math.floor(n * 100 + 1e-6) / 100).toFixed(2);
+  // this donor's actual inputs, generated from the computed rows, e.g. "Oct 20: your $35 of $290 given by then × 80 meals = 9.65"
+  const inputs = rows => {
+    if (!rows || !rows.length) return "";
+    const lines = rows.map(r => `<span class="in">${esc(fmtDate(r.log.loggedAt))}: your ${money(r.mineCents)} of ${money(r.poolCents)} given by then × ${r.log.count} ${r.log.kind === "produce" ? "lb of produce" : "meals"} = ${fl2(r.qty)}</span>`);
+    const totals = ["meals", "produce"].filter(k => rows.some(r => r.log.kind === k)).map(k => { const t = sum(rows.filter(r => r.log.kind === k), r => r.qty); return `<span class="in"><b>${k === "meals" ? "Meals" : "Produce"}: ${fl2(t)}, rounded down to ${roundEstimate(t)}</b></span>`; });
+    return `<span class="in in-h">Your numbers, from the sample gifts:</span>${lines.join("")}${totals.join("")}`;
+  };
+  const tip = (label = "How we got this", rows) => { const id = "tip" + ++tipN; return `<span class="ct-tip"><button type="button" class="ct-why" aria-expanded="false" aria-describedby="${id}">${label}</button><span role="tooltip" id="${id}" class="ct-tip-body" hidden>${esc(DEMO.charity.formula)}${inputs(rows)}</span></span>`; };
+
+  const app = document.getElementById("app");
   const params = new URLSearchParams(location.search);
-  const shared = params.get("view") === "shared";
-  const since = params.get("since") || "2026-09-30";
-  if (shared) { document.body.classList.add("shared"); document.querySelectorAll("[data-shared]").forEach(el => el.textContent = el.dataset.shared); document.title = "Maya's Impact · Second Helping"; }
+  document.querySelectorAll("[data-charity-name]").forEach(el => el.textContent = DEMO.charity.name);
 
-  const topGift = gifts.reduce((a, b) => (b.amt > a.amt ? b : a));
-  const total = gifts.reduce((s, g) => s + g.amt, 0);
-  document.getElementById("t-total").textContent = "$" + total;
-  document.getElementById("t-top").textContent = "$" + topGift.amt;
-  document.getElementById("t-top-when").textContent = `${fmt(topGift.d)} · ${topGift.run}`;
-  document.getElementById("t-meals").textContent = gifts.reduce((s, g) => s + g.meals, 0);
-  const fresh = updates.filter(u => u.d > since).length;
-  document.querySelector("#new-badge span").textContent = fresh ? `${fresh} new ${fresh === 1 ? "update" : "updates"} since ${fmt(since)}` : `You're all caught up since ${fmt(since)}`;
+  // ---- state views ----
+  const art = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of a crate of fresh produce"><circle cx="290" cy="110" r="52" fill="#ffc94d"/><path d="M0 330q110-70 220-20t180-30v220H0z" fill="#24543a"/><g fill="#7bc47f"><ellipse cx="150" cy="238" rx="16" ry="38" transform="rotate(-24 150 238)"/><ellipse cx="190" cy="226" rx="16" ry="42" transform="rotate(4 190 226)"/><ellipse cx="228" cy="236" rx="16" ry="38" transform="rotate(26 228 236)"/></g><circle cx="118" cy="296" r="32" fill="#f08a2b"/><circle cx="186" cy="288" r="36" fill="#f5a03a"/><circle cx="256" cy="298" r="30" fill="#8d2f4c"/><circle cx="304" cy="306" r="26" fill="#f08a2b"/><rect x="52" y="312" width="296" height="22" rx="8" fill="#cf9650"/><rect x="62" y="334" width="276" height="130" rx="10" fill="#b9803f"/><path d="M62 378h276M62 420h276" stroke="#8f5f2b" stroke-width="5"/></svg>';
+  const skeleton = () => `<div class="sk-hero"><div class="wrap" style="padding-block:48px"><div class="sk" style="height:46px;width:min(560px,90%)"></div><div class="sk" style="height:46px;width:min(380px,70%);margin-top:12px"></div><div class="sk" style="height:18px;width:min(520px,90%);margin-top:28px"></div></div></div>
+    <div class="wrap block"><div class="sk" style="height:120px"></div><div class="sk" style="height:200px;margin-top:16px"></div></div><span class="sr-only">Loading your impact…</span>`;
+  const stateMsg = (h, p, btn) => `<div class="state" role="status"><h1>${h}</h1><p>${p}</p>${btn || ""}</div>`;
 
-  // tabs
-  const tabs = [...document.querySelectorAll('[role="tab"]')].filter(t => getComputedStyle(t).display !== "none");
-  function show(name, focus) {
-    tabs.forEach(t => {
-      const on = t.id === "tab-" + name;
-      t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1;
-      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
-      if (on && focus) t.focus();
-    });
-    history.replaceState(null, "", location.pathname + location.search + "#" + name);
+  function renderReady(dv) {
+    const v = { ...dv, ...resultFor(dv) }; // everything below reads this one computed result
+    const g = v.gifts, total = sum(g, x => x.amountCents), first = g[g.length - 1], winStart = NOW - DEMO.charity.windowDays * 864e5;
+    const inWin = g.filter(x => x.at >= winStart), winTotal = sum(inWin, x => x.amountCents);
+    const meals = v.estimates.find(e => e.kind === "meals"), produce = v.estimates.find(e => e.kind === "produce"), lead = meals || v.estimates[0];
+    const thin = !v.estimates.length;
+    const name = esc(v.hero.firstName || "friend");
+    const mealRows = v.rows.filter(r => r.log.kind === "meals");
+    const recMeals = sum(v.records.filter(r => r.kind === "meals"), r => r.count), recLb = sum(v.records.filter(r => r.kind === "produce"), r => r.count);
+
+    const heroH1 = thin ? `Thank you, ${name}. Your gift arrived.`
+      : `${name}, your gifts put <span class="ct-estimate">${esc(estText(lead))}</span> on neighbors' tables in the last ${DEMO.charity.windowDays} days.`;
+    const estList = v.estimates.map(e => `<span class="ct-estimate">${esc(estShort(e))}</span>`).join(" and ");
+    const story = thin
+      ? esc(`Your ${money(total)} gift arrived on ${fmtDate(first.at)}. The pantry has not logged an update since then. When it does, this page will show what was logged and your estimated share.`)
+      : `Thank you, ${name}. You have given ${g.length} ${g.length === 1 ? "time" : "times"} since ${monthOf(first.at)}. In the last ${DEMO.charity.windowDays} days the pantry logged <span class="ct-record">${recMeals} meals served</span> and <span class="ct-record">${recLb} lb of produce received</span>. Gifts are pooled, so your share of that is an estimate: ${estList}.`;
+    const hero = `<section class="hero on-dark" aria-labelledby="h1"><div class="wrap hero-grid"><div>
+        <h1 id="h1">${heroH1}</h1>
+        ${thin ? "" : `<div class="tip-row">An estimate, not a count. ${tip(undefined, v.rows)}</div>`}
+        <p class="story">${story}</p>
+        <p class="facts"><span class="ct-record">${g.length} ${g.length === 1 ? "gift" : "gifts"}</span><span class="ct-record">${money(total)} given</span><span class="ct-record">since ${fmtDate(first.at, true)}</span></p>
+        <div class="cta">${thin ? "" : `<a class="btn btn-primary" href="${esc(v.nextStep.href || "index.html")}">Give again</a>`}<a class="btn btn-ghost" href="#timeline">See your giving timeline</a></div>
+      </div><div class="art">${art}</div></div></section>`;
+
+    const legend = `<div class="wrap"><div class="legend"><b>Two kinds of numbers on this page</b>
+        <p><span class="ct-record">Logged fact</span><br>Counted by pantry staff when it happened.</p>
+        <p><span class="ct-estimate">about [number] meals</span><br>Your share of pooled gifts. Always marked "about", with the formula one tap away.</p></div></div>`;
+
+    let since = "";
+    if (v.sinceLastVisit) {
+      const s = v.sinceLastVisit;
+      since = `<section class="block" id="new" aria-labelledby="new-h"><div class="wrap"><h2 id="new-h">New since your last visit on ${esc(s.sinceDateLabel)}</h2>
+        <div class="card since"><div><h3>The pantry logged</h3><ul>${s.records.map(r => `<li><span class="ct-record">${esc(recText(r))}</span> <time>${esc(r.dateLabel)}</time>${r.note ? `<div class="note">“${esc(r.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`).join("")}</ul></div>
+        <div><h3>Your estimated share of that</h3><ul>${s.estimates.map(e => `<li><span class="ct-estimate">${esc(estText(e))}</span></li>`).join("")}</ul><p style="margin-top:8px">${tip("How we got these", s.rows)}</p></div></div></div></section>`;
+    }
+
+    const lastLog = v.records.find(r => r.kind === "meals");
+    let journey = "";
+    if (!thin) {
+      journey = `<section class="block" aria-labelledby="j-h"><div class="wrap"><h2 id="j-h">From your gifts to the food</h2>
+        <p class="sub">Your gifts join everyone else's. Here is how that becomes the number above.</p>
+        <ol class="journey">
+          <li class="step"><span class="tag rec">Logged fact</span><span class="big ct-record">${money(winTotal)}</span><p>You gave ${inWin.length} ${inWin.length === 1 ? "time" : "times"} in the last ${DEMO.charity.windowDays} days (${inWin.map(x => fmtDate(x.at)).reverse().join(" and ")}).</p></li>
+          <li class="step why"><span class="tag why">Why it is an estimate</span><span class="big">Pooled</span><p>Gifts go into one pot, so no single dollar is traced to a single meal. Each update is split by share of gifts.</p></li>
+          <li class="step"><span class="tag rec">Logged fact</span><span class="big ct-record">${recMeals} meals</span><p>Served and logged by staff, plus ${recLb} lb of produce received.${lastLog ? ` Latest: ${lastLog.count} meals on ${esc(lastLog.dateLabel)}.` : ""}</p></li>
+          <li class="step est"><span class="tag est">Estimate</span><span class="big">${esc(estText(lead))}</span><p>Your share of those meals${produce && meals ? `, and <span class="ct-estimate">${esc(estText(produce))}</span>` : ""}. ${tip(undefined, v.rows)}</p></li>
+        </ol></div></section>`;
+    }
+
+    // timeline: the donor's gifts and the pantry's logs, newest first (all logged facts)
+    const events = [...g.map(x => ({ t: x.at, type: "gift", x })), ...v.records.map(x => ({ t: x.loggedAt, type: "log", x }))].sort((a, b) => b.t - a.t);
+    const iso = t => new Date(t).toISOString().slice(0, 10);
+    const li = e => e.type === "gift"
+      ? `<li class="gift"><span class="dot">${ICON.heart}</span><div class="row1"><span class="ct-record">You gave ${money(e.x.amountCents)}</span>${e.x === first ? '<span class="pill">First gift</span>' : ""}<time datetime="${iso(e.t)}">${fmtDate(e.t, true)}</time></div><p class="what">${esc(e.x.label)}</p></li>`
+      : `<li class="log"><span class="dot">${ICON.check}</span><div class="row1"><span class="ct-record">Pantry logged ${esc(recText(e.x))}</span><time datetime="${iso(e.t)}">${fmtDate(e.t, true)}</time></div>${e.x.note ? `<div class="note">“${esc(e.x.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`;
+    const SHOW = 7, head = events.slice(0, SHOW), rest = events.slice(SHOW);
+    const timeline = `<section class="card" id="timeline" aria-labelledby="tl-h"><h2 id="tl-h">Your giving timeline</h2>
+        <p class="sub">Your gifts, with what the pantry logged around them.</p>
+        <ol class="tl">${head.map(li).join("")}</ol>
+        ${rest.length ? `<ol class="tl" id="tl-more" hidden style="margin-top:0">${rest.map(li).join("")}</ol><button class="btn btn-quiet more" type="button" id="more-btn" aria-expanded="false" aria-controls="tl-more">Show ${rest.length} earlier ${rest.length === 1 ? "entry" : "entries"}</button>` : ""}</section>`;
+
+    const ms = meals && DEMO.charity.milestones.find(m => m > meals.approxQuantity);
+    const next = `<section class="card next sticky" aria-labelledby="nx-h">${
+      ms ? `<h2 id="nx-h">Your next milestone: ${ms} meals</h2>
+        <div class="progress" role="img" aria-label="About ${meals.approxQuantity} of ${ms} meals, an estimate"><i style="width:${Math.min(100, Math.round(meals.approxQuantity / ms * 100))}%"></i></div>
+        <p><span class="ct-estimate">about ${meals.approxQuantity} of ${ms} meals</span> ${tip(undefined, mealRows)}</p>`
+      : `<h2 id="nx-h">What happens next</h2>`}
+      <p class="ask">${esc(v.nextStep.text)}</p>
+      ${thin ? `<a class="btn btn-quiet" href="index.html">Back to the home page</a>` : `<a class="btn btn-primary" href="${esc(v.nextStep.href || "index.html#give")}">Give again</a>`}</section>`;
+
+    app.innerHTML = hero + (thin ? "" : legend) + since + journey + `<section class="block"><div class="wrap cols">${timeline}${next}</div></section>`;
+    document.title = `My Impact · ${DEMO.charity.name}`; // no donor name in the tab title or history
+    document.getElementById("me-name").textContent = v.displayName; document.getElementById("me-av").textContent = v.displayName[0]; document.getElementById("me").hidden = false;
+    const mb = document.getElementById("more-btn");
+    if (mb) mb.addEventListener("click", () => { const open = mb.getAttribute("aria-expanded") !== "true"; mb.setAttribute("aria-expanded", open); document.getElementById("tl-more").hidden = !open; mb.textContent = open ? "Hide earlier entries" : `Show ${rest.length} earlier ${rest.length === 1 ? "entry" : "entries"}`; });
   }
-  tabs.forEach((t, i) => {
-    t.addEventListener("click", () => show(t.id.slice(4)));
-    t.addEventListener("keydown", e => {
-      const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
-      if (k) { e.preventDefault(); show(tabs[(i + k + tabs.length) % tabs.length].id.slice(4), true); }
-    });
-  });
-  document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => {
-    show(b.dataset.goto);
-    if (b.dataset.gift) openGift(b.dataset.gift);
-    document.querySelector(".tabs").scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
 
-  // chart
-  const chart = document.getElementById("chart"), max = Math.max(...gifts.map(g => g.amt));
-  gifts.forEach(g => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "bar" + (g === topGift ? " is-top" : ""); b.setAttribute("aria-pressed", "false");
-    b.setAttribute("aria-label", `${fmt(g.d, true)}: $${g.amt}${g === topGift ? `, ${shared ? "Maya's" : "your"} highest gift` : ""}`);
-    b.innerHTML = `<strong>$${g.amt}</strong><i style="height:${(g.amt / max) * 100}%"></i><em>${fmt(g.d)}</em>`;
-    b.addEventListener("click", () => {
-      chart.querySelectorAll(".bar").forEach(x => x.setAttribute("aria-pressed", x === b));
-      document.getElementById("chart-note").innerHTML = `<b>$${g.amt} on ${fmt(g.d)}</b>${g === topGift ? ' <span class="pill gold">Highest gift</span>' : ""} · ${g.run}: ${g.lbs} lb rescued from ${g.farm}, ${g.pending ? "meals on the way" : g.meals + " meals at " + g.pantry}. <a href="#gifts" data-open="${g.id}">See its journey</a>`;
-    });
-    chart.appendChild(b);
-  });
-  document.getElementById("chart-note").addEventListener("click", e => {
-    const a = e.target.closest("[data-open]"); if (!a) return;
-    e.preventDefault(); show("gifts"); openGift(a.dataset.open);
-  });
-
-  // milestones
-  const ms = [["First gift", true], ["Gave 3 times", true], ["50 meals", true], ["Gave in 3 seasons", true], ["100 meals", false], ["Monthly giver", false]];
-  document.getElementById("ms").innerHTML = ms.map(([t, done]) => `<li class="${done ? "" : "todo"}"><span class="dot">${check}</span>${t}</li>`).join("");
-
-  // feeds
-  const item = u => `<li><span class="ico" aria-hidden="true">${icons[u.type]}</span><div><time>${fmt(u.d, true)}</time>${u.d > since && !shared ? '<span class="pill new">New</span>' : ""}<p>${u.t}</p>${u.q ? `<blockquote>“${u.q}”<cite>${u.by}</cite></blockquote>` : ""}</div></li>`;
-  const sorted = [...updates].sort((a, b) => b.d.localeCompare(a.d));
-  document.getElementById("feed-latest").innerHTML = sorted.slice(0, 3).map(item).join("");
-  const filters = [["all", "All"], ["rescue", "Food rescued"], ["meals", "Meals served"], ["note", "Notes"]];
-  const fbox = document.getElementById("filters"), feedAll = document.getElementById("feed-all");
-  function filter(kind) {
-    fbox.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === kind));
-    const list = sorted.filter(u => kind === "all" || u.type === kind);
-    feedAll.innerHTML = list.length ? list.map(item).join("") : '<li class="empty">No updates of this kind yet.</li>';
+  // ---- data access: the one function to swap for the Convex query (GET /donor-view) ----
+  async function getDonorView() {
+    await new Promise(r => setTimeout(r, 350)); // stands in for network latency
+    const st = params.get("state"), token = params.get("ct");
+    if (st === "error") throw new Error("demo error");
+    if (st === "unrecognized") return { recognized: false };
+    if (st === "thin") return DEMO.donorViews[DEMO.tokens.t3x8v5];
+    if (!token) return DEMO.donorViews[DEMO.tokens.k7q2m9]; // opening the file directly shows the demo donor
+    const id = DEMO.tokens[token]; return id ? DEMO.donorViews[id] : { recognized: false };
   }
-  fbox.innerHTML = filters.map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join("");
-  fbox.addEventListener("click", e => { const b = e.target.closest("button"); if (b) filter(b.dataset.k); });
-  filter("all");
 
-  // gift list
-  const glist = document.getElementById("gift-list");
-  glist.innerHTML = [...gifts].reverse().map(g => {
-    const steps = updates.filter(u => u.g === g.id);
-    return `<li><button class="row" type="button" aria-expanded="false" aria-controls="d-${g.id}" id="r-${g.id}">
-      <b>${g.run}${g === topGift ? '<span class="pill gold">Highest gift</span>' : ""}${g.pending ? '<span class="pill">In progress</span>' : ""}</b>
-      <span class="right"><span class="amt">$${g.amt}</span>${chev}</span>
-      <span>${fmt(g.d, true)}</span></button>
-      <div class="detail" id="d-${g.id}" hidden>${g.lbs} lb rescued from ${g.farm} · ${g.pending ? "meals on the way" : g.meals + " meals at " + g.pantry}
-      <ol>${steps.length ? steps.map(s => `<li>${fmt(s.d)}: ${s.t}</li>`).join("") : "<li>Pickup scheduled. We'll update you when it moves.</li>"}</ol></div></li>`;
-  }).join("");
-  glist.addEventListener("click", e => { const r = e.target.closest(".row"); if (r) toggle(r); });
-  function toggle(r, force) {
-    const open = force ?? r.getAttribute("aria-expanded") !== "true";
-    r.setAttribute("aria-expanded", open); document.getElementById(r.getAttribute("aria-controls")).hidden = !open;
+  async function boot() {
+    app.setAttribute("aria-busy", "true"); document.getElementById("me").hidden = true;
+    app.innerHTML = skeleton();
+    if (params.get("state") === "loading") return;
+    try {
+      const v = await getDonorView();
+      if (!v.recognized) app.innerHTML = stateMsg("We could not find your page", "This link may have expired (links last 30 days) or been copied incompletely. The home page works the same without it.", '<a class="btn btn-brand" href="index.html">Go to the home page</a>');
+      else renderReady(v);
+    } catch {
+      app.innerHTML = stateMsg("Your impact did not load", "Something went wrong on our side. Nothing was changed. Try again in a moment.", '<button class="btn btn-brand" type="button" id="retry">Try again</button>');
+      document.getElementById("retry").addEventListener("click", () => { params.delete("state"); document.getElementById("state-sel").value = ""; history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); boot(); });
+    }
+    app.setAttribute("aria-busy", "false");
   }
-  function openGift(id) { const r = document.getElementById("r-" + id); toggle(r, true); r.focus(); }
 
-  // invite
-  const shareUrl = new URL("dashboard.html?view=shared&from=maya", location.href).href;
-  document.getElementById("link").value = shareUrl;
-  const copy = document.getElementById("copy");
-  copy.addEventListener("click", async () => {
-    const input = document.getElementById("link");
-    try { await navigator.clipboard.writeText(shareUrl); } catch { input.select(); document.execCommand("copy"); }
-    copy.textContent = "Copied"; setTimeout(() => copy.textContent = "Copy link", 1800);
-  });
-  document.getElementById("invite-form").addEventListener("submit", e => {
-    e.preventDefault();
-    const f = document.getElementById("friend"), msg = document.getElementById("invite-msg"), v = f.value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { f.setAttribute("aria-invalid", "true"); msg.className = "msg err"; msg.textContent = "Enter an email like friend@example.com."; f.focus(); return; }
-    f.removeAttribute("aria-invalid"); msg.className = "msg"; msg.textContent = `Invite ready for ${v}. Demo only, no email was sent.`;
-    const li = document.createElement("li"); li.innerHTML = `<span></span><span>Invited · just now</span>`; li.firstChild.textContent = v;
-    document.getElementById("sent").prepend(li); f.value = "";
-  });
+  // formula tooltips: hover, keyboard focus and tap/click (click pins it open); Escape or an outside tap closes
+  (function () {
+    const place = b => { b.style.left = "0"; const r = b.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12); if (over > 0) b.style.left = -over + "px"; };
+    const parts = t => ({ b: t.querySelector(".ct-why"), body: t.querySelector(".ct-tip-body") });
+    const open = t => { const { b, body } = parts(t); body.hidden = false; b.setAttribute("aria-expanded", "true"); place(body); };
+    const close = t => { const { b, body } = parts(t); body.hidden = true; b.setAttribute("aria-expanded", "false"); delete t.dataset.pinned; };
+    const tipOf = e => e.target.closest && e.target.closest(".ct-tip");
+    app.addEventListener("mouseover", e => { const t = tipOf(e); if (t) open(t); });
+    app.addEventListener("mouseout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget) && !t.dataset.pinned && !t.contains(document.activeElement)) close(t); });
+    app.addEventListener("focusin", e => { const t = tipOf(e); if (t) open(t); });
+    app.addEventListener("focusout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget)) close(t); });
+    app.addEventListener("click", e => { const t = tipOf(e); if (!t) return; if (t.dataset.pinned) close(t); else { t.dataset.pinned = "1"; open(t); } });
+    document.addEventListener("click", e => { app.querySelectorAll(".ct-tip[data-pinned]").forEach(t => { if (!t.contains(e.target)) close(t); }); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") app.querySelectorAll(".ct-tip").forEach(t => { if (!parts(t).body.hidden) close(t); }); });
+  })();
 
-  // deep link to a tab
-  const start = location.hash.slice(1);
-  if (tabs.some(t => t.id === "tab-" + start)) show(start);
-  addEventListener("hashchange", () => { const h = location.hash.slice(1); if (tabs.some(t => t.id === "tab-" + h)) show(h); });
-  if (shared) document.getElementById("greet").textContent = "";
+  const sel = document.getElementById("state-sel"); sel.value = params.get("state") || "";
+  sel.addEventListener("change", () => { if (sel.value) params.set("state", sel.value); else params.delete("state"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); boot(); });
+  boot();
 </script>
 </body>
 </html>
