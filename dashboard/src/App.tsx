@@ -19,7 +19,7 @@ function Gate({ onIn }: { onIn: () => void }) {
     <main className="gate">
       <form onSubmit={go}>
         <h1>{charityName}</h1>
-        <p>Staff sign-in. Demo PIN only; real sign-in is out of scope for this hackathon build.</p>
+        <p>Staff sign-in. This demo accepts any PIN; real sign-in is not part of it.</p>
         <label>Staff PIN<input type="password" inputMode="numeric" autoComplete="off" value={pin} onChange={(e) => { setPin(e.target.value); setErr(false); }} aria-invalid={err} /></label>
         {err && <p className="err" role="alert">Enter the PIN to continue.</p>}
         <button className="primary" type="submit">Open dashboard</button>
@@ -32,8 +32,8 @@ export function App() {
   const [ok, setOk] = useState(loggedIn());
   const [tab, setTab] = useState<Tab>("overview");
   const main = useRef<HTMLElement>(null);
-  // Keep keyboard and screen-reader users oriented: move focus to the content area after sign-in and on tab change.
-  useEffect(() => { if (ok) main.current?.focus(); }, [ok, tab]);
+  // After sign-in, land focus on the content. Tab changes leave focus on the nav button so keyboard users keep their place.
+  useEffect(() => { if (ok) main.current?.focus(); }, [ok]);
   if (!ok) return <Gate onIn={() => setOk(true)} />;
   return (
     <>
@@ -46,7 +46,7 @@ export function App() {
       </header>
       <main className="page" ref={main} tabIndex={-1} aria-label={TABS.find(([k]) => k === tab)![1]}>
         <p className="legend"><span className="tag tag-rec">Record</span> counted or logged · <span className="tag tag-est">Estimate</span> computed, always marked “about”. Fictional demo data.</p>
-        {tab === "overview" && <Overview />}
+        {tab === "overview" && <Overview onSeeDonors={() => setTab("donors")} />}
         {tab === "donors" && <Donors />}
         {tab === "expenses" && <Expenses />}
       </main>

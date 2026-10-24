@@ -37,7 +37,7 @@ export function donorDetail(id: string): DonorDetail | null {
   const gifts = Array.from({ length: n }, (_, i) => ({
     at: n === 1 ? d.firstGiftAt : Math.round(d.firstGiftAt + ((d.lastGiftAt - d.firstGiftAt) * i) / (n - 1)),
     amountCents: i === n - 1 ? d.totalGiven - each * (n - 1) : each,
-    label: "Donation, test mode",
+    label: "Gift",
   })).reverse();
   const pool = donors.reduce((s, x) => s + x.totalGiven, 0);
   const shareMeals = Math.round((d.totalGiven / pool) * mealsServed);
@@ -64,7 +64,7 @@ export const overview: DashOverview = {
   period: { from: ago(30), to: NOW, label: "Last 30 days" },
   totalRaised: 24500,
   prevPeriodRaised: 19000,
-  donorCounts: { total: donors.length, new: 2, returning: 3, lapsed: 1 },
+  donorCounts: { total: donors.length, new: 2, returning: 5, lapsed: 1 }, // returning = active + at risk, so the parts sum to the total
   mealsServed,
   expensesTotal,
   costPerMeal: {

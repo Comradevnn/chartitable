@@ -89,6 +89,9 @@ Status rules (v0, tweak freely): new = first gift in period; active = gift withi
 - Charts: few, labeled directly, no chart junk. Tables beat charts for small data.
 - Use Impeccable (`/impeccable init`, `shape`, `craft`, `critique`, `audit`, `polish`) for implementation quality and to avoid generic-AI-template tells.
 
+## Figma
+File (Teammate 1's drafts, view access via the owner): https://www.figma.com/design/jnGjgMPjBGua3ycFOzjQUg . Page "Returning donor": thin, rich and empty states for the three slots on two host palettes (warm pantry, regional bank), using the `--ct-*` variables only. Page "Staff dashboard": M1 Overview, M2 Donors with detail and donor-view preview, M3 Expenses. Built after the code (frames mirror the shipped screens); fictional data only.
+
 ## Open questions
 1. Figma track: which of the five tracks is the dashboard aiming for (Best Design, Best Use Case of Figma, Figma Agent)? Criteria unseen.
 2. Does the dashboard live at `/dashboard` on the same Vercel project as the staff page, or its own deploy?
