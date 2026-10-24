@@ -1,14 +1,14 @@
 # Product spec — Lane A (donor layer + backend)
 
 Audience: Revnn and the agents working in Lane A (`/convex`, `/engine`, `/layer`, `/staff`, `/seed`). Not needed for Lane B except §6 (the dashboard queries Lane A will expose) and §9 (contract).
-Status labels: **BUILT** = exists and tested; **PROPOSED** = decided here, not yet in code; **OPEN** = needs a decision. Last updated Sat Oct 24, ~1:45 AM PT (v0.2: added §12–§19, defaults for OPEN items).
+Status labels: **BUILT** = exists and tested; **PROPOSED** = decided here, not yet in code; **OPEN** = needs a decision. Last updated Sat Oct 24, ~1:20 AM PT (v0.3: Lane A backend BUILT in code; live deploy pending Convex login).
 Data shapes live in `engine/types.ts` (source of truth; this file doesn't restate them). The honesty rule (D1/D8) governs everything below.
 
 ## 1. End-to-end flow
 1. Donor opens a charity site → `layer.js` (contract v1). No token → nothing changes (first-time visitor sees the normal site).
 2. Donor clicks the site's donate button → `layer.js` has rewritten its `href` to the hosted donate page `/donate?charity=<id>` (D10).
-3. Donate page records a **test-mode** donation (`createDonation`), upserts the donor, signs a token, redirects to `charity.siteUrl?ct=<token>`. **PROPOSED**
-4. Staff post an impact update (count, unit, note, optional photo) on the staff page → stored as an `ImpactLog`. **PROPOSED**
+3. Donate page records a **test-mode** donation (`createDonation`), creates a new donor (never looked up by email), signs a token, redirects to `charity.siteUrl?ct=<token>`. **BUILT (T3: `convex/donations.ts`, `staff/donate.*`)**
+4. Staff post an impact update (count, unit, note, optional photo) on the staff page → stored as an `ImpactLog`. **Backend BUILT (`convex/impact.ts`); page PROPOSED (Cursor, T4)**
 5. Allocation recomputes for the window (§3) → per-donor `Allocation` rows. **BUILT (engine)**
 6. For a donor: `buildFacts` → `buildPrompt` → Claude (`claude-sonnet-5-5`, JSON) → `guard` → accept, else `templateFallback`; cache by `factsHash` in `narratives`. **BUILT (engine); Convex action PROPOSED (T6b)**
 7. Milestone check (scheduled) finds donors who crossed a threshold → Resend email "See where your donation has gone" with `siteUrl?ct=<token>` → only to `DEMO_INBOXES`. **PROPOSED (T9)**
@@ -22,22 +22,22 @@ charities, donors, donations, impactLogs, allocations, visits, narratives (index
 - A log is shared among donors in proportion to their eligible gifts; eligible = same charity, made within the window and **at or before the log's `loggedAt`** (late donors get nothing from earlier logs).
 - `estimatedQuantity = share × log.count × attributableFraction` (default 1). Always `isEstimate: true`; displayed through `roundEstimate()`, which never overstates.
 - No eligible donations → no allocations. Deterministic ordering.
-- **Default window: PROPOSED-DEFAULT, rolling 30 days ending now** (lead to confirm). The window bounds both donations and logs, so a short window can drop a donor entirely: on the seed, the demo donor's gift is 9 days old and gets **0 meals** in a 7-day window, **42** in 14 days, **23** in 30 days (their share dilutes as other gifts enter). Never use a window shorter than the demo donor's gift age; see §16 for the calibrated demo numbers.
+- **Default window: BUILT default, rolling 30 days ending now** (`engine/config.ts` `WINDOW_DAYS`; lead may still change it — rerun the calibration test). The window bounds both donations and logs, so a short window can drop a donor entirely: on the seed, the demo donor's gift is 9 days old and gets **0 meals** in a 7-day window, **42** in 14 days, **23** in 30 days (their share dilutes as other gifts enter). Never use a window shorter than the demo donor's gift age; see §16 for the calibrated demo numbers.
 
-## 4. Narrative and guard — engine BUILT, action PROPOSED
+## 4. Narrative and guard — BUILT (engine + `convex/narrative.ts`; live Claude smoke passed Sat 1:08 AM)
 - Claude sees only `DonorFacts`. Output schema: `{ story, nextStep: { kind, text } }` (`NARRATIVE_JSON_SCHEMA`).
 - Guard rejects: numbers/number words not derivable from facts, unlabeled estimates, percentages, names not in facts, pressure language, markup, over-length text. Failure → `templateFallback(facts)` (always passes the guard). `NarrativeResult.source` records which was used; guard reasons are kept for the dashboard's narrative review (dashboard Next N3).
 - API error, timeout (set 15 s), or missing key → template fallback; never block the page.
 - Regenerate when `factsHash` changes (new log, new gift, new visit window). Otherwise serve the cache.
 - Thin data (`thinData: true`) → short story, no padding.
-- **Call cap: PROPOSED-DEFAULT** 60 Claude calls per hour per deployment and at most 1 regeneration per donor per 10 minutes; beyond either, serve the cached story or the template. Set as env vars (`NARRATIVE_MAX_PER_HOUR`, `NARRATIVE_MIN_INTERVAL_MS`).
+- **Call cap: BUILT, default chosen** 60 Claude calls per hour per deployment and at most 1 regeneration per donor+charity per **60 s** (shortened from 10 min so demo steps 3→4 still get a Claude story; §19.3); beyond either, serve the cached story or the template. Set as env vars (`NARRATIVE_MAX_PER_HOUR`, `NARRATIVE_MIN_INTERVAL_MS`).
 
-## 5. Tokens and "since last visit" — tokens BUILT, visits PROPOSED
+## 5. Tokens and "since last visit" — BUILT (`engine/token.ts`, `convex/visits.ts`; previous visit = most recent `/donor-view` call)
 - `signToken/verifyToken`: HMAC-SHA256, opaque ids only, default TTL 30 days; failures: `malformed | bad-signature | expired`. Secret: `TOKEN_SECRET`.
 - Each successful `/donor-view` call records a `visits` row. `sinceLastVisit` = records/estimates with `loggedAt` after the donor's previous visit (null on first visit with a token). Anything the response can't support is omitted, not guessed.
 - Invalid, expired or missing token → `{ recognized: false }` with no error detail.
 
-## 6. HTTP API — PROPOSED (T7b)
+## 6. HTTP API — BUILT (T7b `convex/http.ts`; T3 `donations:create`; T19 `convex/dashboard.ts`, every dashboard function takes a `pin` arg)
 ### `GET /donor-view?charity=<id>` — header `Authorization: Bearer <token>`
 Response is `DonorView` (see `engine/types.ts`). CORS open to any origin. Never returns email or other donors' data. Records and estimates are separate arrays.
 ### Donate (Convex mutation) `createDonation(charityId, amountCents, firstName?, email?, hideFromTopDonors?)`
@@ -45,12 +45,12 @@ Test mode only. Returns a signed token; the page redirects with only `?ct=`. Ema
 ### Dashboard queries (for Lane B; shapes in `docs/DASHBOARD_SPEC.md`, task T19)
 `dashboard:overview`, `dashboard:donors`, `dashboard:expenses`, `dashboard:addExpense`. New table `expenses`; new donor fields `hideFromTopDonors`, `thankedAt`.
 
-## 7. Milestones and email — PROPOSED (T9)
+## 7. Milestones and email — BUILT (T9 `convex/milestones.ts`, `convex/email.ts`, `convex/crons.ts`; also runs right after `impact:log`; does nothing until `RESEND_API_KEY` and `DEMO_INBOXES` are set)
 - Trigger: a donor's cumulative **estimated** impact (aggregated by kind) crosses a threshold, e.g. 25 / 50 / 100 / 250 meals; threshold id stored in `milestoneEmails` so each fires once.
 - Frequency cap: at most one email per donor per 7 days. Quiet by default.
 - Content: only guard-passing text; estimates labeled; one link.
 - **Safety:** send only to `DEMO_INBOXES`; non-allowlisted addresses are logged and skipped. Resend without a verified domain delivers only to the account owner's address (D4).
-- **Thresholds: PROPOSED-DEFAULT meals 25 / 50 / 100 / 250** (other kinds: produce 100 / 250 / 500 lb; volunteer shifts 3 / 6 / 12). Calibrated in §16 so the seeded demo donor crosses 25 meals exactly when staff post "served 80 meals".
+- **Thresholds: BUILT defaults meals 25 / 50 / 100 / 250** (`engine/config.ts`; compared against the rounded "about N" value) (other kinds: produce 100 / 250 / 500 lb; volunteer shifts 3 / 6 / 12). Calibrated in §16 so the seeded demo donor crosses 25 meals exactly when staff post "served 80 meals".
 
 ## 8. Failure modes
 | Failure | Behavior |
@@ -145,3 +145,10 @@ T3: $25 donation row exists; redirect URL has only `ct`. T4: log row + photo sto
 2. Staff auth: shared PIN env var (recommended) vs none for the demo.
 3. Claude call cap (60/hour) and regeneration interval (10 min).
 4. Where `layer.js` is hosted for the demo before Vercel is ready (local `http://localhost:5174` per contract v1).
+
+### Defaults chosen during the Lane A build (Sat ~1:20 AM PT; lead may override)
+1. Window 30 days and thresholds as above; calibration test `engine/calibration.test.ts` passes (22.9 → 26.8 meals).
+2. Staff auth: shared `STAFF_PIN` env var for `impact:*` and `dashboard:*` (fails closed when unset).
+3. Call cap 60/hour; per-donor regeneration interval 60 s (env `NARRATIVE_MIN_INTERVAL_MS`).
+4. `layer.js` gets its API origin at build time (`--define:CT_API_BASE`), so contract v1 is unchanged; local dev keeps `http://localhost:5174/layer.js`.
+5. Claude never sees since-last-visit; that slot is rendered from structured records, which keeps `factsHash` stable across visits. `/donor-view` never waits on Claude: it serves the cached story or the template and schedules generation.
