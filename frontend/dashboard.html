@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Impact · Second Helping</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --soft: #f4f6f3;
+    --ink: #16201a;
+    --ink-soft: #4d5a52;
+    --rule: #dde4de;
+    --brand: #1d6b3f;
+    --brand-dark: #144f2d;
+    --brand-tint: #e6f1ea;
+    --accent: #ffc94d;
+    --accent-tint: #fff4d6;
+    --dark: #10241a;
+    --on-dark: #ffffff;
+    --on-dark-soft: #c3d3c9;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--soft); color: var(--ink); font-family: "Hanken Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  ::selection { background: var(--accent); color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  a { color: inherit; text-underline-offset: 3px; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  h1, h2, h3 { line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
+  h2 { font-size: 22px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 700 15px/1.3 "Hanken Grotesk", sans-serif; padding: 12px 20px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none; transition: background .2s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--ink); }
+  .btn-primary:hover { background: #ffb81f; }
+  .btn-brand { background: var(--brand); color: #fff; }
+  .btn-brand:hover { background: var(--brand-dark); }
+  .btn-quiet { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
+  .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
+
+  /* nav (shared with homepage) */
+  .nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--rule); }
+  .nav .wrap { display: flex; align-items: center; gap: 12px; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; text-decoration: none; white-space: nowrap; }
+  .logo svg { width: 22px; height: 22px; }
+  .nav .me { margin-left: auto; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: none; }
+  .nav .back { font-size: 15px; font-weight: 600; color: var(--ink-soft); text-decoration: none; padding: 8px 0; }
+  .nav .back:hover { color: var(--ink); }
+  @media (max-width: 520px) { .nav .me span { display: none; } }
+
+  /* welcome */
+  .welcome { background: var(--dark); color: var(--on-dark); }
+  .welcome .wrap { padding-top: 40px; padding-bottom: 88px; display: grid; gap: 20px; }
+  @media (min-width: 860px) { .welcome .wrap { grid-template-columns: 1fr auto; align-items: end; } }
+  .welcome h1 { font-size: clamp(30px, 4.4vw, 48px); max-width: 20ch; text-wrap: balance; }
+  .welcome p { margin: 10px 0 0; color: var(--on-dark-soft); font-size: 18px; max-width: 52ch; }
+  .welcome .new { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; margin-top: 18px; }
+  .welcome .new i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .welcome .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* summary tiles */
+  .summary { margin-top: -56px; display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 860px) { .summary { grid-template-columns: repeat(4, 1fr); } }
+  .tile { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 10px 30px -22px rgba(16,36,26,.4); border: 1px solid var(--rule); text-align: left; font: inherit; color: inherit; cursor: pointer; transition: border-color .2s, transform .15s; }
+  .tile:hover { border-color: var(--brand); transform: translateY(-2px); }
+  .tile span { display: block; color: var(--ink-soft); font-size: 14px; }
+  .tile b { display: block; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.03em; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .tile small { color: var(--ink-soft); font-size: 13px; }
+  .tile.top { background: var(--accent-tint); border-color: #f3dc98; }
+  .tile.top b::after { content: ""; display: inline-block; width: 18px; height: 18px; margin-left: 8px; vertical-align: 2px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a06a00' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.7 5.6 6.1.8-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.8z'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; margin: 32px 0 20px; border-bottom: 1px solid var(--rule); overflow-x: auto; scrollbar-width: none; }
+  .tabs button { font: 700 15px/1.3 "Hanken Grotesk", sans-serif; background: none; border: 0; padding: 12px 14px; color: var(--ink-soft); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+  .panel { padding-bottom: 72px; }
+  .panel[hidden] { display: none; }
+  .card { background: #fff; border-radius: 14px; border: 1px solid var(--rule); padding: 22px; }
+  .grid2 { display: grid; gap: 16px; }
+  @media (min-width: 900px) { .grid2 { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+
+  /* giving chart */
+  .chart { display: flex; align-items: flex-end; gap: 10px; height: 180px; margin: 18px 0 8px; padding-bottom: 26px; position: relative; }
+  .chart::after { content: ""; position: absolute; left: 0; right: 0; bottom: 26px; border-top: 1px solid var(--rule); }
+  .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; position: relative; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .bar i { display: block; width: 100%; max-width: 44px; background: #9cc8ad; border-radius: 6px 6px 0 0; transition: background .2s; }
+  .bar.is-top i { background: var(--accent); }
+  .bar:hover i, .bar[aria-pressed="true"] i { background: var(--brand); }
+  .bar.is-top:hover i, .bar.is-top[aria-pressed="true"] i { background: #e6a800; }
+  .bar em { position: absolute; bottom: -24px; font-style: normal; font-size: 12px; color: var(--ink-soft); }
+  .bar strong { font-size: 12px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .chart-note { font-size: 14px; color: var(--ink-soft); margin: 10px 0 0; min-height: 1.5em; }
+
+  /* lists */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list > li { border-top: 1px solid var(--rule); }
+  .list > li:first-child { border-top: 0; }
+  .row { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 14px 0; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .row b { font-size: 16px; }
+  .row span { color: var(--ink-soft); font-size: 14px; }
+  .row .amt { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; text-align: right; }
+  .row .chev { width: 18px; height: 18px; transition: transform .2s; color: var(--ink-soft); }
+  .row[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .row .right { display: flex; align-items: center; gap: 10px; grid-row: span 2; }
+  .detail { padding: 0 0 16px; color: var(--ink-soft); font-size: 15px; }
+  .detail[hidden] { display: none; }
+  .detail ol { margin: 6px 0 0; padding-left: 18px; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--brand-tint); color: var(--brand-dark); margin-left: 6px; vertical-align: 1px; }
+  .pill.gold { background: var(--accent-tint); color: #7a5200; }
+  .pill.new { background: var(--accent); color: var(--ink); }
+
+  /* impact feed */
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 14px 0; border-top: 1px solid var(--rule); }
+  .feed li:first-child { border-top: 0; }
+  .feed .ico { width: 40px; height: 40px; border-radius: 12px; background: var(--brand-tint); display: grid; place-items: center; color: var(--brand); }
+  .feed .ico svg { width: 20px; height: 20px; }
+  .feed time { font-size: 13px; color: var(--ink-soft); }
+  .feed p { margin: 2px 0 0; }
+  .feed blockquote { margin: 8px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 10px; font-size: 15px; }
+  .feed blockquote cite { display: block; font-style: normal; color: var(--ink-soft); font-size: 13px; margin-top: 4px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+  .filters button { font: 600 14px/1.3 "Hanken Grotesk", sans-serif; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--rule); background: #fff; cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .empty { color: var(--ink-soft); padding: 20px 0; text-align: center; }
+
+  /* milestones */
+  .ms { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .ms li { display: flex; gap: 12px; align-items: center; font-size: 15px; }
+  .ms .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--brand); color: #fff; }
+  .ms .dot svg { width: 14px; height: 14px; }
+  .ms li.todo { color: var(--ink-soft); }
+  .ms li.todo .dot { background: #fff; border: 2px dashed #b6c4ba; color: transparent; }
+  .goal { height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; margin: 10px 0 6px; }
+  .goal i { display: block; height: 100%; background: var(--brand); border-radius: 5px; }
+
+  /* invite */
+  .invite-preview { border: 1.5px dashed #b6c4ba; border-radius: 14px; padding: 18px; background: var(--soft); }
+  .invite-preview b { display: block; font-size: 18px; margin-bottom: 4px; }
+  label.f { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 6px; }
+  .field { display: flex; gap: 8px; flex-wrap: wrap; }
+  .field input, textarea { flex: 1 1 200px; font: 400 16px/1.4 "Hanken Grotesk", sans-serif; padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: 10px; background: #fff; color: var(--ink); }
+  textarea { width: 100%; resize: vertical; min-height: 84px; }
+  .field input:focus, textarea:focus { outline: none; border-color: var(--brand); }
+  .field input[aria-invalid="true"] { border-color: #b3261e; }
+  .msg { font-size: 14px; margin: 8px 0 0; min-height: 1.5em; color: var(--ink-soft); }
+  .msg.err { color: #b3261e; }
+  .sent { list-style: none; padding: 0; margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
+  .sent li { padding: 6px 0; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 8px; }
+
+  /* shared (friend) view */
+  .shared-banner { background: var(--accent); color: var(--ink); font-weight: 600; font-size: 15px; }
+  .shared-banner .wrap { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding-top: 12px; padding-bottom: 12px; }
+  .shared-banner a { margin-left: auto; }
+  body.shared .owner-only { display: none !important; }
+  body:not(.shared) .shared-only { display: none !important; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 0 16px 32px; }
+</style>
+</head>
+<body>
+  <div class="shared-banner shared-only"><div class="wrap"><span>Maya invited you to see what her giving has done.</span><a class="btn btn-brand" href="index.html#give">Give alongside Maya</a></div></div>
+
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg>Second Helping</a>
+      <div class="me owner-only"><a class="back" href="index.html">Home</a><span>Maya R.</span><div class="avatar" aria-hidden="true">M</div></div>
+    </div>
+  </header>
+
+  <main>
+  <section class="welcome">
+    <div class="wrap">
+      <div>
+        <h1><span class="owner-only" id="greet">Welcome back, Maya.</span><span class="shared-only">Maya's impact at Second Helping</span></h1>
+        <p class="owner-only">You've been feeding neighbors since March. Here's everything your giving has done, and what's new since you last came by.</p>
+        <p class="shared-only">Maya has given 4 times since March. Here's what her gifts did.</p>
+        <div class="new owner-only" id="new-badge"><i></i><span>2 new updates since Sep 30</span></div>
+      </div>
+      <div class="actions owner-only">
+        <button class="btn btn-quiet" type="button" data-goto="invite">Invite a friend</button>
+        <a class="btn btn-primary" href="index.html#give">Give again</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="summary" aria-label="Your giving at a glance">
+      <button class="tile" type="button" data-goto="gifts"><span>Total given</span><b id="t-total">$100</b><small>4 gifts since Mar 2026</small></button>
+      <button class="tile top" type="button" data-goto="gifts" data-gift="g2"><span>Highest gift</span><b id="t-top">$50</b><small id="t-top-when">May 20 · Spring planting run</small></button>
+      <button class="tile" type="button" data-goto="impact"><span>Meals provided</span><b id="t-meals">80</b><small>across 3 pantries</small></button>
+      <button class="tile" type="button" data-goto="impact"><span>Food rescued</span><b>560 lb</b><small>from 4 partner farms</small></button>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Dashboard sections">
+      <button role="tab" id="tab-overview" aria-controls="p-overview" aria-selected="true">Overview</button>
+      <button role="tab" id="tab-gifts" aria-controls="p-gifts" aria-selected="false" tabindex="-1" data-shared="Maya's gifts">My gifts</button>
+      <button role="tab" id="tab-impact" aria-controls="p-impact" aria-selected="false" tabindex="-1">Impact</button>
+      <button role="tab" id="tab-invite" aria-controls="p-invite" aria-selected="false" tabindex="-1" class="owner-only">Invite</button>
+    </div>
+
+    <!-- overview -->
+    <section class="panel" id="p-overview" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="grid2">
+        <div class="card">
+          <h2>Giving over time</h2>
+          <div class="chart" id="chart" role="group" aria-label="Gift amounts by date. Select a bar for details."></div>
+          <p class="chart-note" id="chart-note" aria-live="polite" data-shared="Select a bar to see what that gift did. Maya's highest gift is in yellow.">Select a bar to see what that gift did. Your highest gift is in yellow.</p>
+        </div>
+        <div class="card">
+          <h2 data-shared="Maya's milestones">Your milestones</h2>
+          <ul class="ms" id="ms"></ul>
+          <div class="owner-only">
+            <p style="margin:18px 0 0;font-size:15px"><b>Next: 100 meals.</b> You're 20 away, about $25.</p>
+            <div class="goal" role="img" aria-label="80 of 100 meals"><i style="width:80%"></i></div>
+            <a class="btn btn-brand" href="index.html#give" style="margin-top:10px">Reach 100 meals</a>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2 data-shared="Latest from Maya's gifts">Latest from your gifts</h2>
+        <ul class="feed" id="feed-latest"></ul>
+        <button class="btn btn-quiet" type="button" data-goto="impact" style="margin-top:8px">See all updates</button>
+      </div>
+    </section>
+
+    <!-- gifts -->
+    <section class="panel" id="p-gifts" role="tabpanel" aria-labelledby="tab-gifts" hidden>
+      <div class="card">
+        <h2 data-shared="Maya's gifts">My gifts</h2>
+        <p style="margin:6px 0 4px;color:var(--ink-soft);font-size:15px"><span data-shared="Select a gift to see where it went.">Select a gift to see where it went.</span></p>
+        <ul class="list" id="gift-list"></ul>
+      </div>
+    </section>
+
+    <!-- impact -->
+    <section class="panel" id="p-impact" role="tabpanel" aria-labelledby="tab-impact" hidden>
+      <div class="card">
+        <h2 data-shared="Everything Maya's gifts did">Everything your gifts did</h2>
+        <div class="filters" role="group" aria-label="Filter updates" id="filters"></div>
+        <ul class="feed" id="feed-all"></ul>
+      </div>
+    </section>
+
+    <!-- invite -->
+    <section class="panel owner-only" id="p-invite" role="tabpanel" aria-labelledby="tab-invite" hidden>
+      <div class="grid2">
+        <div class="card">
+          <h2>Invite a friend to see your impact</h2>
+          <p style="margin:6px 0 0;color:var(--ink-soft);font-size:15px">They'll see a read-only version of this page: your totals, your gifts' journey, and a way to give alongside you. They won't see your payment details.</p>
+          <label class="f" for="link">Your share link</label>
+          <div class="field">
+            <input id="link" readonly>
+            <button class="btn btn-brand" type="button" id="copy">Copy link</button>
+          </div>
+          <form id="invite-form" novalidate>
+            <label class="f" for="friend">Or send an invite by email</label>
+            <div class="field">
+              <input id="friend" type="email" placeholder="friend@example.com" autocomplete="off">
+              <button class="btn btn-primary" type="submit">Send invite</button>
+            </div>
+            <label class="f" for="note">Add a note (optional)</label>
+            <textarea id="note">I've been giving to Second Helping. They rescue food from farms and send it to pantries. Here's what my gifts did.</textarea>
+            <p class="msg" id="invite-msg" role="status"></p>
+          </form>
+          <ul class="sent" id="sent" aria-label="Invites sent"></ul>
+        </div>
+        <div class="card">
+          <h2>What your friend sees</h2>
+          <div class="invite-preview" style="margin-top:14px">
+            <b>Maya invited you to see what her giving has done.</b>
+            <span style="color:var(--ink-soft);font-size:15px">$100 given · 80 meals · 560 lb of food rescued</span>
+          </div>
+          <a class="btn btn-quiet" id="preview-link" href="dashboard.html?view=shared" target="_blank" style="margin-top:14px">Open their view</a>
+        </div>
+      </div>
+    </section>
+  </div>
+  </main>
+  <footer>Concept 6 · donor dashboard · fictional donor and sample data</footer>
+
+<script>
+  const gifts = [
+    { id: "g1", d: "2026-03-03", amt: 15, run: "Citrus run", meals: 12, lbs: 90, farm: "Ruiz Family Orchard", pantry: "Fruitvale Community Pantry" },
+    { id: "g2", d: "2026-05-20", amt: 50, run: "Spring planting run", meals: 40, lbs: 300, farm: "Sunol Greens", pantry: "Eastlake Pantry" },
+    { id: "g3", d: "2026-08-12", amt: 25, run: "Stone fruit run", meals: 20, lbs: 140, farm: "Alvarado Creek Farm", pantry: "Eastlake Pantry" },
+    { id: "g4", d: "2026-10-01", amt: 10, run: "Winter squash run", meals: 8, lbs: 30, farm: "Pescadero Fields", pantry: "San Antonio Pantry", pending: true }
+  ];
+  const updates = [
+    { d: "2026-03-10", g: "g1", type: "rescue", t: "90 lb of oranges picked up from Ruiz Family Orchard." },
+    { d: "2026-03-24", g: "g1", type: "meals", t: "12 meals served at Fruitvale Community Pantry." },
+    { d: "2026-05-28", g: "g2", type: "rescue", t: "300 lb of greens rescued from Sunol Greens." },
+    { d: "2026-06-15", g: "g2", type: "meals", t: "40 meals served at Eastlake Pantry." },
+    { d: "2026-08-19", g: "g3", type: "rescue", t: "140 lb of peaches picked up from Alvarado Creek Farm." },
+    { d: "2026-09-28", g: "g3", type: "rescue", t: "Peaches delivered to Eastlake Pantry." },
+    { d: "2026-10-06", g: "g3", type: "meals", t: "20 meals served at Eastlake Pantry." },
+    { d: "2026-10-18", g: "g3", type: "note", t: "A note from Dee, Eastlake Pantry coordinator.", q: "Fresh peaches on a Tuesday. Kids were eating them in line.", by: "Dee, Eastlake Pantry" }
+  ];
+  const icons = {
+    rescue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
+    meals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0zM12 3v4M8 5v2M16 5v2"/></svg>',
+    note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>'
+  };
+  const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+  const chev = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+  const fmt = (d, y) => new Date(d + "T12:00").toLocaleDateString("en-US", y ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", day: "numeric" });
+  const params = new URLSearchParams(location.search);
+  const shared = params.get("view") === "shared";
+  const since = params.get("since") || "2026-09-30";
+  if (shared) { document.body.classList.add("shared"); document.querySelectorAll("[data-shared]").forEach(el => el.textContent = el.dataset.shared); document.title = "Maya's Impact · Second Helping"; }
+
+  const topGift = gifts.reduce((a, b) => (b.amt > a.amt ? b : a));
+  const total = gifts.reduce((s, g) => s + g.amt, 0);
+  document.getElementById("t-total").textContent = "$" + total;
+  document.getElementById("t-top").textContent = "$" + topGift.amt;
+  document.getElementById("t-top-when").textContent = `${fmt(topGift.d)} · ${topGift.run}`;
+  document.getElementById("t-meals").textContent = gifts.reduce((s, g) => s + g.meals, 0);
+  const fresh = updates.filter(u => u.d > since).length;
+  document.querySelector("#new-badge span").textContent = fresh ? `${fresh} new ${fresh === 1 ? "update" : "updates"} since ${fmt(since)}` : `You're all caught up since ${fmt(since)}`;
+
+  // tabs
+  const tabs = [...document.querySelectorAll('[role="tab"]')].filter(t => getComputedStyle(t).display !== "none");
+  function show(name, focus) {
+    tabs.forEach(t => {
+      const on = t.id === "tab-" + name;
+      t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+      if (on && focus) t.focus();
+    });
+    history.replaceState(null, "", location.pathname + location.search + "#" + name);
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => show(t.id.slice(4)));
+    t.addEventListener("keydown", e => {
+      const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (k) { e.preventDefault(); show(tabs[(i + k + tabs.length) % tabs.length].id.slice(4), true); }
+    });
+  });
+  document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => {
+    show(b.dataset.goto);
+    if (b.dataset.gift) openGift(b.dataset.gift);
+    document.querySelector(".tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+
+  // chart
+  const chart = document.getElementById("chart"), max = Math.max(...gifts.map(g => g.amt));
+  gifts.forEach(g => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "bar" + (g === topGift ? " is-top" : ""); b.setAttribute("aria-pressed", "false");
+    b.setAttribute("aria-label", `${fmt(g.d, true)}: $${g.amt}${g === topGift ? `, ${shared ? "Maya's" : "your"} highest gift` : ""}`);
+    b.innerHTML = `<strong>$${g.amt}</strong><i style="height:${(g.amt / max) * 100}%"></i><em>${fmt(g.d)}</em>`;
+    b.addEventListener("click", () => {
+      chart.querySelectorAll(".bar").forEach(x => x.setAttribute("aria-pressed", x === b));
+      document.getElementById("chart-note").innerHTML = `<b>$${g.amt} on ${fmt(g.d)}</b>${g === topGift ? ' <span class="pill gold">Highest gift</span>' : ""} · ${g.run}: ${g.lbs} lb rescued from ${g.farm}, ${g.pending ? "meals on the way" : g.meals + " meals at " + g.pantry}. <a href="#gifts" data-open="${g.id}">See its journey</a>`;
+    });
+    chart.appendChild(b);
+  });
+  document.getElementById("chart-note").addEventListener("click", e => {
+    const a = e.target.closest("[data-open]"); if (!a) return;
+    e.preventDefault(); show("gifts"); openGift(a.dataset.open);
+  });
+
+  // milestones
+  const ms = [["First gift", true], ["Gave 3 times", true], ["50 meals", true], ["Gave in 3 seasons", true], ["100 meals", false], ["Monthly giver", false]];
+  document.getElementById("ms").innerHTML = ms.map(([t, done]) => `<li class="${done ? "" : "todo"}"><span class="dot">${check}</span>${t}</li>`).join("");
+
+  // feeds
+  const item = u => `<li><span class="ico" aria-hidden="true">${icons[u.type]}</span><div><time>${fmt(u.d, true)}</time>${u.d > since && !shared ? '<span class="pill new">New</span>' : ""}<p>${u.t}</p>${u.q ? `<blockquote>“${u.q}”<cite>${u.by}</cite></blockquote>` : ""}</div></li>`;
+  const sorted = [...updates].sort((a, b) => b.d.localeCompare(a.d));
+  document.getElementById("feed-latest").innerHTML = sorted.slice(0, 3).map(item).join("");
+  const filters = [["all", "All"], ["rescue", "Food rescued"], ["meals", "Meals served"], ["note", "Notes"]];
+  const fbox = document.getElementById("filters"), feedAll = document.getElementById("feed-all");
+  function filter(kind) {
+    fbox.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === kind));
+    const list = sorted.filter(u => kind === "all" || u.type === kind);
+    feedAll.innerHTML = list.length ? list.map(item).join("") : '<li class="empty">No updates of this kind yet.</li>';
+  }
+  fbox.innerHTML = filters.map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join("");
+  fbox.addEventListener("click", e => { const b = e.target.closest("button"); if (b) filter(b.dataset.k); });
+  filter("all");
+
+  // gift list
+  const glist = document.getElementById("gift-list");
+  glist.innerHTML = [...gifts].reverse().map(g => {
+    const steps = updates.filter(u => u.g === g.id);
+    return `<li><button class="row" type="button" aria-expanded="false" aria-controls="d-${g.id}" id="r-${g.id}">
+      <b>${g.run}${g === topGift ? '<span class="pill gold">Highest gift</span>' : ""}${g.pending ? '<span class="pill">In progress</span>' : ""}</b>
+      <span class="right"><span class="amt">$${g.amt}</span>${chev}</span>
+      <span>${fmt(g.d, true)}</span></button>
+      <div class="detail" id="d-${g.id}" hidden>${g.lbs} lb rescued from ${g.farm} · ${g.pending ? "meals on the way" : g.meals + " meals at " + g.pantry}
+      <ol>${steps.length ? steps.map(s => `<li>${fmt(s.d)}: ${s.t}</li>`).join("") : "<li>Pickup scheduled. We'll update you when it moves.</li>"}</ol></div></li>`;
+  }).join("");
+  glist.addEventListener("click", e => { const r = e.target.closest(".row"); if (r) toggle(r); });
+  function toggle(r, force) {
+    const open = force ?? r.getAttribute("aria-expanded") !== "true";
+    r.setAttribute("aria-expanded", open); document.getElementById(r.getAttribute("aria-controls")).hidden = !open;
+  }
+  function openGift(id) { const r = document.getElementById("r-" + id); toggle(r, true); r.focus(); }
+
+  // invite
+  const shareUrl = new URL("dashboard.html?view=shared&from=maya", location.href).href;
+  document.getElementById("link").value = shareUrl;
+  const copy = document.getElementById("copy");
+  copy.addEventListener("click", async () => {
+    const input = document.getElementById("link");
+    try { await navigator.clipboard.writeText(shareUrl); } catch { input.select(); document.execCommand("copy"); }
+    copy.textContent = "Copied"; setTimeout(() => copy.textContent = "Copy link", 1800);
+  });
+  document.getElementById("invite-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const f = document.getElementById("friend"), msg = document.getElementById("invite-msg"), v = f.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { f.setAttribute("aria-invalid", "true"); msg.className = "msg err"; msg.textContent = "Enter an email like friend@example.com."; f.focus(); return; }
+    f.removeAttribute("aria-invalid"); msg.className = "msg"; msg.textContent = `Invite ready for ${v}. Demo only, no email was sent.`;
+    const li = document.createElement("li"); li.innerHTML = `<span></span><span>Invited · just now</span>`; li.firstChild.textContent = v;
+    document.getElementById("sent").prepend(li); f.value = "";
+  });
+
+  // deep link to a tab
+  const start = location.hash.slice(1);
+  if (tabs.some(t => t.id === "tab-" + start)) show(start);
+  addEventListener("hashchange", () => { const h = location.hash.slice(1); if (tabs.some(t => t.id === "tab-" + h)) show(h); });
+  if (shared) document.getElementById("greet").textContent = "";
+</script>
+</body>
+</html>
