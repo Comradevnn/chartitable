@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T21:57:40Z",
+  "title": "Design System: Chartitable",
+  "extensions": {
+    "colorMeta": {
+      "shelf-steel": {
+        "role": "neutral",
+        "displayName": "Shelf Steel",
+        "canonical": "oklch(31% 0.015 230)",
+        "tonalRamp": [
+          "oklch(15% 0.015 230)",
+          "oklch(26% 0.015 230)",
+          "oklch(37% 0.015 230)",
+          "oklch(48% 0.015 230)",
+          "oklch(59% 0.015 230)",
+          "oklch(70% 0.015 230)",
+          "oklch(82% 0.015 230)",
+          "oklch(95% 0.015 230)"
+        ]
+      },
+      "steel-shadow": {
+        "role": "neutral",
+        "displayName": "Steel Shadow",
+        "canonical": "oklch(25% 0.013 230)",
+        "tonalRamp": [
+          "oklch(15% 0.013 230)",
+          "oklch(26% 0.013 230)",
+          "oklch(37% 0.013 230)",
+          "oklch(48% 0.013 230)",
+          "oklch(59% 0.013 230)",
+          "oklch(70% 0.013 230)",
+          "oklch(82% 0.013 230)",
+          "oklch(95% 0.013 230)"
+        ]
+      },
+      "rail-lip": {
+        "role": "neutral",
+        "displayName": "Rail Lip",
+        "canonical": "oklch(43% 0.018 230)",
+        "tonalRamp": [
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(37% 0.018 230)",
+          "oklch(48% 0.018 230)",
+          "oklch(59% 0.018 230)",
+          "oklch(70% 0.018 230)",
+          "oklch(82% 0.018 230)",
+          "oklch(95% 0.018 230)"
+        ]
+      },
+      "label-stock": {
+        "role": "neutral",
+        "displayName": "Label Stock",
+        "canonical": "oklch(97% 0.003 165)",
+        "tonalRamp": [
+          "oklch(15% 0.003 165)",
+          "oklch(26% 0.003 165)",
+          "oklch(37% 0.003 165)",
+          "oklch(48% 0.003 165)",
+          "oklch(59% 0.003 165)",
+          "oklch(70% 0.003 165)",
+          "oklch(82% 0.003 165)",
+          "oklch(95% 0.003 165)"
+        ]
+      },
+      "stockroom-wall": {
+        "role": "neutral",
+        "displayName": "Stockroom Wall",
+        "canonical": "oklch(88% 0.01 220)",
+        "tonalRamp": [
+          "oklch(15% 0.01 220)",
+          "oklch(26% 0.01 220)",
+          "oklch(37% 0.01 220)",
+          "oklch(48% 0.01 220)",
+          "oklch(59% 0.01 220)",
+          "oklch(70% 0.01 220)",
+          "oklch(82% 0.01 220)",
+          "oklch(95% 0.01 220)"
+        ]
+      },
+      "marker-ink": {
+        "role": "neutral",
+        "displayName": "Marker Ink",
+        "canonical": "oklch(17% 0 0)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(37% 0 0)",
+          "oklch(48% 0 0)",
+          "oklch(59% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(82% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "oklch(41% 0.02 225)",
+        "tonalRamp": [
+          "oklch(15% 0.02 225)",
+          "oklch(26% 0.02 225)",
+          "oklch(37% 0.02 225)",
+          "oklch(48% 0.02 225)",
+          "oklch(59% 0.02 225)",
+          "oklch(70% 0.02 225)",
+          "oklch(82% 0.02 225)",
+          "oklch(95% 0.02 225)"
+        ]
+      },
+      "pale-print": {
+        "role": "neutral",
+        "displayName": "Pale Print",
+        "canonical": "oklch(84% 0.015 220)",
+        "tonalRamp": [
+          "oklch(15% 0.015 220)",
+          "oklch(26% 0.015 220)",
+          "oklch(37% 0.015 220)",
+          "oklch(48% 0.015 220)",
+          "oklch(59% 0.015 220)",
+          "oklch(70% 0.015 220)",
+          "oklch(82% 0.015 220)",
+          "oklch(95% 0.015 220)"
+        ]
+      },
+      "price-gun-orange": {
+        "role": "primary",
+        "displayName": "Price-Gun Orange",
+        "canonical": "oklch(68% 0.2 40)",
+        "tonalRamp": [
+          "oklch(15% 0.2 40)",
+          "oklch(26% 0.2 40)",
+          "oklch(37% 0.2 40)",
+          "oklch(48% 0.2 40)",
+          "oklch(59% 0.2 40)",
+          "oklch(70% 0.2 40)",
+          "oklch(82% 0.2 40)",
+          "oklch(95% 0.2 40)"
+        ]
+      },
+      "record-green": {
+        "role": "secondary",
+        "displayName": "Record Green",
+        "canonical": "oklch(52% 0.14 150)",
+        "tonalRamp": [
+          "oklch(15% 0.14 150)",
+          "oklch(26% 0.14 150)",
+          "oklch(37% 0.14 150)",
+          "oklch(48% 0.14 150)",
+          "oklch(59% 0.14 150)",
+          "oklch(70% 0.14 150)",
+          "oklch(82% 0.14 150)",
+          "oklch(95% 0.14 150)"
+        ]
+      },
+      "reject-rust": {
+        "role": "secondary",
+        "displayName": "Reject Rust",
+        "canonical": "oklch(40% 0.12 35)",
+        "tonalRamp": [
+          "oklch(15% 0.12 35)",
+          "oklch(26% 0.12 35)",
+          "oklch(37% 0.12 35)",
+          "oklch(48% 0.12 35)",
+          "oklch(59% 0.12 35)",
+          "oklch(70% 0.12 35)",
+          "oklch(82% 0.12 35)",
+          "oklch(95% 0.12 35)"
+        ]
+      },
+      "masking-tape": {
+        "role": "neutral",
+        "displayName": "Masking Tape",
+        "canonical": "oklch(84% 0.08 95)",
+        "tonalRamp": [
+          "oklch(15% 0.08 95)",
+          "oklch(26% 0.08 95)",
+          "oklch(37% 0.08 95)",
+          "oklch(48% 0.08 95)",
+          "oklch(59% 0.08 95)",
+          "oklch(70% 0.08 95)",
+          "oklch(82% 0.08 95)",
+          "oklch(95% 0.08 95)"
+        ]
+      },
+      "capture-mat": {
+        "role": "neutral",
+        "displayName": "Capture Mat",
+        "canonical": "oklch(83% 0.01 220)",
+        "tonalRamp": [
+          "oklch(15% 0.01 220)",
+          "oklch(26% 0.01 220)",
+          "oklch(37% 0.01 220)",
+          "oklch(48% 0.01 220)",
+          "oklch(59% 0.01 220)",
+          "oklch(70% 0.01 220)",
+          "oklch(82% 0.01 220)",
+          "oklch(95% 0.01 220)"
+        ]
+      },
+      "terminal-steel": {
+        "role": "neutral",
+        "displayName": "Terminal Steel",
+        "canonical": "oklch(21% 0.01 230)",
+        "tonalRamp": [
+          "oklch(15% 0.01 230)",
+          "oklch(26% 0.01 230)",
+          "oklch(37% 0.01 230)",
+          "oklch(48% 0.01 230)",
+          "oklch(59% 0.01 230)",
+          "oklch(70% 0.01 230)",
+          "oklch(82% 0.01 230)",
+          "oklch(95% 0.01 230)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero promise only; uppercase, last line inverted onto steel."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings on a die-cut label or set in label stock on steel."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Demo-card and step headings."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "Record and estimate lines; guard sentences."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, captions and tag text; uppercase, tracked."
+      },
+      "label-small": {
+        "displayName": "Label Small",
+        "purpose": "Nav tags, code-bar titles, card edge strips."
+      },
+      "body-lead": {
+        "displayName": "Body Lead",
+        "purpose": "Hero subline and section ledes."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text inside tags, about 30rem measure."
+      },
+      "fine": {
+        "displayName": "Fine",
+        "purpose": "Disclaimers and sample-data notes."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Embed and region code samples only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shelf-item",
+        "value": "0 10px 22px -10px rgba(17,17,17,.45)",
+        "purpose": "Screenshots standing on a shelf."
+      },
+      {
+        "name": "shelf-item-forward",
+        "value": "0 14px 28px -12px rgba(17,17,17,.5)",
+        "purpose": "The larger, forward capture in a pair."
+      },
+      {
+        "name": "sticker",
+        "value": "0 6px 12px -4px rgba(17,17,17,.5)",
+        "purpose": "Record and estimate stickers stuck onto captures."
+      },
+      {
+        "name": "printed-stub",
+        "value": "0 8px 14px -6px rgba(17,17,17,.4)",
+        "purpose": "The 'Copied' stub label fed out under the code block."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-feed",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Single easing for every transition in the system."
+      },
+      {
+        "name": "label-feed",
+        "value": "700ms ease-feed, clip-path inset 0 0 100% 0 to 0 plus translateY(-14px) to none",
+        "purpose": "Printed stub feeding out after Copy."
+      },
+      {
+        "name": "peel",
+        "value": "500ms ease-feed, rotate(-1.4deg) translateX(-8px), opacity .82",
+        "purpose": "Rejected draft peeling away when the guard is on."
+      },
+      {
+        "name": "switch-knob",
+        "value": "250ms ease-feed on left",
+        "purpose": "Guard toggle knob."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition none",
+        "purpose": "All motion off under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "480px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "960px"
+      },
+      {
+        "name": "lg",
+        "value": "1100px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Price-Gun Strip (primary)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary action per surface. Orange is reserved for this.",
+      "html": "<a class=\"ds-go\" href=\"#\">See it live<span><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" aria-hidden=\"true\"><path d=\"M12 4v14M5 11l7 7 7-7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"square\"/></svg></span></a>",
+      "css": ".ds-go { display: inline-flex; align-items: center; min-height: 68px; padding: 0 14px 0 30px; background: var(--go, #ff5f1f); color: var(--ink, #111); font: 700 1.9rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%); } .ds-go span { display: flex; align-items: center; margin-left: 16px; padding: 0 10px 0 14px; border-left: 2px dashed rgba(17,17,17,.5); min-height: 44px; } .ds-go:hover { background: var(--ink, #111); color: var(--go, #ff5f1f); } .ds-go:focus-visible { outline: 3px solid var(--ink, #111); outline-offset: -7px; }"
+    },
+    {
+      "name": "Steel Button",
+      "kind": "button",
+      "refersTo": "button-steel",
+      "description": "Secondary navigation actions (open a demo site, open the dashboard).",
+      "html": "<a class=\"ds-btn\" href=\"#\">Open Cinderwell<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" aria-hidden=\"true\"><path d=\"M4 12h14M12 5l7 7-7 7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"square\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 24px; background: var(--steel, #2b343a); color: var(--label, #f4f6f5); font: 700 1.3rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .09em; text-transform: uppercase; text-decoration: none; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); } .ds-btn:hover { background: var(--ink, #111); } .ds-btn:focus-visible { outline: 3px solid var(--label, #f4f6f5); outline-offset: -7px; }"
+    },
+    {
+      "name": "Taped Tag Button",
+      "kind": "button",
+      "description": "Second hero action: an ink-bordered paper tag held on by masking tape.",
+      "html": "<a class=\"ds-taped\" href=\"#\"><i class=\"ds-tape\"></i><b>Install in one line</b><span>One script tag</span></a>",
+      "css": ".ds-taped { position: relative; display: inline-flex; flex-direction: column; justify-content: center; min-height: 56px; padding: 10px 18px 9px; border: 2px solid var(--ink, #111); background: #fff; color: var(--ink, #111); text-decoration: none; font-family: var(--body, \"Commissioner\", \"Segoe UI\", system-ui, sans-serif); } .ds-taped b { font: 600 1.5rem/1.05 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .07em; text-transform: uppercase; } .ds-taped span { font-size: .9rem; color: var(--mute, #3f4c53); } .ds-tape { position: absolute; left: 16px; top: -14px; width: 70px; height: 24px; background: var(--tape, #dccd96); opacity: .94; transform: rotate(-4deg); clip-path: polygon(0 0,100% 0,97% 25%,100% 50%,97% 75%,100% 100%,0 100%,3% 75%,0 50%,3% 25%); } .ds-taped:hover { background: var(--steel, #2b343a); color: var(--label, #f4f6f5); } .ds-taped:hover span { color: var(--pale, #c3ced3); } .ds-taped:focus-visible { outline: 3px solid var(--ink, #111); outline-offset: 3px; }"
+    },
+    {
+      "name": "Shelf-Rail Navigation",
+      "kind": "nav",
+      "refersTo": "nav-tag",
+      "description": "Steel header rail carrying nav items as small die-cut label tags; current item inverts.",
+      "html": "<nav class=\"ds-top\"><a class=\"ds-brand\" href=\"#\">Chartitable</a><a class=\"ds-nav\" href=\"#\">How it works</a><a class=\"ds-nav\" href=\"#\" aria-current=\"true\">Honesty</a><a class=\"ds-nav\" href=\"#\">Install</a></nav>",
+      "css": ".ds-top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 1rem; background: var(--steel, #2b343a); border-top: 6px solid var(--lip, #46535b); border-bottom: 5px solid var(--deep, #1d2428); } .ds-brand { margin-right: auto; color: var(--label, #f4f6f5); font: 700 1.75rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .14em; text-transform: uppercase; text-decoration: none; } .ds-nav { display: flex; align-items: center; min-height: 44px; padding: 0 18px; background: var(--label, #f4f6f5); color: var(--ink, #111); font: 600 1.05rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); } .ds-nav:hover { background: var(--wall, #d3dadd); } .ds-nav[aria-current] { background: var(--steel, #2b343a); color: var(--label, #f4f6f5); box-shadow: inset 0 0 0 2px var(--label, #f4f6f5); } .ds-nav:focus-visible { outline: 3px solid var(--ink, #111); outline-offset: -7px; }"
+    },
+    {
+      "name": "Price Tag",
+      "kind": "chip",
+      "refersTo": "price-tag",
+      "description": "One countable measurement printed beside a section heading.",
+      "html": "<span class=\"ds-price\">1 script tag</span>",
+      "css": ".ds-price { display: inline-block; padding: 10px 16px 9px; background: var(--steel, #2b343a); color: var(--label, #f4f6f5); font: 700 1.35rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px)); }"
+    },
+    {
+      "name": "Shelf Tag",
+      "kind": "card",
+      "refersTo": "shelf-tag",
+      "description": "Large die-cut label with punch hole; the main container for hero copy and demo cards.",
+      "html": "<article class=\"ds-tag\"><i class=\"ds-hole\"></i><h3>Cinderwell Community Pantry</h3><p>The pantry wrote its own donor version of each section.</p></article>",
+      "css": ".ds-tag { position: relative; max-width: 30rem; padding: calc(2.5rem + 14px) 2.5rem 2.5rem calc(2.5rem + 14px); background: var(--label, #f4f6f5); color: var(--ink, #111); font: 400 1.0625rem/1.55 var(--body, \"Commissioner\", \"Segoe UI\", system-ui, sans-serif); clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px)); } .ds-tag h3 { margin: 0 0 1rem; font: 700 2.2rem/1.12 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .02em; text-transform: uppercase; } .ds-tag p { margin: 0; } .ds-hole { position: absolute; left: 22px; top: 22px; width: 16px; height: 16px; border-radius: 50%; background: var(--wall, #d3dadd); }"
+    },
+    {
+      "name": "Record vs Estimate Pair",
+      "kind": "card",
+      "refersTo": "record-card",
+      "description": "The honesty rule as components: solid die-cut label with a filled dot for a logged record; dashed outline with a hollow ring for an estimate.",
+      "html": "<div class=\"ds-pair\"><div class=\"ds-rec\"><i class=\"ds-dot\"></i><div><p class=\"ds-big\">Logged: 80 meals served, Oct 20</p><p class=\"ds-small\">Counted by the pantry. A record.</p></div></div><div class=\"ds-est\"><i class=\"ds-ring\"></i><div><p class=\"ds-big\">About 16 meals: your share, an estimate</p><p class=\"ds-small\">Worked out, not counted.</p></div></div></div>",
+      "css": ".ds-pair { display: grid; gap: 1.5rem; padding: 1.5rem; background: var(--steel, #2b343a); font-family: var(--body, \"Commissioner\", \"Segoe UI\", system-ui, sans-serif); } .ds-rec, .ds-est { display: flex; gap: 1rem; align-items: flex-start; padding: 1.5rem; } .ds-rec { background: var(--label, #f4f6f5); color: var(--ink, #111); clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); } .ds-est { border: 3px dashed var(--label, #f4f6f5); color: var(--label, #f4f6f5); } .ds-big { margin: 0; font: 700 1.8rem/1.1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .02em; text-transform: uppercase; } .ds-small { margin: 6px 0 0; font-size: .95rem; } .ds-rec .ds-small { color: var(--mute, #3f4c53); } .ds-est .ds-small { color: var(--pale, #c3ced3); } .ds-dot, .ds-ring { flex: none; width: 16px; height: 16px; margin-top: 8px; border-radius: 50%; } .ds-dot { background: var(--ok, #12803e); } .ds-ring { border: 3.5px solid var(--label, #f4f6f5); }"
+    },
+    {
+      "name": "Estimate Sticker",
+      "kind": "custom",
+      "refersTo": "estimate-card",
+      "description": "Round ring sticker placed on a screenshot over a computed number; always reads 'about'.",
+      "html": "<span class=\"ds-stk\">about 22 meals</span>",
+      "css": ".ds-stk { display: inline-grid; place-items: center; width: 80px; height: 80px; padding: 8px; border-radius: 50%; border: 5px solid var(--steel, #2b343a); background: var(--label, #f4f6f5); color: var(--ink, #111); text-align: center; font: 700 .92rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .07em; text-transform: uppercase; transform: rotate(-8deg); box-shadow: 0 6px 12px -4px rgba(17,17,17,.5); }"
+    },
+    {
+      "name": "Copy Button",
+      "kind": "button",
+      "refersTo": "button-label",
+      "description": "Label-white control in a code bar; prints a stub label on success.",
+      "html": "<button type=\"button\" class=\"ds-copy\">Copy</button>",
+      "css": ".ds-copy { min-height: 44px; min-width: 92px; padding: 0 20px; border: 0; background: var(--label, #f4f6f5); color: var(--ink, #111); font: 700 1.15rem/1 var(--cond, \"Barlow Condensed\", \"Arial Narrow\", sans-serif); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); } .ds-copy:hover { background: var(--tape, #dccd96); } .ds-copy:focus-visible { outline: 3px solid var(--ink, #111); outline-offset: -7px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Stockroom Labels",
+    "overview": "The page is dressed as the back room of a small food pantry: galvanized steel shelf rails, white die-cut label stock clipped to them, masking tape for staff notes, and a single orange price-gun strip. Every claim is set as something you could stick on a shelf. The system is flat, square-cornered and dense with labels rather than with cards; depth comes from steel rails and paper sitting on them, not from floating panels.\n\nHierarchy is carried by inversion, not by size: the active or most important tag is printed white-on-steel, while the surrounding tags stay steel-on-white. Colour is rationed by role. Orange belongs to one action; green and the hollow ring belong to the record/estimate distinction; everything else is steel, paper and ink. The honesty rule is a visual rule here: a logged record and a computed estimate never share a treatment, and the difference is a shape and line pattern that survives grayscale.\n\nThe world explicitly refuses the generic SaaS split hero over a row of rounded feature cards.",
+    "keyCharacteristics": [
+      "Square die-cut corners (one clipped corner, top-right and bottom-left) on every label.",
+      "Steel shelf rails with punched slots divide sections.",
+      "Condensed uppercase label print for display and controls, calm humanist sans for reading.",
+      "Inversion (white-on-steel) marks emphasis; type size does not escalate to compete.",
+      "Filled dot = logged record; hollow ring plus dashed edge = estimate.",
+      "One orange element per page."
+    ],
+    "rules": [
+      {
+        "name": "The One Strip Rule",
+        "body": "Price-Gun Orange appears on the single primary action and nowhere else on a surface. Secondary actions are steel or label-white; the Copy control is label-white with a tape hover.",
+        "section": "colors"
+      },
+      {
+        "name": "The Shape-Not-Hue Rule",
+        "body": "Record vs estimate is told by shape and line: a filled dot and a solid label for a logged record, a hollow ring and a dashed border for an estimate. Green is a bonus, never the only signal.",
+        "section": "colors"
+      },
+      {
+        "name": "The Inversion Rule",
+        "body": "To emphasise, invert (label stock on steel); do not enlarge. Headline sizes top out at 3.6rem and the hero alone reaches 4.4rem.",
+        "section": "typography"
+      },
+      {
+        "name": "The About Rule",
+        "body": "Any computed number is printed with \"about\" or \"estimate\" in the same line of type, including stickers; a hidden \"an estimate\" suffix is added for screen readers where the sticker is short.",
+        "section": "typography"
+      },
+      {
+        "name": "The Placed-Object Rule",
+        "body": "A shadow means \"this is lying on top of something\". Labels on a rail, cards and buttons carry none.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep Price-Gun Orange (`#ff5f1f`) on exactly one primary action per surface.",
+      "**Do** mark emphasis by inverting to label stock on shelf steel, not by raising the type size.",
+      "**Do** pair every logged record with a filled dot and solid label, and every estimate with a hollow ring and dashed border, so grayscale still tells them apart.",
+      "**Do** print \"about\" or \"estimate\" in the same line as any computed number, stickers included.",
+      "**Do** separate sections with steel rails and keep corners square and die-cut.",
+      "**Do** use Barlow Condensed uppercase only for tag text and headings, Commissioner for every readable sentence, both self-hosted.",
+      "**Do** keep touch targets at 44px minimum and switch all motion off under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** add orange to secondary buttons, links, highlights or decoration.",
+      "**Don't** distinguish records from estimates by colour alone, or give an estimate a solid filled label.",
+      "**Don't** round card or button corners; radius is reserved for dots, rings, stickers and the switch track.",
+      "**Don't** float labels or cards on ambient drop shadows; shadows are only for objects placed on top of something.",
+      "**Don't** build the SaaS split hero over a row of rounded feature cards.",
+      "**Don't** load fonts from a CDN."
+    ]
+  }
+}
