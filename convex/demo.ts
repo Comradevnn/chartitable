@@ -448,7 +448,7 @@ export const sendEmail = action({
         const preset = presetById("meals80");
         return reply(
           "not_crossed",
-          `About ${roundEstimate(totals.meals)} meals so far (estimate). The first email goes out at ${MILESTONE_THRESHOLDS.meals[0]} meals.` +
+          `About ${roundEstimate(totals.meals)} meals so far (estimate). The first email goes out when the estimate reaches about ${MILESTONE_THRESHOLDS.meals[0]} meals.` +
             (preset ? ` Post '${preset.label}' on ${CHARITY_LABELS[charityId]} first.` : ""),
         );
       }
@@ -471,7 +471,7 @@ export const sendEmail = action({
       if (sent) return reply("sent", "Sent to the demo inbox.", sent.sentAt);
       const newest = [...rows].sort((a, b) => b.sentAt - a.sentAt)[0];
       if (!newest) return reply("failed", "The milestone check did not pick this donor up.");
-      if (newest.status.startsWith("skipped")) return reply("skipped", `Skipped: ${newest.status}.`);
+      if (newest.status.startsWith("skipped")) return reply("skipped", newest.status === "skipped_rate_limited" ? "Skipped: an email went to this donor in the last 7 days." : newest.status === "skipped_not_allowlisted" ? "Skipped: the address is not on the demo allowlist." : "Skipped: the donor has no email.");
       return reply("failed", "The send failed. Check the email settings.");
     } catch {
       return reply("failed", "Something went wrong sending the email.");
@@ -767,7 +767,7 @@ export const preflight = action({
       if (state.heroSentAt !== null) {
         return { status: "amber", detail: `Already sent ${minutesAgo(state.heroSentAt, now)} min ago; reset to send again` };
       }
-      return { status: "green", detail: `Ready: sends when ${heroName} crosses ${MILESTONE_THRESHOLDS.meals[0]} meals` };
+      return { status: "green", detail: `Ready: sends when ${heroName}'s estimate crosses about ${MILESTONE_THRESHOLDS.meals[0]} meals` };
     });
 
     const seedCheck = runCheck("seed", "Seed data", async () => {

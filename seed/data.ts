@@ -96,7 +96,7 @@ const NOTES: Record<ImpactKind, string[]> = {
     "Surplus produce rescued from a grocery partner.",
   ],
   volunteer_shifts: [
-    "Packing crew covered both shifts.",
+    "Packing crew covered the day's shifts.",
     "New volunteers trained on intake.",
     "Sorting and loading help for the weekend rush.",
   ],

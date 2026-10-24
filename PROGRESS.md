@@ -97,6 +97,7 @@ Full spec with rationale: `docs/PLAN_DYNAMIC_SITE.md` §2. Layer support lands i
 - **Safety:** API strings never go through innerHTML; API URLs pass `safeUrl`; host-authored attributes are trusted host markup. Hosts must label estimate containers visibly (e.g. "Your share, an estimate"); estimate items also get `.ct-estimate`, records `.ct-record`.
 - **API (additive, `engine/types.ts`):** `hero.headline`, `hero.body`, `nextStep.label`, `donor { state, traits, gifts, giftCount }`, `rev`, `live { pollMs }`; `GET /donor-view?peek=1` (no visit row) and `GET /donor-pulse` → `{ recognized, rev }`.
 - Version: **v2**. Lane B told via the Blockers row below (Sat 8:35 AM).
+- **v2 note (Sat 1:40 PM, additive):** an EMPTY `?ct=` (present, no value) makes the layer forget the stored token for that charity, then behave as a first-time visitor (0 donor requests). Used by the demo panel's "first-time visitor" links on shared screens. Pages without `ct` or with a value behave exactly as before.
 
 ## Task board
 Status: `todo` · `doing` · `review` · `done` · `blocked`

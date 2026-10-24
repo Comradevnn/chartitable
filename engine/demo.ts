@@ -38,18 +38,18 @@ export const CHARITY_LABELS: Record<CharityId, string> = {
 
 export const PERSONAS: readonly Persona[] = [
   // Cinderwell Pantry (demo-pantry-a)
-  { id: "a-stranger", charityId: "demo-pantry-a", state: "stranger", donorId: null, label: "First-time visitor", description: "No token. The site exactly as the charity built it; the layer makes no request.", hero: false, email: false },
+  { id: "a-stranger", charityId: "demo-pantry-a", state: "stranger", donorId: null, label: "First-time visitor", description: "No token. The site exactly as the charity built it; no request to Chartitable.", hero: false, email: false },
   { id: "a-first-impact", charityId: "demo-pantry-a", state: "first_impact", donorId: "donor_a01", label: "Mira · first impact", description: "One $25 gift nine days ago. Sees what it was part of, with estimates labeled. The story donor.", hero: true, email: true },
   { id: "a-just-gave", charityId: "demo-pantry-a", state: "just_gave", donorId: "donor_a13", label: "Wren · just gave", description: "A $10 gift today, made after the latest update. A thank-you, no numbers yet.", hero: false, email: false },
   { id: "a-news", charityId: "demo-pantry-a", state: "news", donorId: "donor_a04", label: "Teo · news since last visit", description: "Last visited three days ago. Leads with what was logged since then.", hero: false, email: false },
-  { id: "a-repeat", charityId: "demo-pantry-a", state: "repeat", donorId: "donor_a02", label: "Jonas · repeat donor", description: "Two gifts this month. Thanked for giving again; gift history shown as records.", hero: false, email: false },
+  { id: "a-repeat", charityId: "demo-pantry-a", state: "repeat", donorId: "donor_a02", label: "Jonas · repeat donor", description: "Two gifts in the last 30 days. Thanked for giving again; gift history shown as records.", hero: false, email: false },
   { id: "a-lapsed", charityId: "demo-pantry-a", state: "lapsed", donorId: "donor_a14", label: "Hollis · lapsed", description: "Last gave about four months ago. A gentle welcome back, no pressure.", hero: false, email: false },
   // Brindlecote Food Bank (demo-pantry-b)
-  { id: "b-stranger", charityId: "demo-pantry-b", state: "stranger", donorId: null, label: "First-time visitor", description: "No token. The site exactly as the charity built it; the layer makes no request.", hero: false, email: false },
+  { id: "b-stranger", charityId: "demo-pantry-b", state: "stranger", donorId: null, label: "First-time visitor", description: "No token. The site exactly as the charity built it; no request to Chartitable.", hero: false, email: false },
   { id: "b-first-impact", charityId: "demo-pantry-b", state: "first_impact", donorId: "donor_a10", label: "Felix · first impact", description: "One $45 gift two weeks ago. Sees what it was part of, with estimates labeled.", hero: false, email: false },
   { id: "b-just-gave", charityId: "demo-pantry-b", state: "just_gave", donorId: "donor_a12", label: "Rhea · just gave", description: "A $35 gift today, made after the latest update. A thank-you, no numbers yet.", hero: false, email: false },
   { id: "b-news", charityId: "demo-pantry-b", state: "news", donorId: "donor_a09", label: "Sana · news since last visit", description: "Last visited three days ago. Leads with what was logged since then.", hero: false, email: false },
-  { id: "b-repeat", charityId: "demo-pantry-b", state: "repeat", donorId: "donor_a05", label: "Lena · repeat donor", description: "Two gifts this month. Thanked for giving again; gift history shown as records.", hero: true, email: false },
+  { id: "b-repeat", charityId: "demo-pantry-b", state: "repeat", donorId: "donor_a05", label: "Lena · repeat donor", description: "Two gifts in the last 30 days. Thanked for giving again; gift history shown as records.", hero: true, email: false },
   { id: "b-lapsed", charityId: "demo-pantry-b", state: "lapsed", donorId: "donor_a15", label: "Juno · lapsed", description: "Last gave about five months ago. A gentle welcome back, no pressure.", hero: false, email: false },
 ];
 
