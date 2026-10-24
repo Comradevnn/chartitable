@@ -43,7 +43,8 @@ if (existsSync(hosts)) {
   for (const name of readdirSync(hosts)) {
     const dir = join(hosts, name);
     if (!statSync(dir).isDirectory()) continue;
-    cpSync(dir, join(out, "sites", name), { recursive: true });
+    // dereference: each host symlinks preview.js etc. to ../_preview; copied links break on Vercel.
+    cpSync(dir, join(out, "sites", name), { recursive: true, dereference: true });
     siteNames.push(name);
   }
 }
