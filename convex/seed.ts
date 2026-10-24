@@ -38,6 +38,7 @@ export const load = internalMutationGeneric({
       donors: await upsertTable(ctx, "donors", seed.donors, (d) => ({
         firstName: d.firstName,
         email: d.email,
+        hideFromTopDonors: d.hideFromTopDonors ?? false,
       })),
       donations: await upsertTable(ctx, "donations", seed.donations, (d) => ({
         donorId: d.donorId,
@@ -61,6 +62,21 @@ export const load = internalMutationGeneric({
           loggedAt: l.loggedAt,
         }),
         { photoStorageId: null },
+      ),
+      // receiptStorageId is insert-only so re-seeding keeps receipts staff uploaded.
+      expenses: await upsertTable(
+        ctx,
+        "expenses",
+        seed.expenses,
+        (e) => ({
+          charityId: e.charityId,
+          date: e.date,
+          amountCents: e.amountCents,
+          category: e.category,
+          note: e.note,
+          createdAt: e.createdAt,
+        }),
+        { receiptStorageId: null },
       ),
     };
   },

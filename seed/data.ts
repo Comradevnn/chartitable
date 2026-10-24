@@ -1,7 +1,16 @@
 // ALL DATA IS FICTIONAL (D5). Invented charities, invented first names, no real
 // people, places, or organizations. Pure module: no Convex imports, no randomness,
 // no Date.now. Same `now` in -> identical output.
-import type { Charity, CharityId, Donation, Donor, ImpactKind, ImpactLog } from "../engine/types";
+import type {
+  Charity,
+  CharityId,
+  Donation,
+  Donor,
+  Expense,
+  ExpenseCategory,
+  ImpactKind,
+  ImpactLog,
+} from "../engine/types";
 
 export const SEED_NOTICE = "Fictional demo data — no real people or organizations.";
 
@@ -16,6 +25,7 @@ export interface SeedData {
   donors: Donor[];
   donations: Donation[];
   impactLogs: SeedImpactLog[];
+  expenses: Expense[];
 }
 
 const CHARITIES: Charity[] = [
@@ -101,6 +111,18 @@ const PHOTOS: Record<ImpactKind, string> = {
   volunteer_shifts: "seed/photos/volunteers-1.svg",
 };
 
+// [category, base cents, daysAgo, note]. Generic notes only; all within the last 30 days.
+const EXPENSE_ROWS: [ExpenseCategory, number, number, string][] = [
+  ["food", 32000, 27, "Bulk shelf-stable groceries order"],
+  ["transport", 6800, 24, "Van fuel for pickup runs"],
+  ["facility", 21000, 22, "Cold storage and utilities share"],
+  ["food", 18500, 19, "Weekly produce and dairy purchase"],
+  ["supplies", 7400, 15, "Boxes, bags, and packing tape"],
+  ["food", 14200, 11, "Bread and canned goods restock"],
+  ["transport", 4500, 9, "Mileage reimbursement for delivery volunteers"],
+  ["other", 3500, 5, "Printing for distribution flyers"],
+];
+
 // Day buckets 0..6 (0 = today). demo-pantry-a has NO logs in bucket 3.
 export const PANTRY_A_EMPTY_DAY_BUCKET = 3;
 
@@ -109,6 +131,7 @@ export function buildSeed(now: number): SeedData {
     id: `donor_a${pad(i + 1, 2)}`,
     firstName,
     email: null,
+    ...(i === 6 ? { hideFromTopDonors: true } : {}), // donor_a07 opts out of public lists
   }));
   const donorId = (n: number) => `donor_a${pad(n, 2)}`;
 
@@ -159,7 +182,24 @@ export function buildSeed(now: number): SeedData {
     }
   });
 
-  return { charities: CHARITIES.map((c) => ({ ...c })), donors, donations, impactLogs };
+  const expenses: Expense[] = [];
+  CHARITIES.forEach((charity, ci) => {
+    EXPENSE_ROWS.forEach(([category, baseCents, daysAgo, note], ri) => {
+      const date = now - (daysAgo + ci) * DAY - (((ri * 5) % 12) + 1) * HOUR;
+      expenses.push({
+        id: `exp_a${pad(expenses.length + 1, 3)}`,
+        charityId: charity.id,
+        date,
+        amountCents: Math.round((baseCents * (1 + ci * 0.15)) / 100) * 100,
+        category,
+        note,
+        receiptStorageId: null,
+        createdAt: date,
+      });
+    });
+  });
+
+  return { charities: CHARITIES.map((c) => ({ ...c })), donors, donations, impactLogs, expenses };
 }
 
 /** Pure upsert decision: rows whose id already exists get updated, others inserted. */

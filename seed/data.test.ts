@@ -12,6 +12,7 @@ describe("seed data", () => {
     const later = buildSeed(NOW + DAY);
     expect(later.donations.map((d) => d.createdAt)).toEqual(seed.donations.map((d) => d.createdAt + DAY));
     expect(later.impactLogs.map((l) => l.id)).toEqual(seed.impactLogs.map((l) => l.id));
+    expect(later.expenses.map((e) => e.date)).toEqual(seed.expenses.map((e) => e.date + DAY));
   });
 
   it("has the expected shape and sizes", () => {
@@ -49,7 +50,7 @@ describe("seed data", () => {
       expect(charityIds.has(d.charityId)).toBe(true);
     }
     for (const l of seed.impactLogs) expect(charityIds.has(l.charityId)).toBe(true);
-    for (const rows of [seed.charities, seed.donors, seed.donations, seed.impactLogs]) {
+    for (const rows of [seed.charities, seed.donors, seed.donations, seed.impactLogs, seed.expenses]) {
       expect(new Set(rows.map((r) => r.id)).size).toBe(rows.length);
     }
   });
@@ -93,6 +94,28 @@ describe("seed data", () => {
   });
 });
 
+describe("seed expenses", () => {
+  it("has ~8 per charity with valid ids, categories, amounts, and dates", () => {
+    const categories = new Set(["food", "transport", "facility", "supplies", "staff", "other"]);
+    for (const id of ["demo-pantry-a", "demo-pantry-b"]) {
+      expect(seed.expenses.filter((e) => e.charityId === id).length).toBe(8);
+    }
+    seed.expenses.forEach((e, i) => {
+      expect(e.id).toBe(`exp_a${String(i + 1).padStart(3, "0")}`);
+      expect(categories.has(e.category)).toBe(true);
+      expect(Number.isInteger(e.amountCents) && e.amountCents > 0).toBe(true);
+      expect(e.date).toBeLessThanOrEqual(NOW);
+      expect(e.date).toBeGreaterThanOrEqual(NOW - 30 * DAY);
+      expect(e.receiptStorageId).toBeNull();
+    });
+    expect(seed.expenses.some((e) => e.category === "other")).toBe(true);
+  });
+
+  it("hides exactly donor_a07 from top donors", () => {
+    expect(seed.donors.filter((d) => d.hideFromTopDonors).map((d) => d.id)).toEqual(["donor_a07"]);
+  });
+});
+
 describe("planUpserts idempotency", () => {
   it("first run inserts everything, second run (even with a later now) inserts nothing", () => {
     const rerun = buildSeed(NOW + 1000);
@@ -101,6 +124,7 @@ describe("planUpserts idempotency", () => {
       [seed.donors, rerun.donors],
       [seed.donations, rerun.donations],
       [seed.impactLogs, rerun.impactLogs],
+      [seed.expenses, rerun.expenses],
     ];
     for (const [first, second] of tables) {
       const existing = new Set<string>();
