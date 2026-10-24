@@ -2,7 +2,21 @@
 
 Personalization layer that shows returning donors their impact on a small charity's own website, plus a staff dashboard. **Deadline: Devpost submission Sun Oct 25, 9:00 AM PT (hard).** Prefer a working narrow product over a broad broken one.
 
-Read at the start of every session, in order: `PROGRESS.md` (source of truth), then your own handoff file in `docs/handoff/`, then whatever the task needs from `docs/research/README.md`.
+## Read map (read with intention; skip what isn't yours)
+Always, every session, every lane: this file → your handoff file in `docs/handoff/` → `PROGRESS.md` **only these parts**: Snapshot, Blockers, the integration contract, Decisions you need, the task rows for **your lane** (see the Tasks row below), and the last ~20 lines of the Handoff log. Don't read the whole log or other lanes' task rows unless a blocker points there.
+
+| Role | Also read | Do not read (unless a blocker points there) |
+|---|---|---|
+| Lane A (Revnn, Opus orchestrator and its Sonnet/Haiku subagents) | `docs/PRODUCT_SPEC.md`, `engine/types.ts`, `PROMPTS.md` (the task you're delegating), `convex/CONVEX_NOTES.md` when touching Convex | `docs/DASHBOARD_SPEC.md` (except its data contract when working on T19), `docs/handoff/teammate1.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md` |
+| Lane B (Teammate 1 and its agents) | `docs/DASHBOARD_SPEC.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md`, `docs/demo-site-reference.md`, the contract in `PROGRESS.md` | `docs/PRODUCT_SPEC.md`, `PROMPTS.md`, `engine/`, `convex/`, `docs/handoff/revnn.md` |
+| Teammate 2 (QA, Devpost, video, pitch) | `README.md`, `PRIZE_RULES.md` §12, the demo-done checklist and T13–T15 rows in `PROGRESS.md`, both handoff docs, `docs/PRODUCT_SPEC.md` §10 | Source code, `PROMPTS.md` |
+| Haiku research agent | Only the files named in its prompt; shared research (`docs/research/README.md` index) | Everything else; it never edits |
+| Sonnet coding agent | `PROGRESS.md` task row, the files it may edit, and the excerpt of the spec/contract pasted into its prompt | Other lanes, other tasks, the full spec unless the prompt says so |
+
+Orchestrators should paste the relevant spec excerpt into a Sonnet prompt instead of telling it to read whole documents.
+
+**Log tags:** start every Handoff log line with the lane: `[A]` product, `[B]` dashboard/demo sites, `[C]` docs/pitch/QA, `[ALL]` cross-cutting. To see your lane's recent progress: `grep -E '^\- \[.*\] (\[A\]|\[ALL\])' PROGRESS.md | tail -15`. Older untagged lines belong to the whole team. Task rows already carry an Owner; task ids map to lanes in the table above.
+
 
 ## Two lanes, one repo
 | | Lane A: Product (Revnn) | Lane B: Dashboard (Teammate 1) |
@@ -11,6 +25,7 @@ Read at the start of every session, in order: `PROGRESS.md` (source of truth), t
 | Owns | `/convex`, `/engine`, `/layer`, `/staff`, `/seed` | `/dashboard`, `/demo-sites`, `docs/DASHBOARD_SPEC.md` |
 | Tasks | T1–T9, T12, T16, T17, T19 | T10, T11, T18 |
 | Branch | `main` | `dashboard` (merged to `main` by Revnn) |
+| Spec | `docs/PRODUCT_SPEC.md` | `docs/DASHBOARD_SPEC.md` |
 | Handoff doc | `docs/handoff/revnn.md` | `docs/handoff/teammate1.md` |
 | Tools | Claude Code (Opus orchestrator + subagents) and Cursor/Grok | Figma, Cursor or Claude Code, Impeccable |
 
