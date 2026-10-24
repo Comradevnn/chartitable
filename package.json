@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "build": "npm run build -w layer",
     "typecheck": "tsc --noEmit -p tsconfig.json && if ls convex/*.ts >/dev/null 2>&1; then tsc --noEmit -p convex/tsconfig.json; fi",
-    "dev:layer": "npm run dev -w layer"
+    "dev:layer": "npm run dev -w layer",
+    "build:site": "node scripts/build-site.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
