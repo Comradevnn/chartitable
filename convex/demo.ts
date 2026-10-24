@@ -344,6 +344,19 @@ export const post = action({
       holdMilestoneCheck: holdEmail === true,
     });
     if (!res.ok) return { ok: false, error: res.error };
+    // impact:log already warms recent visitors, but under the per-donor interval: right after a reset
+    // that interval would leave an open persona tab on the template. Re-warm this charity's personas
+    // (interval skipped, hourly cap and guard unchanged), hero first.
+    const personasHere = donorPersonas()
+      .filter((x) => x.charityId === charityId)
+      .sort((a, b) => Number(b.hero) - Number(a.hero));
+    for (const x of personasHere) {
+      try {
+        await ctx.scheduler.runAfter(0, internal.narrative.getOrGenerate, { donorId: x.donorId, charityId, warm: true });
+      } catch {
+        // best effort; the page still shows the template
+      }
+    }
     return { ok: true, logId: res.logId, donorsCredited: res.donorsCredited, label: p.label };
   },
 });
