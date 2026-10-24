@@ -19,6 +19,9 @@ describe("seed data", () => {
     expect(SEED_NOTICE).toMatch(/Fictional/);
     expect(seed.charities.map((c) => c.id)).toEqual(["demo-pantry-a", "demo-pantry-b"]);
     expect(seed.charities.every((c) => c.fictional)).toBe(true);
+    // T21: names re-checked against real orgs (Sat Oct 24); the flagged ones must not come back.
+    expect(seed.charities.map((c) => c.name)).toEqual(["Cinderwell Pantry", "Brindlecote Food Bank"]);
+    for (const c of seed.charities) expect(c.name).not.toMatch(/Larkspur|Copperfield|Pellam|Tansy|Trestlebin/);
     expect(seed.donors.length).toBe(12);
     expect(seed.donations.length).toBe(25);
     for (const d of seed.donations) {

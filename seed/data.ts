@@ -31,13 +31,13 @@ export interface SeedData {
 const CHARITIES: Charity[] = [
   {
     id: "demo-pantry-a",
-    name: "Larkspur Lane Pantry",
+    name: "Cinderwell Pantry",
     siteUrl: "http://localhost:5501",
     fictional: true,
   },
   {
     id: "demo-pantry-b",
-    name: "Copperfield Table Food Bank",
+    name: "Brindlecote Food Bank",
     siteUrl: "http://localhost:5502",
     fictional: true,
   },
