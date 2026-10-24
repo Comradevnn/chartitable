@@ -15,10 +15,10 @@ Last updated: Sat Oct 24, ~3:40 AM PT (Opus prompt #3). Update this file wheneve
 cd "~/Claude Code/Chartitable" && git pull --rebase --autostash
 STAFF_PIN="$(npx convex env get STAFF_PIN)" node scripts/e2e-smoke.mjs        # 8/8 PASS; run it BEFORE, never during, the demo
 npx convex run seed:resetDemo '{"confirm":"reset-demo"}'                      # only between rehearsals: clears non-seed rows + fired milestones
-npx convex run seed:load                                                      # re-anchor seed dates to now (keeps the demo inbox)
+npx convex run seed:load '{}'                                                 # re-anchor seed dates to now (keeps the demo inbox)
 npx convex run narrative:getOrGenerate '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'   # pre-warm: should print source "claude"
 ```
-Then on stage: (1) donate $25 at https://chartitable.vercel.app/staff/donate?charity=demo-pantry-a → back on Cinderwell with the short first view; (2) staff page https://chartitable.vercel.app/staff/update?charity=demo-pantry-a (type the PIN) → "served 80 meals" + photo → email to the demo inbox within seconds; (3) open the email link → hero story, records, labeled estimates, next step; (4) post another update → reload → "since your last visit"; (5) private window → plain site; (6) same embed on Brindlecote (`/sites/regional-bank/`). Health: https://chartitable.vercel.app/staff/health.
+Then on stage: follow the **run of show** (published for Teammate 2, private until shared: https://claude.ai/artifact/4XqmuPMTiS1UaNuLJFk4v2). Beats, all verified live Sat 11:35 AM except the real email send: (1) private window → plain Cinderwell, no backend request; (2) donate $25 in that private window → just_gave page; (3) split staff page | Mira's tab (opened from `tokens:issue`, reloaded once, visible) → submit 80 meals → within ~6 s "Just logged" + about 26 meals, no reload; then the milestone email; (4) email link → news page; (5) honesty/guard; (6) Brindlecote as donor_a05 (`/sites/brindlecote/`). Health: https://chartitable.vercel.app/staff/health.
 Watch-outs: a smoke run during step 2 makes the milestone check skip (smoke data present) → no email; step 1's new donor dilutes donor_a01's share a little (margin holds up to ~$450 of extra pantry-A gifts); each rehearsal burns meals:25 until `seed:resetDemo`.
 
 ## Next, in order
