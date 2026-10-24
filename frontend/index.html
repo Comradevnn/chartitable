@@ -3,112 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Fictional demo charity home page: rescued food, honest numbers, and a clear path to a donor's impact page.">
-<title>Chartitable · Rescue Food, Feed Neighbors</title>
+<meta name="description" content="Fictional demo food pantry home page: rescued food, honest numbers, and a clear path to a donor's impact page.">
+<title>Rescue Food, Feed Neighbors</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><!-- non-blocking: if fonts.googleapis.com is unreachable the page renders at once in the system-font stack -->
+<noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
 <style>
-  /* ===== Shared design tokens (identical in index.html, dashboard.html, admin.html) ===== */
-  :root {
-    /* color */
-    --bg: #f6f5ef; --surface: #ffffff; --surface-2: #efeee6;
-    --ink: #14231a; --ink-soft: #4a584f; --rule: #dcdfd3;
-    --brand: #1d6b3f; --brand-strong: #144f2d; --brand-tint: #e3efe7;
-    --accent: #ffc94d; --accent-strong: #f4b21b; --accent-tint: #fff2cb; --accent-ink: #6b4700; --estimate-line: #a56f00;
-    --risk: #a3341f; --risk-tint: #fbe6e0; --info: #2c4a7a; --info-tint: #e6edf8;
-    --dark: #10241a; --on-dark: #ffffff; --on-dark-soft: #c3d3c9;
-    /* type */
-    --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem; --text-lg: 1.375rem; --text-xl: 1.75rem; --text-2xl: 2.25rem;
-    --text-display: clamp(2rem, 4.6vw + .6rem, 3.5rem);
-    --leading-tight: 1.1; --leading-snug: 1.3; --leading-body: 1.55; --tracking-tight: -.025em;
-    /* space */
-    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
-    /* shape + depth + motion */
-    --radius-sm: 8px; --radius: 14px; --radius-lg: 22px; --radius-pill: 999px;
-    --shadow-1: 0 1px 2px rgba(20,35,26,.06), 0 6px 16px -10px rgba(20,35,26,.18);
-    --shadow-2: 0 2px 4px rgba(20,35,26,.08), 0 18px 40px -18px rgba(20,35,26,.32);
-    --ease: cubic-bezier(.16, 1, .3, 1);
-    --container: 1160px;
-    /* Chartitable layer theming (integration contract v1) */
-    --ct-accent: var(--brand); --ct-fg: var(--ink); --ct-bg: var(--surface); --ct-muted: var(--ink-soft); --ct-font: var(--font); --ct-radius: var(--radius);
-  }
-
-  /* ===== Base ===== */
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html { scroll-padding-top: 80px; scroll-behavior: smooth; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-base)/var(--leading-body) var(--font); -webkit-font-smoothing: antialiased; }
-  ::selection { background: var(--accent); color: var(--ink); }
-  a { color: inherit; text-underline-offset: 3px; }
-  h1, h2, h3, p { margin: 0; }
-  h1, h2, h3 { line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  /* Tokens, base, buttons, record/estimate styles, tooltip, tags and the demo bar base live in shared.css; this file keeps only home-page rules. */
+  html { scroll-behavior: smooth; }
   h2 { font-size: var(--text-xl); font-weight: 800; }
   h3 { font-size: var(--text-md); font-weight: 700; }
-  ul, ol { margin: 0; padding: 0; list-style: none; }
-  main:focus { outline: none; }
-  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; border-radius: 4px; }
-  .on-dark :focus-visible { outline-color: var(--accent); box-shadow: none; }
-  .wrap { max-width: var(--container); margin: 0 auto; padding-left: var(--space-4); padding-right: var(--space-4); }
-  @media (min-width: 720px) { .wrap { padding-left: var(--space-5); padding-right: var(--space-5); } }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .skip { position: absolute; left: var(--space-3); top: -100px; z-index: 60; background: var(--accent); color: var(--ink); font-weight: 700; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); }
-  .skip:focus { top: var(--space-3); }
   .lead { font-size: var(--text-md); color: var(--ink-soft); max-width: 56ch; margin-top: var(--space-3); }
   section.pad { padding-top: var(--space-7); padding-bottom: var(--space-7); }
   @media (min-width: 900px) { section.pad { padding-top: var(--space-8); padding-bottom: var(--space-8); } }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; font: 700 var(--text-base)/1.2 var(--font); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s, transform .1s; }
-  .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--accent); color: var(--ink); }
-  .btn-primary:hover { background: var(--accent-strong); }
-  .btn-brand { background: var(--brand); color: #fff; }
-  .btn-brand:hover { background: var(--brand-strong); }
-  .btn-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
-  .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
-  .btn-ghost { background: transparent; color: inherit; box-shadow: inset 0 0 0 2px currentColor; }
-  .btn.sm { min-height: 40px; padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
-
-  /* ===== Honesty: records vs estimates (D1) ===== */
-  .ct-record { font-weight: 700; }
-  .ct-record::before { content: ""; display: inline-block; width: .85em; height: .85em; margin-right: .35em; vertical-align: -.08em; background: var(--brand);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; }
-  .ct-estimate { display: inline; padding: .04em .38em; border: 1.5px dashed var(--estimate-line); background: var(--accent-tint); color: var(--accent-ink); border-radius: var(--radius-sm); font-weight: 700; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-  .on-dark .ct-record::before { background: var(--accent); }
-  .on-dark .ct-estimate { background: rgba(255,201,77,.14); color: var(--accent); border-color: var(--accent); }
-  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 800; letter-spacing: .02em; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
-  .tag.rec { background: var(--brand-tint); color: var(--brand-strong); }
-  .tag.est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
-  .ct-tip { position: relative; display: inline-block; }
-  .ct-why { font: 600 var(--text-sm)/1.3 var(--font); color: inherit; background: none; border: 0; cursor: help; padding: var(--space-2) 2px; min-height: 32px; text-decoration: underline dotted; text-underline-offset: 4px; }
-  .ct-tip-body { position: absolute; z-index: 40; top: calc(100% + 2px); left: 0; width: min(320px, calc(100vw - 32px)); background: var(--ink); color: #fff; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; line-height: 1.45; box-shadow: var(--shadow-2); text-align: left; }
-  .on-dark .ct-tip-body { background: #fff; color: var(--ink); }
-
   /* ===== Chartitable slots (integration contract v1): empty means invisible ===== */
   [data-impact-slot]:empty { display: none; }
 
-  /* ===== Demo bar ===== */
-  .demo { background: #0b1a12; color: var(--on-dark-soft); font-size: var(--text-sm); }
-  .demo .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); padding-top: var(--space-3); padding-bottom: var(--space-3); }
-  .demo b { color: #fff; font-weight: 600; }
+  /* ===== Demo bar: view toggle (base look, layout and the demo path live in shared.css) ===== */
   .demo .seg { display: inline-flex; background: rgba(255,255,255,.08); border-radius: var(--radius-pill); padding: 3px; }
   .demo .seg button { font: 600 var(--text-sm)/1.2 var(--font); min-height: 32px; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); border: 0; background: none; color: var(--on-dark-soft); cursor: pointer; }
   .demo .seg button[aria-pressed="true"] { background: var(--accent); color: var(--ink); }
-  .demo a { margin-left: auto; padding: var(--space-1) 0; }
-  @media (max-width: 600px) { .demo a { margin-left: 0; } }
 
   /* ===== Nav ===== */
   .nav { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--rule); }
   .nav .wrap { display: flex; align-items: center; gap: var(--space-3); height: 68px; }
-  .logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 800; font-size: var(--text-md); letter-spacing: var(--tracking-tight); text-decoration: none; white-space: nowrap; }
-  .logo svg { width: 24px; height: 24px; flex: none; }
   .links { display: none; gap: var(--space-1); margin-left: var(--space-4); }
   .links a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); font-weight: 600; font-size: var(--text-sm); color: var(--ink-soft); }
   .links a:hover { color: var(--ink); background: var(--surface-2); }
   @media (min-width: 860px) { .links { display: flex; } }
   .nav-cta { margin-left: auto; min-height: 40px; padding: var(--space-2) var(--space-5); }
+  .nav .logo { min-width: 0; } .nav .logo span { overflow: hidden; text-overflow: ellipsis; } /* safety: a long charity name shortens instead of pushing the menu button off-screen */
+  @media (max-width: 420px) { .nav .wrap { gap: var(--space-2); } .nav-cta { padding-inline: var(--space-4); } } /* with the system-font fallback (Google Fonts blocked) the nav was 9px wider than a 375px screen */
   .menu-btn { flex: none; display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink); cursor: pointer; }
   .menu-btn svg { width: 20px; height: 20px; }
   @media (min-width: 860px) { .menu-btn { display: none; } }
@@ -160,6 +88,8 @@
   .stats b.ct-estimate { display: inline-block; align-self: flex-start; font-size: clamp(1.5rem, 2.4vw + .6rem, 2.25rem); padding: .1em .3em; }
   .stats span { color: var(--ink-soft); font-size: var(--text-sm); }
   .fine { font-size: var(--text-sm); color: var(--ink-soft); margin-top: var(--space-5); max-width: 70ch; }
+  .fine.flush { margin: 0; }
+  .stats > .fine { grid-column: 1 / -1; } /* empty state fills the whole stats grid */
 
   /* ===== How ===== */
   .how { background: var(--surface); }
@@ -188,13 +118,14 @@
   .trust .lead { color: #d8eadf; }
   .split { background: rgba(255,255,255,.1); border-radius: var(--radius); padding: var(--space-5); }
   .barline { display: flex; height: 18px; border-radius: 9px; overflow: hidden; gap: 2px; margin: var(--space-3) 0 var(--space-4); }
-  .barline i { display: block; min-width: 6px; }
+  .barline i { display: block; min-width: 6px; } /* flex-grow (the category's amount) is the one computed inline value */
+  .sw0 { background: #ffc94d; } .sw1 { background: #8fc3a2; } .sw2 { background: #ffffff; } .sw3 { background: #9db7e0; }
   .split ul { display: grid; gap: var(--space-2); font-size: var(--text-sm); }
   .split li { display: flex; gap: var(--space-3); align-items: center; }
   .split li i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
   .split li span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; }
   .split .cpm { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid rgba(255,255,255,.25); font-size: var(--text-sm); }
-  .split .cpm .ct-estimate { background: rgba(255,201,77,.18); color: var(--accent); border-color: var(--accent); }
+  /* the cost-per-meal estimate keeps the standard estimate look (accent-ink on accent-tint, 7.5:1); the old translucent yellow-on-green override was 2.7:1 */
 
   /* ===== Ways + newsletter + footer ===== */
   .ways { display: grid; gap: var(--space-5); margin-top: var(--space-6); }
@@ -220,7 +151,7 @@
   footer.site .logo { color: #fff; font-size: var(--text-md); padding: 0; }
   footer.site .brand p { margin-top: var(--space-2); max-width: 36ch; }
   .legal { border-top: 1px solid #2a4134; margin-top: var(--space-6); padding-top: var(--space-4); font-size: var(--text-xs); }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
@@ -231,13 +162,13 @@
       <span><b>Demo</b> · fictional charity, sample data</span>
       <span id="view-as"><span class="sr-only" id="view-lbl">View this page as</span>
         <span class="seg" role="group" aria-labelledby="view-lbl"><button type="button" data-view="stranger" aria-pressed="true">First-time visitor</button><button type="button" data-view="donor" aria-pressed="false">Returning donor</button></span></span>
-      <a href="admin.html">Staff view →</a>
+      <nav class="demo-path" aria-label="Demo path" data-demo-path></nav>
     </div>
   </div>
 
   <header class="nav">
     <div class="wrap">
-      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Chartitable</span></a>
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Food pantry</span></a>
       <nav class="links" id="main-links" aria-label="Main">
         <a href="#how">How it works</a><a href="#money">Where the money goes</a><a href="#ways">Get involved</a><a href="dashboard.html">My impact</a>
       </nav>
@@ -353,80 +284,61 @@
   <footer class="site">
     <div class="wrap">
       <div class="cols">
-        <div class="brand"><a class="logo" href="index.html"><span data-charity-name>Chartitable</span></a><p>Rescuing surplus produce for neighbors.</p></div>
+        <div class="brand"><a class="logo" href="index.html"><span data-charity-name>Food pantry</span></a><p>Rescuing surplus produce for neighbors.</p></div>
         <div><h2>Pages</h2><ul><li><a href="index.html">Home</a></li><li><a href="dashboard.html">My impact</a></li><li><a href="admin.html">Staff login</a></li></ul></div>
         <div><h2>Give</h2><ul><li><a data-impact-donate href="#give">Donate</a></li></ul></div>
       </div>
-      <div class="legal"><span data-charity-name>Chartitable</span> is a fictional organization for a hackathon demo, not a registered nonprofit. All names, numbers and illustrations are sample data. No payment is taken and no email is sent.</div>
+      <div class="legal"><span data-charity-name>Food pantry</span> is a fictional organization for a hackathon demo, not a registered nonprofit. The donor impact features shown here are a demo of Chartitable, a separate product. All names, numbers and illustrations are sample data. No payment is taken and no email is sent.</div>
     </div>
   </footer>
 
+<script src="demo-data.js"></script>
+<script src="shared.js"></script>
 <script>
-  const ts = s => Date.parse(s + "T12:00:00Z"); // noon UTC so dates never drift across timezones
+  const { money, fmtDate, isoDate, esc, sum, recText, estText, tip, setCharityName, initTooltips, donorResult, ART_SVG } = CT;
 
   // DEMO DATA (fictional) — swap for Convex query
-  // impactLogs / expenses follow the staff records the dashboard reads (DashExpense, ImpactLog); donorView follows DonorView in engine/types.ts.
-  const DEMO = {
-    charity: { id: "demo-pantry-a", name: "Chartitable", formula: "Your estimated share = your gifts ÷ all gifts in the 30-day window × what the pantry logged. A log only counts gifts made on or before its date. Rounded down, never up." },
-    now: ts("2026-10-24"), period: { from: ts("2026-09-24"), to: ts("2026-10-24"), label: "Last 30 days" },
-    impactLogs: [
-      { id: "l0", kind: "meals", count: 70, unit: "meals", note: null, loggedAt: ts("2026-09-12") },
-      { id: "l1", kind: "meals", count: 45, unit: "meals", note: null, loggedAt: ts("2026-09-27") },
-      { id: "l2", kind: "meals", count: 60, unit: "meals", note: null, loggedAt: ts("2026-10-06") },
-      { id: "l3", kind: "produce", count: 410, unit: "lb", note: null, loggedAt: ts("2026-10-09") },
-      { id: "l4", kind: "meals", count: 50, unit: "meals", note: null, loggedAt: ts("2026-10-14") },
-      { id: "l5", kind: "meals", count: 80, unit: "meals", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", loggedAt: ts("2026-10-20") },
-      { id: "l6", kind: "produce", count: 220, unit: "lb", note: null, loggedAt: ts("2026-10-22") }
-    ],
-    expenses: [ // DashExpense; amounts are integer cents
-      { id: "e0", date: ts("2026-09-10"), amount: 12000, category: "facility", note: "Before this period" },
-      { id: "e1", date: ts("2026-09-28"), amount: 18200, category: "food", note: "Bulk staples to fill gaps" },
-      { id: "e2", date: ts("2026-10-02"), amount: 5420, category: "transport", note: "Fuel, pickup truck" },
-      { id: "e3", date: ts("2026-10-08"), amount: 5425, category: "supplies", note: "Crates and gloves" },
-      { id: "e4", date: ts("2026-10-16"), amount: 4220, category: "transport", note: "Fuel, pickup truck" }
-    ],
-    categories: { food: "Food purchases", transport: "Transport and fuel", facility: "Facility", supplies: "Supplies", staff: "Staff and stipends", other: "Other" },
-    // NUMBERS BELOW ARE COMPUTED IN dashboard.html (allocate() over the shared sample gift pool, PRODUCT_SPEC §3): Maya gets 16 meals in the last 30 days
-    // and 9 meals since Oct 15 (dashboard also shows 51 lb and 26 lb). Hard-coded here as the layer's DonorView payload; update if dashboard's data changes.
-    donorView: { // what the layer would receive for a recognized donor (opaque token, no names in URLs)
-      token: "k7q2m9", recognized: true,
-      hero: { firstName: "Maya", source: "template", story: "" },
-      estimates: [{ kind: "meals", unit: "meals", approxQuantity: 16, marker: "about" }],
-      sinceLastVisit: { sinceDateLabel: "Oct 15",
-        records: [
-          { logId: "l6", kind: "produce", count: 220, unit: "lb", dateLabel: "Thu, Oct 22", note: null, hasPhoto: false },
-          { logId: "l5", kind: "meals", count: 80, unit: "meals", dateLabel: "Tue, Oct 20", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", hasPhoto: false }
-        ],
-        estimates: [{ kind: "meals", unit: "meals", approxQuantity: 9, marker: "about" }] },
-      nextStep: { kind: "give_monthly", href: "dashboard.html?ct=k7q2m9", text: "Your page shows every update with the logged facts and your estimated share. A monthly gift is one way to keep it going, and it is entirely optional." }
-    }
-  };
+  // The one data-access point: returns what the Convex queries would (charity, period, donors + gifts, impact logs, expenses, donor views). Data lives in demo-data.js.
+  function load() { return window.DEMO_DATA; }
+
+  // adapter: derives everything this page shows from the raw data (replaces nothing but load() when Convex arrives)
+  function buildModel(raw) {
+    const { from, to } = raw.period, inP = t => t >= from && t <= to;
+    // derived from the logs: numbers, latest update, expense split
+    const logs = raw.impactLogs.filter(l => inP(l.loggedAt)), meals = sum(logs.filter(l => l.kind === "meals"), l => l.count), lb = sum(logs.filter(l => l.kind === "produce"), l => l.count);
+    const exp = raw.expenses.filter(e => inP(e.date)), expTotal = sum(exp, e => e.amount), cpm = meals ? Math.round(expTotal / meals) : null;
+    const cpmFormula = meals ? `Expenses ÷ meals served in the period: ${money(expTotal)} ÷ ${meals} meals = $${(expTotal / meals / 100).toFixed(4)}, shown as about ${money(cpm)}.` : "Expenses ÷ meals served in the period.";
+    const latest = [...raw.impactLogs].sort((a, b) => b.loggedAt - a.loggedAt).find(l => l.kind === "meals" && l.note) || [...raw.impactLogs].sort((a, b) => b.loggedAt - a.loggedAt)[0];
+    const byCat = {}; exp.forEach(e => byCat[e.category] = (byCat[e.category] || 0) + e.amount);
+    const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+    // what the layer would receive for the recognized demo donor (opaque token, no names in URLs). Estimates come from CT.allocate(), exactly as on the dashboard;
+    // the home page shows the meals figures only (it never showed produce estimates).
+    const donor = raw.donors.find(d => d.id === raw.demo.returningDonorId), vw = raw.donorViews[donor.id];
+    const res = donorResult({ id: donor.id, lastVisitAt: vw.lastVisitAt }, raw), mealsOnly = list => list.filter(e => e.kind === "meals");
+    const donorView = {
+      token: donor.viewToken, recognized: true, hero: vw.hero, estimates: mealsOnly(res.estimates),
+      sinceLastVisit: res.sinceLastVisit && { sinceDateLabel: res.sinceLastVisit.sinceDateLabel, records: res.sinceLastVisit.records, estimates: mealsOnly(res.sinceLastVisit.estimates) },
+      nextStep: { kind: vw.homeNextStep.kind, href: `dashboard.html?ct=${donor.viewToken}`, text: vw.homeNextStep.text }
+    };
+    return { charity: raw.charity, now: raw.now, categories: raw.categories, impactLogs: raw.impactLogs, logs, meals, lb, expTotal, exp, cpm, cpmFormula, latest, cats, donorView };
+  }
+  const DEMO = buildModel(load());
 
   // ---- helpers ----
-  const money = c => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: c % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(c / 100); // the one money formatter (integer cents in)
-  const fmtDate = (t, y) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" });
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
-  const recText = r => r.kind === "produce" ? `${r.count} ${r.unit} of produce received` : `${r.count} ${r.count === 1 ? "meal" : "meals"} served`;
-  const estText = e => `about ${e.approxQuantity} ${e.kind === "produce" ? e.unit + " of produce" : e.approxQuantity === 1 ? "meal" : "meals"}`;
-  let tipN = 0;
-  const tip = (label, text) => { const id = "tip" + ++tipN; return `<span class="ct-tip"><button type="button" class="ct-why" aria-expanded="false" aria-describedby="${id}">${label}</button><span role="tooltip" id="${id}" class="ct-tip-body" hidden>${esc(text)}</span></span>`; };
-  document.querySelectorAll("[data-charity-name]").forEach(el => el.textContent = DEMO.charity.name);
+  setCharityName(DEMO.charity.name);
+  // title and meta description come from DEMO.charity.name too (static HTML holds only generic fallbacks)
+  document.title = `${DEMO.charity.name} · Rescue Food, Feed Neighbors`;
+  document.querySelector('meta[name="description"]').setAttribute("content", `Fictional demo food pantry home page for ${DEMO.charity.name}: rescued food, honest numbers, and a clear path to a donor's impact page.`);
 
-  // illustration (authored SVG, shared by hero and latest-update)
-  const art = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of a crate of fresh produce"><circle cx="290" cy="110" r="52" fill="#ffc94d"/><path d="M0 330q110-70 220-20t180-30v220H0z" fill="#24543a"/><g fill="#7bc47f"><ellipse cx="150" cy="238" rx="16" ry="38" transform="rotate(-24 150 238)"/><ellipse cx="190" cy="226" rx="16" ry="42" transform="rotate(4 190 226)"/><ellipse cx="228" cy="236" rx="16" ry="38" transform="rotate(26 228 236)"/></g><circle cx="118" cy="296" r="32" fill="#f08a2b"/><circle cx="186" cy="288" r="36" fill="#f5a03a"/><circle cx="256" cy="298" r="30" fill="#8d2f4c"/><circle cx="304" cy="306" r="26" fill="#f08a2b"/><rect x="52" y="312" width="296" height="22" rx="8" fill="#cf9650"/><rect x="62" y="334" width="276" height="130" rx="10" fill="#b9803f"/><path d="M62 378h276M62 420h276" stroke="#8f5f2b" stroke-width="5"/></svg>';
-  document.getElementById("art-hero").innerHTML = art;
-  document.getElementById("art-latest").innerHTML = art;
+  document.getElementById("art-hero").innerHTML = ART_SVG;
+  document.getElementById("art-latest").innerHTML = ART_SVG;
 
-  // ---- derived from the logs: numbers, latest update, expense split ----
-  const { from, to } = DEMO.period, inP = t => t >= from && t <= to;
-  const logs = DEMO.impactLogs.filter(l => inP(l.loggedAt)), meals = sum(logs.filter(l => l.kind === "meals"), l => l.count), lb = sum(logs.filter(l => l.kind === "produce"), l => l.count);
-  const exp = DEMO.expenses.filter(e => inP(e.date)), expTotal = sum(exp, e => e.amount), cpm = meals ? Math.round(expTotal / meals) : null;
-  const cpmFormula = meals ? `Expenses ÷ meals served in the period: ${money(expTotal)} ÷ ${meals} meals = $${(expTotal / meals / 100).toFixed(4)}, shown as about ${money(cpm)}.` : "Expenses ÷ meals served in the period.";
+  // ---- numbers, latest update, expense split ----
+  const { logs, meals, lb, exp, expTotal, cpm, cpmFormula, latest, cats } = DEMO;
   const statsEl = document.getElementById("stats");
   document.getElementById("stats-date").textContent = fmtDate(DEMO.now, true);
   if (!logs.length) {
-    statsEl.innerHTML = '<p class="fine" style="grid-column:1/-1;margin:0">No updates have been logged in the last 30 days. Numbers will appear here as staff log them.</p>';
+    statsEl.innerHTML = '<p class="fine flush">No updates have been logged in the last 30 days. Numbers will appear here as staff log them.</p>';
   } else {
     statsEl.innerHTML = `
       <div><b class="ct-record">${meals}</b><span>meals served <span class="tag rec">Logged</span></span></div>
@@ -435,18 +347,15 @@
       <div class="is-est"><b class="ct-estimate">${cpm === null ? "Not yet" : "about " + money(cpm)}</b><span>cost per meal <span class="tag est">Estimate</span> ${tip("See the math", cpmFormula)}</span></div>`;
   }
 
-  const latest = [...DEMO.impactLogs].sort((a, b) => b.loggedAt - a.loggedAt).find(l => l.kind === "meals" && l.note) || [...DEMO.impactLogs].sort((a, b) => b.loggedAt - a.loggedAt)[0];
   document.getElementById("latest-rec").innerHTML = latest
-    ? `<span class="tag rec">Logged by staff</span><span class="big">${esc(recText(latest))}</span><time datetime="${new Date(latest.loggedAt).toISOString().slice(0, 10)}">${fmtDate(latest.loggedAt, true)}</time>${latest.note ? `<blockquote>“${esc(latest.note)}”<small>Staff note, shown as written</small></blockquote>` : ""}`
-    : '<p class="fine" style="margin:0">No updates yet. The latest one will appear here.</p>';
+    ? `<span class="tag rec">Logged by staff</span><span class="big">${esc(recText(latest))}</span><time datetime="${isoDate(latest.loggedAt)}">${fmtDate(latest.loggedAt, true)}</time>${latest.note ? `<blockquote>“${esc(latest.note)}”<small>Staff note, shown as written</small></blockquote>` : ""}`
+    : '<p class="fine flush">No updates yet. The latest one will appear here.</p>';
 
-  const byCat = {}; exp.forEach(e => byCat[e.category] = (byCat[e.category] || 0) + e.amount);
-  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]), palette = ["#ffc94d", "#8fc3a2", "#ffffff", "#9db7e0"];
   document.getElementById("split").innerHTML = !exp.length
     ? '<p>No expenses have been logged in the last 30 days.</p>'
     : `<b>${money(expTotal)} spent, by category</b>
-       <div class="barline" role="img" aria-label="${cats.map(([k, v]) => `${DEMO.categories[k]} about ${Math.round(v / expTotal * 100)} percent`).join(", ")}">${cats.map(([k, v], i) => `<i style="flex:${v};background:${palette[i % 4]}"></i>`).join("")}</div>
-       <ul>${cats.map(([k, v], i) => `<li><i style="background:${palette[i % 4]}"></i><span>${DEMO.categories[k]}</span><span>${money(v)} · about ${Math.round(v / expTotal * 100)}%</span></li>`).join("")}</ul>
+       <div class="barline" role="img" aria-label="${cats.map(([k, v]) => `${DEMO.categories[k]} about ${Math.round(v / expTotal * 100)} percent`).join(", ")}">${cats.map(([k, v], i) => `<i class="sw${i % 4}" style="flex:${v}"></i>`).join("")}</div>
+       <ul>${cats.map(([k, v], i) => `<li><i class="sw${i % 4}"></i><span>${DEMO.categories[k]}</span><span>${money(v)} · about ${Math.round(v / expTotal * 100)}%</span></li>`).join("")}</ul>
        <p class="cpm">${cpm === null ? "Cost per meal appears once meals are logged." : `Cost per meal: <span class="ct-estimate">about ${money(cpm)}</span> ${tip("See the math", cpmFormula)}`}</p>`;
 
   // ---- donate links ----
@@ -474,10 +383,11 @@
 
   // ---- returning-donor preview: mimics what layer.js would fill into the three empty slots (contract v1) ----
   const slots = { hero: document.querySelector('[data-impact-slot="hero"]'), since: document.querySelector('[data-impact-slot="since-last-visit"]'), next: document.querySelector('[data-impact-slot="next-step"]') };
-  const root = document.documentElement, seg2 = document.querySelectorAll("[data-view]");
+  const root = document.documentElement, seg2 = document.querySelectorAll("[data-view]"), path = CT.initDemoPath(1); // demo path: step 1 = first-time view, step 2 = returning-donor view
   function fill(slot, html) { slot.innerHTML = html; slot.setAttribute("data-impact-state", "ready"); }
   function setView(v, remember) {
     seg2.forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v));
+    path.set(v === "donor" ? 2 : 1);
     if (remember) try { sessionStorage.setItem("ct-demo-view", v); } catch (e) {}
     if (v !== "donor") { Object.values(slots).forEach(s => { s.innerHTML = ""; s.removeAttribute("data-impact-state"); }); root.removeAttribute("data-impact-active"); return; }
     const d = DEMO.donorView, s = d.sinceLastVisit, m = d.estimates.find(e => e.kind === "meals");
@@ -489,28 +399,18 @@
     root.setAttribute("data-impact-active", "");
   }
   seg2.forEach(b => b.addEventListener("click", () => setView(b.dataset.view, true)));
-  // formula tooltips: hover, keyboard focus and tap/click (click pins it open); Escape or an outside tap closes
-  (function () {
-    const place = b => { b.style.left = "0"; const r = b.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12); if (over > 0) b.style.left = -over + "px"; };
-    const parts = t => ({ b: t.querySelector(".ct-why"), body: t.querySelector(".ct-tip-body") });
-    const open = t => { const { b, body } = parts(t); body.hidden = false; b.setAttribute("aria-expanded", "true"); place(body); };
-    const close = t => { const { b, body } = parts(t); body.hidden = true; b.setAttribute("aria-expanded", "false"); delete t.dataset.pinned; };
-    const tipOf = e => e.target.closest && e.target.closest(".ct-tip");
-    document.addEventListener("mouseover", e => { const t = tipOf(e); if (t) open(t); });
-    document.addEventListener("mouseout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget) && !t.dataset.pinned && !t.contains(document.activeElement)) close(t); });
-    document.addEventListener("focusin", e => { const t = tipOf(e); if (t) open(t); });
-    document.addEventListener("focusout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget)) close(t); });
-    document.addEventListener("click", e => { const t = tipOf(e); document.querySelectorAll(".ct-tip[data-pinned]").forEach(x => { if (x !== t) close(x); }); if (!t) return; if (t.dataset.pinned) close(t); else { t.dataset.pinned = "1"; open(t); } });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".ct-tip").forEach(t => { if (!parts(t).body.hidden) close(t); }); });
-  })();
+  initTooltips(document);
 
-  // start: a ?ct= token (email link or donate redirect) or the remembered demo choice shows the returning view; the token is stripped from the address bar
+  // start: a ?ct= token (email link or donate redirect) or the remembered demo choice shows the returning view; the token is stripped from the address bar.
+  // ?view=stranger (demo path step 1) forces the first-time view and replaces any remembered returning view.
   (function () {
-    const p = new URLSearchParams(location.search); let v = "stranger";
-    if (p.get("ct") === DEMO.donorView.token) { v = "donor"; p.delete("ct"); history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "") + location.hash); }
+    const p = new URLSearchParams(location.search); let v = "stranger", remember = false;
+    const clean = () => history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "") + location.hash);
+    if (p.get("ct") === DEMO.donorView.token) { v = "donor"; remember = true; p.delete("ct"); clean(); }
+    else if (p.get("view") === "stranger") { remember = true; p.delete("view"); clean(); }
     else { try { v = sessionStorage.getItem("ct-demo-view") || "stranger"; } catch (e) {} }
-    if (document.querySelector('script[src*="layer"]')) document.querySelector(".demo").hidden = true; // the real layer owns the slots
-    else setView(v, v === "donor");
+    if (CT.layerPresent()) document.querySelector(".demo").hidden = true; // the real layer owns the slots
+    else setView(v, remember || v === "donor");
   })();
 </script>
 </body>

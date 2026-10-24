@@ -3,90 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Fictional demo: staff view of donors, who is ready for a thank-you and who may be slipping away.">
-<title>Donors · Chartitable Staff</title>
+<meta name="description" content="Fictional demo: staff view of a food pantry's donors, who is ready for a thank-you and who may be slipping away.">
+<title>Donors · Staff view</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><!-- non-blocking: if fonts.googleapis.com is unreachable the page renders at once in the system-font stack -->
+<noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
 <style>
-  /* ===== Shared design tokens (identical in index.html, dashboard.html, admin.html) ===== */
-  :root {
-    /* color */
-    --bg: #f6f5ef; --surface: #ffffff; --surface-2: #efeee6;
-    --ink: #14231a; --ink-soft: #4a584f; --rule: #dcdfd3;
-    --brand: #1d6b3f; --brand-strong: #144f2d; --brand-tint: #e3efe7;
-    --accent: #ffc94d; --accent-strong: #f4b21b; --accent-tint: #fff2cb; --accent-ink: #6b4700; --estimate-line: #a56f00;
-    --risk: #a3341f; --risk-tint: #fbe6e0; --info: #2c4a7a; --info-tint: #e6edf8;
-    --dark: #10241a; --on-dark: #ffffff; --on-dark-soft: #c3d3c9;
-    /* type */
-    --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem; --text-lg: 1.375rem; --text-xl: 1.75rem; --text-2xl: 2.25rem;
-    --text-display: clamp(2rem, 4.6vw + .6rem, 3.5rem);
-    --leading-tight: 1.1; --leading-snug: 1.3; --leading-body: 1.55; --tracking-tight: -.025em;
-    /* space */
-    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
-    /* shape + depth + motion */
-    --radius-sm: 8px; --radius: 14px; --radius-lg: 22px; --radius-pill: 999px;
-    --shadow-1: 0 1px 2px rgba(20,35,26,.06), 0 6px 16px -10px rgba(20,35,26,.18);
-    --shadow-2: 0 2px 4px rgba(20,35,26,.08), 0 18px 40px -18px rgba(20,35,26,.32);
-    --ease: cubic-bezier(.16, 1, .3, 1);
-    --container: 1160px;
-    /* Chartitable layer theming (integration contract v1) */
-    --ct-accent: var(--brand); --ct-fg: var(--ink); --ct-bg: var(--surface); --ct-muted: var(--ink-soft); --ct-font: var(--font); --ct-radius: var(--radius);
-  }
-
-  /* ===== Base ===== */
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html { scroll-padding-top: 80px; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-base)/var(--leading-body) var(--font); -webkit-font-smoothing: antialiased; }
-  ::selection { background: var(--accent); color: var(--ink); }
-  a { color: inherit; text-underline-offset: 3px; }
-  h1, h2, h3, p { margin: 0; }
-  h1, h2, h3 { line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  /* Tokens, base, buttons, record/estimate styles, tooltip, tags, logo, demo ribbon, skeleton and footer live in shared.css; this file keeps only staff-view rules. */
   h1 { font-size: var(--text-xl); font-weight: 800; }
   h2 { font-size: var(--text-md); font-weight: 800; }
   h3 { font-size: var(--text-sm); font-weight: 800; }
-  ul, ol { margin: 0; padding: 0; list-style: none; }
-  main:focus { outline: none; }
-  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; border-radius: 4px; }
-  .on-dark :focus-visible { outline-color: var(--accent); box-shadow: none; }
-  .wrap { max-width: var(--container); margin: 0 auto; padding-left: var(--space-4); padding-right: var(--space-4); }
-  @media (min-width: 720px) { .wrap { padding-left: var(--space-5); padding-right: var(--space-5); } }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .skip { position: absolute; left: var(--space-3); top: -100px; z-index: 60; background: var(--accent); color: var(--ink); font-weight: 700; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); }
-  .skip:focus { top: var(--space-3); }
-
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; font: 700 var(--text-base)/1.2 var(--font); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s, transform .1s; }
-  .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--accent); color: var(--ink); }
-  .btn-primary:hover { background: var(--accent-strong); }
-  .btn-brand { background: var(--brand); color: #fff; }
-  .btn-brand:hover { background: var(--brand-strong); }
-  .btn-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
-  .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
-  .btn.sm { min-height: 40px; padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
-  .btn[disabled], .btn[aria-disabled="true"] { opacity: .6; cursor: default; }
-
-  /* ===== Honesty: records vs estimates (D1) ===== */
-  .ct-record { font-weight: 700; }
-  .ct-record::before { content: ""; display: inline-block; width: .85em; height: .85em; margin-right: .35em; vertical-align: -.08em; background: var(--brand);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; }
-  .ct-estimate { display: inline; padding: .04em .38em; border: 1.5px dashed var(--estimate-line); background: var(--accent-tint); color: var(--accent-ink); border-radius: var(--radius-sm); font-weight: 700; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-  .on-dark .ct-record::before { background: var(--accent); }
-  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 800; letter-spacing: .02em; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
-  .tag.rec { background: var(--brand-tint); color: var(--brand-strong); }
-  .tag.est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
-  .ct-tip { position: relative; display: inline-block; }
-  .ct-why { font: 600 var(--text-sm)/1.3 var(--font); color: inherit; background: none; border: 0; cursor: help; padding: var(--space-2) 2px; min-height: 32px; text-decoration: underline dotted; text-underline-offset: 4px; }
-  .ct-tip-body { position: absolute; z-index: 40; top: calc(100% + 2px); left: 0; width: min(320px, calc(100vw - 32px)); background: var(--ink); color: #fff; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; line-height: 1.45; box-shadow: var(--shadow-2); text-align: left; }
 
   /* ===== Top bar ===== */
   .top { background: var(--dark); color: var(--on-dark); }
   .top .wrap { display: flex; align-items: center; gap: var(--space-4); height: 60px; }
-  .logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 800; font-size: var(--text-md); letter-spacing: var(--tracking-tight); text-decoration: none; white-space: nowrap; }
-  .logo svg { width: 24px; height: 24px; flex: none; }
   .logo em { font-style: normal; font-weight: 600; color: var(--on-dark-soft); font-size: var(--text-sm); }
   .top nav { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
   .top nav a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); color: var(--on-dark-soft); font-weight: 600; font-size: var(--text-sm); }
@@ -97,11 +29,6 @@
   .who .av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-weight: 800; font-size: var(--text-xs); }
   @media (max-width: 760px) { .who span { display: none; } .top nav a.opt { display: none; } .top .wrap { gap: var(--space-2); } }
   @media (max-width: 420px) { .logo em { display: none; } }
-
-  /* ===== Demo ribbon (same look as the demo bar on index.html) ===== */
-  .demo { background: #0b1a12; color: var(--on-dark-soft); font-size: var(--text-sm); }
-  .demo .wrap { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-  .demo b { color: #fff; font-weight: 600; }
 
   /* ===== Page ===== */
   main { padding-block: var(--space-5) var(--space-8); }
@@ -162,6 +89,7 @@
   td .name { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
   td .name button { font: inherit; color: inherit; background: none; border: 0; padding: var(--space-1) 0; min-height: 32px; cursor: pointer; text-align: left; }
   .av-s { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-xs); font-weight: 800; color: #fff; flex: none; }
+  .tone-0 { background: #1d6b3f; } .tone-1 { background: #2c4a7a; } .tone-2 { background: #7a3d6b; } .tone-3 { background: #a3341f; } .tone-4 { background: #5b6b1d; } .tone-5 { background: #1d5f6b; } .tone-6 { background: #6b4a1d; } /* white initials on each: 5.9:1 or better */
   .s-tag { display: inline-block; font-size: var(--text-xs); font-weight: 800; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
   .s-tag.new { background: var(--info-tint); color: var(--info); }
   .s-tag.active { background: var(--brand-tint); color: var(--brand-strong); }
@@ -179,8 +107,6 @@
   .state h2 { font-size: var(--text-lg); }
   .state p { margin-top: var(--space-2); color: var(--ink-soft); }
   .state .btn { margin-top: var(--space-4); }
-  .sk { background: linear-gradient(90deg, var(--surface-2) 25%, #f9f8f3 50%, var(--surface-2) 75%); background-size: 200% 100%; border-radius: var(--radius-sm); animation: sk 1.4s linear infinite; }
-  @keyframes sk { to { background-position: -200% 0; } }
 
   /* drawer */
   .scrim { position: fixed; inset: 0; background: rgba(16,36,26,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 30; }
@@ -220,16 +146,12 @@
   .batch .inc { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-weight: 700; }
   .batch .inc input { width: 20px; height: 20px; accent-color: var(--brand); }
   .batch textarea { min-height: 110px; }
-  .toast { position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 50; background: var(--ink); color: #fff; padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); box-shadow: var(--shadow-2); font-size: var(--text-sm); font-weight: 600; max-width: calc(100vw - 32px); text-align: center; }
+  .actions .mut { align-self: center; }
+  .sk-title { height: 56px; width: min(420px, 100%); margin-bottom: 24px; } .sk-kpi { height: 88px; }
+  .sk-table { padding: 16px; } .sk-table .sk-head { height: 44px; margin-bottom: 12px; } .sk-table .sk-row { height: 40px; margin-top: 10px; }
+  .toast { position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 50; background: var(--ink); color: #fff; padding: var(--space-3) var(--space-5); border-radius: var(--radius); box-shadow: var(--shadow-2); font-size: var(--text-sm); font-weight: 600; width: max-content; max-width: calc(100vw - 32px); text-align: center; }
 
-  footer.page { color: var(--ink-soft); font-size: var(--text-sm); padding-block: var(--space-5) var(--space-6); border-top: 1px solid var(--rule); background: var(--surface); }
-  footer.page .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between; }
-  footer.page nav { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
-  footer.page nav a { padding: var(--space-2) 0; }
-  footer.page label { font-weight: 600; margin-right: var(--space-2); }
-  footer.page select { font: inherit; padding: var(--space-2) var(--space-3); border: 1.5px solid var(--rule); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); min-height: 40px; }
-  footer.page .fine { flex-basis: 100%; }
-  @media (prefers-reduced-motion: reduce) { .sk { animation: none; } .drawer, .scrim, .btn, tbody tr { transition: none; } html { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { .drawer, .scrim, tbody tr { transition: none; } }
 </style>
 </head>
 <body>
@@ -237,7 +159,7 @@
 
   <header class="top on-dark" id="top">
     <div class="wrap">
-      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#ffc94d" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Chartitable</span> <em>Staff</em></a>
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#ffc94d" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Food pantry</span> <em>Staff</em></a>
       <nav aria-label="Staff">
         <a href="admin.html" aria-current="page">Donors</a>
         <a class="opt" href="index.html">Public site</a>
@@ -247,7 +169,7 @@
     </div>
   </header>
 
-  <div class="demo" role="note"><div class="wrap"><b>Demo</b> · sample data (fictional)</div></div>
+  <div class="demo" id="demo-bar" role="region" aria-label="Demo controls"><div class="wrap"><span><b>Demo</b> · sample data (fictional)</span><nav class="demo-path" aria-label="Demo path" data-demo-path></nav><button class="demo-reset" type="button" id="reset-demo">Reset demo</button></div></div>
 
   <main id="main" tabindex="-1">
     <div class="wrap" id="app" aria-busy="true"><noscript><div class="card state"><h2>This demo page needs JavaScript</h2></div></noscript></div>
@@ -263,7 +185,7 @@
           <option value="error">Error</option>
           <option value="empty">No donors yet</option>
         </select></div>
-      <p class="fine"><span data-charity-name>Chartitable</span> is a fictional organization. Staff, donors, gifts and expenses on this page are sample data, and no email is ever sent from this demo. Real staff sign-in is not built; the live version needs it.</p>
+      <p class="fine"><span data-charity-name>Food pantry</span> is a fictional organization. Staff, donors, gifts and expenses on this page are sample data, and no email is ever sent from this demo. The thank-you and check-in drafts show how Chartitable, the product, would work for a real pantry. Real staff sign-in is not built; the live version needs it.</p>
     </div>
   </footer>
 
@@ -278,78 +200,25 @@
   </div>
   <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="demo-data.js"></script>
+<script src="shared.js"></script>
 <script>
-  const DAY = 864e5, ts = s => Date.parse(s + "T12:00:00Z"); // noon UTC so dates never drift across timezones
-  const G = (d, cents, label) => ({ at: ts(d), amountCents: cents, label });
-
-  // DEMO DATA (fictional) — swap for Convex query
-  // Shapes follow DASHBOARD_SPEC.md: DashDonor / DashOverview / DashExpense. Money is integer cents; times are ms epoch.
-  // The backend returns `status`, `totalGiven`, `giftCount`, first/lastGiftAt and the overview totals; the mock derives them in buildModel().
-  // Extras the donor detail needs beyond DashDonor: email, gifts, viewToken (opaque ?ct= stand-in).
-  const DEMO = {
-    now: ts("2026-10-24"),
-    charity: { id: "demo-pantry-a", name: "Chartitable", staffName: "Jordan" },
-    period: { from: ts("2026-09-24"), to: ts("2026-10-24"), label: "Last 30 days" },
-    donors: [
-      { id: "donor_a01", displayName: "Maya Rodriguez", email: "maya.r@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-03"), viewToken: "k7q2m9",
-        gifts: [G("2026-03-03", 1500, "Citrus run"), G("2026-05-20", 5000, "Spring planting run"), G("2026-08-12", 2500, "Stone fruit run"), G("2026-10-01", 1000, "Winter squash run"), G("2026-10-15", 2500, "General fund")] },
-      { id: "donor_a02", displayName: "Devon Price", email: "devon.p@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
-        gifts: ["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => G(d, 4000, "Monthly gift")) },
-      { id: "donor_a03", displayName: "Aiko Tanaka", email: "aiko.t@example.com", hideFromTopDonors: false, thankedAt: ts("2026-04-03"), viewToken: null,
-        gifts: [G("2025-12-10", 50000, "Year-end drive"), G("2026-04-02", 25000, "Spring planting run")] },
-      { id: "donor_a04", displayName: "Luis Ortega", email: "luis.o@example.com", hideFromTopDonors: false, thankedAt: ts("2025-12-19"), viewToken: null,
-        gifts: [G("2025-12-18", 10000, "Year-end drive")] },
-      { id: "donor_a05", displayName: "Priya Shah", email: "priya.s@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
-        gifts: ["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => G(d, 2500, "Monthly gift")) },
-      { id: "donor_a06", displayName: "Sam Whitaker", email: "sam.w@example.com", hideFromTopDonors: false, thankedAt: null, viewToken: "t3x8v5",
-        gifts: [G("2026-10-23", 3000, "General fund")] },
-      { id: "donor_a07", displayName: "Grace Kim", email: "grace.k@example.com", hideFromTopDonors: false, thankedAt: ts("2026-02-21"), viewToken: null,
-        gifts: [G("2025-09-05", 100000, "Warehouse fund"), G("2026-02-20", 20000, "Citrus run")] },
-      { id: "donor_a08", displayName: "Omar Haddad", email: "omar.h@example.com", hideFromTopDonors: false, thankedAt: ts("2026-01-09"), viewToken: null,
-        gifts: [G("2026-01-08", 2000, "Citrus run")] },
-      { id: "donor_a09", displayName: "Beatriz Souza", email: "bea.s@example.com", hideFromTopDonors: false, thankedAt: ts("2026-09-03"), viewToken: null,
-        gifts: [G("2026-04-15", 6000, "Spring planting run"), G("2026-09-02", 7500, "Stone fruit run")] },
-      { id: "donor_a10", displayName: "Ken Okafor", email: "ken.o@example.com", hideFromTopDonors: false, thankedAt: null, viewToken: null,
-        gifts: [G("2026-10-19", 10000, "Winter squash run")] },
-      { id: "donor_a11", displayName: "Hana Novak", email: "hana.n@example.com", hideFromTopDonors: false, thankedAt: ts("2026-09-06"), viewToken: null,
-        gifts: [G("2026-06-12", 4500, "Citrus run"), G("2026-09-05", 4500, "Stone fruit run")] },
-      { id: "donor_a12", displayName: "Tom Becker", email: "tom.b@example.com", hideFromTopDonors: false, thankedAt: ts("2026-10-02"), viewToken: null,
-        gifts: ["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"].map(d => G(d, 1500, "Quarterly gift")) },
-      { id: "donor_a13", displayName: "Rosa Delgado", email: "rosa.d@example.com", hideFromTopDonors: false, thankedAt: ts("2026-07-29"), viewToken: null,
-        gifts: [G("2026-07-28", 3500, "Stone fruit run")] },
-      { id: "donor_a14", displayName: "Anonymous", email: null, hideFromTopDonors: true, thankedAt: null, viewToken: null,
-        gifts: [G("2026-09-28", 7500, "General fund")] }
-    ],
-    expenses: [ // DashExpense
-      { id: "e0", date: ts("2026-09-10"), amount: 12000, category: "facility", note: "Cold-room repair (before this period)" },
-      { id: "e1", date: ts("2026-09-28"), amount: 18200, category: "food", note: "Bulk staples to fill gaps" },
-      { id: "e2", date: ts("2026-10-02"), amount: 5420, category: "transport", note: "Fuel, pickup truck" },
-      { id: "e3", date: ts("2026-10-08"), amount: 5425, category: "supplies", note: "Crates and gloves" },
-      { id: "e4", date: ts("2026-10-16"), amount: 4220, category: "transport", note: "Fuel, pickup truck" }
-    ],
-    impactLogs: [ // staff-logged records (what DashOverview.recentUpdates and mealsServed are built from)
-      { id: "l0", kind: "meals", count: 70, unit: "meals", note: null, loggedAt: ts("2026-09-12") },
-      { id: "l1", kind: "meals", count: 45, unit: "meals", note: null, loggedAt: ts("2026-09-27") },
-      { id: "l2", kind: "meals", count: 60, unit: "meals", note: null, loggedAt: ts("2026-10-06") },
-      { id: "l3", kind: "produce", count: 410, unit: "lb", note: null, loggedAt: ts("2026-10-09") },
-      { id: "l4", kind: "meals", count: 50, unit: "meals", note: null, loggedAt: ts("2026-10-14") },
-      { id: "l5", kind: "meals", count: 80, unit: "meals", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", loggedAt: ts("2026-10-20") },
-      { id: "l6", kind: "produce", count: 220, unit: "lb", note: null, loggedAt: ts("2026-10-22") }
-    ]
-  };
+  const { money, esc, sum, DAY, tip, setCharityName, initTooltips } = CT, fmt = CT.fmtDate;
+  const DEMO = window.DEMO_DATA; // sample data lives in demo-data.js (shapes follow DASHBOARD_SPEC.md: DashDonor / DashOverview / DashExpense)
 
   // ---- helpers ----
-  const money = c => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: c % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(c / 100); // the one money formatter (integer cents in)
-  const fmt = (t, y) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" });
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
   const initials = n => n === "Anonymous" ? "?" : n.split(" ").map(p => p[0]).join("").slice(0, 2);
-  const colors = ["#1d6b3f", "#2c4a7a", "#7a3d6b", "#a3341f", "#5b6b1d", "#1d5f6b", "#6b4a1d"];
+  const TONES = 7; // avatar colors are the .tone-0 ... .tone-6 classes
   const STATUS = { new: "New", active: "Active", at_risk: "At risk", lapsed: "Lapsed" };
   const RULES = "New: first gift in this period. Active: gave within 45 days. At risk: 46 to 90 days. Lapsed: more than 90 days.";
-  document.querySelectorAll("[data-charity-name]").forEach(el => el.textContent = DEMO.charity.name);
+  setCharityName(DEMO.charity.name);
+  // title and meta description come from DEMO.charity.name too (static HTML holds only generic fallbacks)
+  document.title = `Donors · ${DEMO.charity.name} staff`;
+  document.querySelector('meta[name="description"]').setAttribute("content", `Fictional demo: staff view of ${DEMO.charity.name} donors, who is ready for a thank-you and who may be slipping away.`);
 
   // ---- adapter: the one place to swap for dashboard:overview / dashboard:donors ----
+  // The backend returns `status`, `totalGiven`, `giftCount`, first/lastGiftAt and the overview totals; the mock derives them in buildModel().
+  // Extras the donor detail needs beyond DashDonor: email, gifts, viewToken (opaque ?ct= stand-in).
   function buildModel(raw) {
     const { from, to } = raw.period, prevFrom = from - (to - from);
     const inP = t => t >= from && t <= to, inPrev = t => t >= prevFrom && t < from;
@@ -357,7 +226,7 @@
       const g = [...d.gifts].sort((a, b) => a.at - b.at), firstGiftAt = g[0].at, lastGiftAt = g[g.length - 1].at, days = Math.floor((to - lastGiftAt) / DAY);
       const status = firstGiftAt >= from ? "new" : days <= 45 ? "active" : days <= 90 ? "at_risk" : "lapsed"; // spec status rules
       return { id: d.id, displayName: d.displayName, hideFromTopDonors: d.hideFromTopDonors, totalGiven: sum(g, x => x.amountCents), giftCount: g.length, firstGiftAt, lastGiftAt, status, thankedAt: d.thankedAt,
-        email: d.email, gifts: g, viewToken: d.viewToken, days, color: colors[i % colors.length], checkedInAt: null };
+        email: d.email, gifts: g, viewToken: d.viewToken, days, tone: i % TONES, checkedInAt: null };
     });
     const logs = raw.impactLogs.filter(l => inP(l.loggedAt)), meals = sum(logs.filter(l => l.kind === "meals"), l => l.count), lb = sum(logs.filter(l => l.kind === "produce"), l => l.count);
     const expensesTotal = sum(raw.expenses.filter(e => inP(e.date)), e => e.amount);
@@ -371,6 +240,7 @@
     };
     return { overview, donors, logs: raw.impactLogs };
   }
+  // DEMO DATA (fictional) — swap for Convex query
   async function load() {
     await new Promise(r => setTimeout(r, 300)); // stands in for network latency
     const st = params.get("state");
@@ -381,10 +251,9 @@
 
   const params = new URLSearchParams(location.search);
   const app = document.getElementById("app");
-  let model, tipN = 0;
+  let model;
   const view = { q: "", filter: "all", sort: "last", dir: -1 };
 
-  const tip = (label, text) => { const id = "tip" + ++tipN; return `<span class="ct-tip"><button type="button" class="ct-why" aria-expanded="false" aria-describedby="${id}">${label}</button><span role="tooltip" id="${id}" class="ct-tip-body" hidden>${esc(text)}</span></span>`; };
   const isReady = d => d.email && d.status !== "lapsed" && DEMO.now - d.lastGiftAt <= 14 * DAY && (!d.thankedAt || d.thankedAt < d.lastGiftAt);
   const lastGift = d => d.gifts[d.gifts.length - 1];
   const thanksText = d => !d.thankedAt ? "Not yet" : d.thankedAt >= d.lastGiftAt ? `Thanked ${fmt(d.thankedAt)}` : `Last thanked ${fmt(d.thankedAt)}`;
@@ -400,7 +269,7 @@
   }
 
   // ---- render ----
-  function skeleton() { return `<div class="sk" style="height:56px;width:min(420px,100%);margin-bottom:24px"></div><div class="kpis">${'<div class="card kpi"><div class="sk" style="height:88px"></div></div>'.repeat(4)}</div><div class="card" style="padding:16px"><div class="sk" style="height:44px;margin-bottom:12px"></div>${'<div class="sk" style="height:40px;margin-top:10px"></div>'.repeat(5)}</div><span class="sr-only">Loading donors…</span>`; }
+  function skeleton() { return `<div class="sk sk-title"></div><div class="kpis">${'<div class="card kpi"><div class="sk sk-kpi"></div></div>'.repeat(4)}</div><div class="card sk-table"><div class="sk sk-head"></div>${'<div class="sk sk-row"></div>'.repeat(5)}</div><span class="sr-only">Loading donors…</span>`; }
   function msg(h, p, btn) { return `<div class="card state" role="status"><h2>${h}</h2><p>${p}</p>${btn || ""}</div>`; }
 
   function renderPage() {
@@ -480,7 +349,7 @@
     document.getElementById("chips").innerHTML = Object.entries(filters).map(([k, [l, fn]]) => `<button type="button" data-f="${k}" aria-pressed="${view.filter === k}">${l}<span>${model.donors.filter(fn).length}</span></button>`).join("");
     document.querySelectorAll("th[data-k]").forEach(th => { const on = th.dataset.k === view.sort; if (on) th.setAttribute("aria-sort", view.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort"); th.querySelector(".arr").textContent = on ? (view.dir > 0 ? "↑" : "↓") : ""; });
     document.getElementById("rows").innerHTML = list.length ? list.map(d => `<tr data-id="${d.id}">
-        <td><span class="name"><span class="av-s" style="background:${d.color}" aria-hidden="true">${initials(d.displayName)}</span><button type="button" data-open="${d.id}">${esc(d.displayName)}</button></span></td>
+        <td><span class="name"><span class="av-s tone-${d.tone}" aria-hidden="true">${initials(d.displayName)}</span><button type="button" data-open="${d.id}">${esc(d.displayName)}</button></span></td>
         <td><span class="s-tag ${d.status}">${STATUS[d.status]}</span></td>
         <td>${fmt(d.lastGiftAt)}<span class="mut"> · ${d.days}d ago</span></td>
         <td class="num c-gifts">${d.giftCount}</td>
@@ -494,16 +363,18 @@
   // ---- drawer ----
   const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim"), body = document.getElementById("d-body");
   let lastFocus = null;
-  const background = [document.getElementById("top"), document.getElementById("main"), document.getElementById("foot")];
+  const background = [document.getElementById("top"), document.getElementById("demo-bar"), document.getElementById("main"), document.getElementById("foot")];
   function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 4500); }
-  function showDrawer(from, title, meta, av, color) {
-    lastFocus = from || document.activeElement;
+  function showDrawer(from, title, meta, av, tone) {
+    clearTimeout(closeDrawer.t); lastFocus = from || document.activeElement;
     document.getElementById("d-title").textContent = title; document.getElementById("d-meta").textContent = meta;
-    const a = document.getElementById("d-av"); a.textContent = av || ""; a.style.background = color || "transparent"; a.hidden = !av;
+    const a = document.getElementById("d-av"); a.textContent = av || ""; a.className = "av-s" + (av ? " tone-" + tone : ""); a.hidden = !av;
     drawer.classList.add("on"); scrim.classList.add("on"); document.body.style.overflow = "hidden"; background.forEach(el => el.inert = true);
     setTimeout(() => document.getElementById("d-close").focus(), 60);
   }
   function closeDrawer() {
+    clearTimeout(closeDrawer.t);
+    if (!drawer.classList.contains("on")) return; // already closed (e.g. a delayed close after a reset)
     drawer.classList.remove("on"); scrim.classList.remove("on"); document.body.style.overflow = ""; background.forEach(el => el.inert = false);
     const back = lastFocus && document.contains(lastFocus) ? lastFocus : document.getElementById("review") || document.getElementById("q");
     if (back) back.focus();
@@ -515,14 +386,14 @@
   function openDonor(id, from, focusDraft) {
     const d = model.donors.find(x => x.id === id); if (!d) return;
     const kind = !isReady(d) && (d.status === "at_risk" || d.status === "lapsed") ? "checkin" : "thanks", first = esc(d.displayName.split(" ")[0]), lg = lastGift(d);
-    showDrawer(from, d.displayName, d.email || "No contact details on file", initials(d.displayName), d.color);
+    showDrawer(from, d.displayName, d.email || "No contact details on file", initials(d.displayName), d.tone);
     const compose = !d.email
       ? `<div class="compose"><h3>Nothing to send</h3><p>This gift was left anonymous, so there is no way to contact the donor. It still counts in your totals.</p></div>`
       : `<div class="compose"><h3>${kind === "checkin" ? `Check in with ${first}` : `Thank ${first}`}</h3>
           <p>${kind === "checkin" ? "A short note with what has been logged since their last gift. Edit it first if you like." : "A personal note built from their gift and what staff have logged since. Edit it first if you like."}</p>
           <label for="d-msg">Message</label><textarea id="d-msg">${esc(draft(d, kind))}</textarea>
           <div class="actions"><button class="btn btn-brand" type="button" id="d-send">${kind === "checkin" ? "Send check-in" : "Send thank-you"}</button>
-          ${d.viewToken ? `<a class="btn btn-quiet" href="dashboard.html?ct=${d.viewToken}" target="_blank" rel="noopener">Preview their page</a>` : '<span class="mut" style="align-self:center">No donor page in this demo</span>'}</div>
+          ${d.viewToken ? `<a class="btn btn-quiet" href="dashboard.html?ct=${d.viewToken}" target="_blank" rel="noopener">Preview their page</a>` : '<span class="mut">No donor page in this demo</span>'}</div>
           <p class="status" id="d-status" role="status"></p></div>`;
     body.innerHTML = `
       <div class="d-stats"><div><span>Total given</span><b class="ct-record">${money(d.totalGiven)}</b></div><div><span>Gifts</span><b class="ct-record">${d.giftCount}</b></div><div><span>Last gift</span><b class="ct-record">${fmt(d.lastGiftAt)}</b></div></div>
@@ -551,31 +422,36 @@
       <div class="actions"><button class="btn btn-brand" type="button" id="b-send"></button></div><p class="status" id="b-status" role="status"></p>`;
     const send = document.getElementById("b-send"), boxes = () => list.filter(d => document.getElementById("inc-" + d.id).checked);
     const label = () => { const n = boxes().length; send.textContent = n ? `Send ${n} ${n === 1 ? "thank-you" : "thank-yous"}` : "Nothing selected"; send.disabled = !n; };
-    body.addEventListener("change", label); label();
+    body.querySelector(".batch").addEventListener("change", label); label(); // scoped to this render's <ul>, which is replaced on every open, so handlers never stack
     send.addEventListener("click", () => {
       const sel = boxes(); sel.forEach(d => d.thankedAt = DEMO.now);
       document.getElementById("b-status").textContent = `Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"}. Demo only: no email was sent.`;
       send.disabled = true; send.textContent = "Queued";
       renderQueues(); renderTable(); toast(`Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"} (demo only, nothing sent)`);
-      setTimeout(closeDrawer, 1200);
+      closeDrawer.t = setTimeout(closeDrawer, 1200);
     });
   }
 
-  // formula tooltips: hover, keyboard focus and tap/click (click pins it open); Escape or an outside tap closes
-  (function () {
-    const place = b => { b.style.left = "0"; const r = b.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12); if (over > 0) b.style.left = -over + "px"; };
-    const parts = t => ({ b: t.querySelector(".ct-why"), body: t.querySelector(".ct-tip-body") });
-    const open = t => { const { b, body } = parts(t); body.hidden = false; b.setAttribute("aria-expanded", "true"); place(body); };
-    const close = t => { const { b, body } = parts(t); body.hidden = true; b.setAttribute("aria-expanded", "false"); delete t.dataset.pinned; };
-    const tipOf = e => e.target.closest && e.target.closest(".ct-tip");
-    app.addEventListener("mouseover", e => { const t = tipOf(e); if (t) open(t); });
-    app.addEventListener("mouseout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget) && !t.dataset.pinned && !t.contains(document.activeElement)) close(t); });
-    app.addEventListener("focusin", e => { const t = tipOf(e); if (t) open(t); });
-    app.addEventListener("focusout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget)) close(t); });
-    app.addEventListener("click", e => { const t = tipOf(e); if (!t) return; if (t.dataset.pinned) close(t); else { t.dataset.pinned = "1"; open(t); } });
-    document.addEventListener("click", e => { app.querySelectorAll(".ct-tip[data-pinned]").forEach(t => { if (!t.contains(e.target)) close(t); }); });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") app.querySelectorAll(".ct-tip").forEach(t => { if (!parts(t).body.hidden) close(t); }); });
-  })();
+  initTooltips(app);
+
+
+  // ---- Reset demo: back to the initial sample state, no page reload ----
+  // Clears everything the page can change (sent thank-yous / check-ins, search, filter, sort, open drawer, the preview-state choice, any chartitable:-prefixed
+  // storage keys) and then re-runs the normal boot() path: load() -> buildModel() -> renderPage(), so the donors are rebuilt from the sample data exactly as on first load.
+  function clearOwnStorage() { // this page writes none today; this keeps Reset honest if a chartitable: key is ever added
+    ["localStorage", "sessionStorage"].forEach(k => { try { const st = window[k]; Object.keys(st).filter(x => x.startsWith("chartitable:")).forEach(x => st.removeItem(x)); } catch (e) {} });
+  }
+  async function resetDemo() {
+    clearTimeout(closeDrawer.t); clearTimeout(toast.t); document.getElementById("toast").hidden = true;
+    if (drawer.classList.contains("on")) closeDrawer();
+    clearOwnStorage();
+    Object.assign(view, { q: "", filter: "all", sort: "last", dir: -1 });
+    params.delete("state"); sel.value = ""; history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : ""));
+    await boot();
+    document.getElementById("reset-demo").focus(); toast("Demo reset: back to the sample data.");
+  }
+  document.getElementById("reset-demo").addEventListener("click", resetDemo);
+  CT.initDemoPath(4); // demo path: step 4 = this staff view
 
   async function boot() {
     app.setAttribute("aria-busy", "true"); app.innerHTML = skeleton();

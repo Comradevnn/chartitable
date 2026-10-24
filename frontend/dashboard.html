@@ -3,106 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Fictional demo: a returning donor's impact page, with logged facts and labeled estimates kept apart.">
-<title>My Impact · Chartitable</title>
+<meta name="description" content="Fictional demo: a returning donor's impact page at a food pantry, with logged facts and labeled estimates kept apart.">
+<title>My Impact</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><!-- non-blocking: if fonts.googleapis.com is unreachable the page renders at once in the system-font stack -->
+<noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
 <style>
-  /* ===== Shared design tokens (identical in index.html, dashboard.html, admin.html) ===== */
-  :root {
-    /* color */
-    --bg: #f6f5ef; --surface: #ffffff; --surface-2: #efeee6;
-    --ink: #14231a; --ink-soft: #4a584f; --rule: #dcdfd3;
-    --brand: #1d6b3f; --brand-strong: #144f2d; --brand-tint: #e3efe7;
-    --accent: #ffc94d; --accent-strong: #f4b21b; --accent-tint: #fff2cb; --accent-ink: #6b4700; --estimate-line: #a56f00;
-    --risk: #a3341f; --risk-tint: #fbe6e0; --info: #2c4a7a; --info-tint: #e6edf8;
-    --dark: #10241a; --on-dark: #ffffff; --on-dark-soft: #c3d3c9;
-    /* type */
-    --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem; --text-lg: 1.375rem; --text-xl: 1.75rem; --text-2xl: 2.25rem;
-    --text-display: clamp(2rem, 4.6vw + .6rem, 3.5rem);
-    --leading-tight: 1.1; --leading-snug: 1.3; --leading-body: 1.55; --tracking-tight: -.025em;
-    /* space */
-    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem; --space-8: 4.5rem; --space-9: 6rem;
-    /* shape + depth + motion */
-    --radius-sm: 8px; --radius: 14px; --radius-lg: 22px; --radius-pill: 999px;
-    --shadow-1: 0 1px 2px rgba(20,35,26,.06), 0 6px 16px -10px rgba(20,35,26,.18);
-    --shadow-2: 0 2px 4px rgba(20,35,26,.08), 0 18px 40px -18px rgba(20,35,26,.32);
-    --ease: cubic-bezier(.16, 1, .3, 1);
-    --container: 1160px;
-    /* Chartitable layer theming (integration contract v1) */
-    --ct-accent: var(--brand); --ct-fg: var(--ink); --ct-bg: var(--surface); --ct-muted: var(--ink-soft); --ct-font: var(--font); --ct-radius: var(--radius);
-  }
-
-  /* ===== Base ===== */
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html { scroll-padding-top: 80px; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-base)/var(--leading-body) var(--font); -webkit-font-smoothing: antialiased; }
-  ::selection { background: var(--accent); color: var(--ink); }
-  a { color: inherit; text-underline-offset: 3px; }
-  h1, h2, h3, p { margin: 0; }
-  h1, h2, h3 { line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  /* Tokens, base, buttons, record/estimate styles, tooltip, tags, logo, demo ribbon, skeleton and footer live in shared.css; this file keeps only dashboard rules. */
   h2 { font-size: var(--text-lg); font-weight: 800; }
   h3 { font-size: var(--text-md); font-weight: 700; }
-  ul, ol { margin: 0; padding: 0; list-style: none; }
-  main:focus { outline: none; }
-  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 2px #fff; border-radius: 4px; }
-  .on-dark :focus-visible { outline-color: var(--accent); box-shadow: none; }
-  .wrap { max-width: var(--container); margin: 0 auto; padding-left: var(--space-4); padding-right: var(--space-4); }
-  @media (min-width: 720px) { .wrap { padding-left: var(--space-5); padding-right: var(--space-5); } }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .skip { position: absolute; left: var(--space-3); top: -100px; z-index: 50; background: var(--accent); color: var(--ink); font-weight: 700; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); }
-  .skip:focus { top: var(--space-3); }
-
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; font: 700 var(--text-base)/1.2 var(--font); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); border: 0; cursor: pointer; text-decoration: none; transition: background .2s, box-shadow .2s, transform .1s; }
-  .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--accent); color: var(--ink); }
-  .btn-primary:hover { background: var(--accent-strong); }
-  .btn-brand { background: var(--brand); color: #fff; }
-  .btn-brand:hover { background: var(--brand-strong); }
-  .btn-quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--rule); }
-  .btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--brand); }
-  .btn-ghost { background: transparent; color: inherit; box-shadow: inset 0 0 0 2px currentColor; }
-
-  /* ===== Honesty: records vs estimates (D1) ===== */
-  .ct-record { font-weight: 700; }
-  .ct-record::before { content: ""; display: inline-block; width: .85em; height: .85em; margin-right: .35em; vertical-align: -.08em; background: var(--brand);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; }
-  .ct-estimate { display: inline; padding: .04em .38em; border: 1.5px dashed var(--estimate-line); background: var(--accent-tint); color: var(--accent-ink); border-radius: var(--radius-sm); font-weight: 700; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-  .on-dark .ct-record::before { background: var(--accent); }
-  .on-dark .ct-estimate { background: rgba(255,201,77,.14); color: var(--accent); border-color: var(--accent); }
-  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 800; letter-spacing: .02em; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
-  .tag.rec { background: var(--brand-tint); color: var(--brand-strong); }
-  .tag.est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
+  .skip { z-index: 50; }
   .tag.why { background: var(--surface-2); color: var(--ink-soft); }
-  /* formula on hover, focus and tap */
-  .ct-tip { position: relative; display: inline-block; }
-  .ct-why { font: 600 var(--text-sm)/1.3 var(--font); color: inherit; background: none; border: 0; cursor: help; padding: var(--space-2) 2px; min-height: 32px; text-decoration: underline dotted; text-underline-offset: 4px; }
-  .ct-tip-body { position: absolute; z-index: 40; top: calc(100% + 2px); left: 0; width: min(320px, calc(100vw - 32px)); background: var(--ink); color: #fff; padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 500; line-height: 1.45; box-shadow: var(--shadow-2); text-align: left; }
-  .on-dark .ct-tip-body { background: #fff; color: var(--ink); }
+  /* formula inputs inside the tooltip */
   .ct-tip-body .in { display: block; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
   .ct-tip-body .in-h { margin-top: var(--space-3); font-weight: 700; }
 
   /* ===== Nav ===== */
   .nav { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--rule); }
   .nav .wrap { display: flex; align-items: center; gap: var(--space-4); height: 64px; }
-  .logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 800; font-size: var(--text-md); letter-spacing: var(--tracking-tight); text-decoration: none; white-space: nowrap; }
-  .logo svg { width: 24px; height: 24px; flex: none; }
   .nav-links { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
   .nav-links a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); font-weight: 600; font-size: var(--text-sm); color: var(--ink-soft); }
   .nav-links a:hover { color: var(--ink); background: var(--surface-2); }
   .nav-links a[aria-current="page"] { color: var(--ink); background: var(--brand-tint); }
   .me { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); font-weight: 600; font-size: var(--text-sm); }
   .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: var(--text-sm); flex: none; }
-  @media (max-width: 520px) { .me span { display: none; } .nav-links a { padding-inline: var(--space-2); } .nav .wrap { gap: var(--space-2); } }
-
-  /* ===== Demo ribbon (same look as the demo bar on index.html) ===== */
-  .demo { background: #0b1a12; color: var(--on-dark-soft); font-size: var(--text-sm); }
-  .demo .wrap { padding-top: var(--space-3); padding-bottom: var(--space-3); }
-  .demo b { color: #fff; font-weight: 600; }
+  .nav .logo { min-width: 0; } .nav .logo span { overflow: hidden; text-overflow: ellipsis; } /* safety: a very long charity name shortens instead of pushing the avatar off-screen */
+  @media (max-width: 520px) { .me span { display: none; } .nav-links a.opt { display: none; } .nav-links a { padding-inline: var(--space-2); } .nav .wrap { gap: var(--space-2); } } /* 375px: logo + two links + avatar were 6px wider than the screen (the page's horizontal scroll); the logo already links Home, like admin's .opt links */
 
   /* ===== Hero ===== */
   main { padding-bottom: var(--space-8); }
@@ -178,19 +106,13 @@
   .state h1 { font-size: var(--text-xl); font-weight: 800; }
   .state p { margin-top: var(--space-3); color: var(--ink-soft); }
   .state .btn { margin-top: var(--space-5); }
-  .sk { background: linear-gradient(90deg, var(--surface-2) 25%, #f9f8f3 50%, var(--surface-2) 75%); background-size: 200% 100%; border-radius: var(--radius-sm); animation: sk 1.4s linear infinite; }
-  @keyframes sk { to { background-position: -200% 0; } }
   .sk-hero { background: var(--dark); }
   .sk-hero .sk { background: linear-gradient(90deg, #1c3a2a 25%, #254b36 50%, #1c3a2a 75%); background-size: 200% 100%; }
-  @media (prefers-reduced-motion: reduce) { .sk { animation: none; } html { scroll-behavior: auto; } .btn { transition: none; } }
-
-  footer.page { color: var(--ink-soft); font-size: var(--text-sm); padding-block: var(--space-5) var(--space-6); border-top: 1px solid var(--rule); background: var(--surface); }
-  footer.page .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between; }
-  footer.page nav { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
-  footer.page nav a { padding: var(--space-2) 0; }
-  footer.page label { font-weight: 600; margin-right: var(--space-2); }
-  footer.page select { font: inherit; padding: var(--space-2) var(--space-3); border: 1.5px solid var(--rule); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); min-height: 40px; }
-  footer.page .fine { flex-basis: 100%; }
+  .sk-hero .wrap { padding-block: 48px; }
+  .sk-l1 { height: 46px; width: min(560px, 90%); } .sk-l2 { height: 46px; width: min(380px, 70%); margin-top: 12px; } .sk-l3 { height: 18px; width: min(520px, 90%); margin-top: 28px; }
+  .sk-card { height: 120px; } .sk-card.tall { height: 200px; margin-top: 16px; }
+  .tip-line { margin-top: var(--space-2); }
+  .tl.tl-more { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -198,16 +120,16 @@
 
   <header class="nav">
     <div class="wrap">
-      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Chartitable</span></a>
+      <a class="logo" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="#1d6b3f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 8 2.5C20 14.5 17 18 12 21z"/><path d="M12 8c0-2 1-4 3-5"/></svg><span data-charity-name>Food pantry</span></a>
       <nav class="nav-links" aria-label="Main">
-        <a href="index.html">Home</a>
+        <a class="opt" href="index.html">Home</a>
         <a href="dashboard.html" aria-current="page">My impact</a>
       </nav>
       <div class="me" id="me" hidden><span id="me-name"></span><div class="avatar" id="me-av" aria-hidden="true"></div></div>
     </div>
   </header>
 
-  <div class="demo" role="note"><div class="wrap"><b>Demo</b> · sample data (fictional)</div></div>
+  <div class="demo" role="region" aria-label="Demo controls"><div class="wrap"><span><b>Demo</b> · sample data (fictional)</span><nav class="demo-path" aria-label="Demo path" data-demo-path></nav></div></div>
 
   <main id="main" tabindex="-1">
     <div id="app" aria-busy="true"><noscript><div class="state"><h1>This demo page needs JavaScript</h1></div></noscript></div>
@@ -224,102 +146,20 @@
           <option value="error">Error</option>
           <option value="unrecognized">Link not recognized</option>
         </select></div>
-      <p class="fine"><span data-charity-name>Chartitable</span> is a fictional organization. All names, gifts and numbers on this page are sample data for a hackathon demo.</p>
+      <p class="fine"><span data-charity-name>Food pantry</span> is a fictional organization. All names, gifts and numbers on this page are sample data for a hackathon demo. This donor page shows how Chartitable, the product, would work for a real pantry.</p>
     </div>
   </footer>
 
+<script src="demo-data.js"></script>
+<script src="shared.js"></script>
 <script>
-  const ts = s => Date.parse(s + "T12:00:00Z"); // noon UTC so dates never drift across timezones
-  const NOW = ts("2026-10-24");
-
-  // DEMO DATA (fictional) — same pool as admin.html
-  // Shape follows DonorView in engine/types.ts (hero, records, estimates, sinceLastVisit, nextStep, photos).
-  // No estimate is stored here. `pool` is every donor's gifts (integer cents, copied from admin.html's DEMO.donors) and `logs` are the staff impact logs;
-  // allocate() below computes every number on this page from them (rule: docs/PRODUCT_SPEC.md §3).
-  // Extras this page needs that DonorView does not carry yet: the donor's own `gifts` and `loggedAt` on records (timeline order).
-  const P = (donor, d, cents, label) => ({ donor, at: ts(d), cents, label });
-  const DEMO = {
-    charity: { id: "demo-pantry-a", name: "Chartitable", windowDays: 30, milestones: [25, 50, 100, 250],
-      formula: "Your estimated share = your gifts ÷ all gifts in the 30-day window × what the pantry logged. A log only counts gifts made on or before its date. Rounded down, never up." },
-    tokens: { k7q2m9: "donor_a01", t3x8v5: "donor_a06" }, // opaque ?ct= stand-ins; no names in URLs
-    pool: [ // every donor's gifts, integer cents
-      P("donor_a01", "2026-03-03", 1500, "Citrus run"), P("donor_a01", "2026-05-20", 5000, "Spring planting run"), P("donor_a01", "2026-08-12", 2500, "Stone fruit run"), P("donor_a01", "2026-10-01", 1000, "Winter squash run"), P("donor_a01", "2026-10-15", 2500, "General fund"),
-      ...["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => P("donor_a02", d, 4000, "Monthly gift")),
-      P("donor_a03", "2025-12-10", 50000, "Year-end drive"), P("donor_a03", "2026-04-02", 25000, "Spring planting run"),
-      P("donor_a04", "2025-12-18", 10000, "Year-end drive"),
-      ...["2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01"].map(d => P("donor_a05", d, 2500, "Monthly gift")),
-      P("donor_a06", "2026-10-23", 3000, "General fund"),
-      P("donor_a07", "2025-09-05", 100000, "Warehouse fund"), P("donor_a07", "2026-02-20", 20000, "Citrus run"),
-      P("donor_a08", "2026-01-08", 2000, "Citrus run"),
-      P("donor_a09", "2026-04-15", 6000, "Spring planting run"), P("donor_a09", "2026-09-02", 7500, "Stone fruit run"),
-      P("donor_a10", "2026-10-19", 10000, "Winter squash run"),
-      P("donor_a11", "2026-06-12", 4500, "Citrus run"), P("donor_a11", "2026-09-05", 4500, "Stone fruit run"),
-      ...["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"].map(d => P("donor_a12", d, 1500, "Quarterly gift")),
-      P("donor_a13", "2026-07-28", 3500, "Stone fruit run"),
-      P("donor_a14", "2026-09-28", 7500, "General fund")
-    ],
-    logs: [ // charity-wide, logged by staff
-      { id: "l0", kind: "meals", count: 70, unit: "meals", note: null, loggedAt: ts("2026-09-12") },
-      { id: "l1", kind: "meals", count: 45, unit: "meals", note: null, loggedAt: ts("2026-09-27") },
-      { id: "l2", kind: "meals", count: 60, unit: "meals", note: null, loggedAt: ts("2026-10-06") },
-      { id: "l3", kind: "produce", count: 410, unit: "lb", note: null, loggedAt: ts("2026-10-09") },
-      { id: "l4", kind: "meals", count: 50, unit: "meals", note: null, loggedAt: ts("2026-10-14") },
-      { id: "l5", kind: "meals", count: 80, unit: "meals", note: "Fresh peaches on a Tuesday. Kids were eating them in line.", loggedAt: ts("2026-10-20") },
-      { id: "l6", kind: "produce", count: 220, unit: "lb", note: null, loggedAt: ts("2026-10-22") }
-    ],
-    donorViews: {
-      donor_a01: { id: "donor_a01", recognized: true, displayName: "Maya R.", lastVisitAt: ts("2026-10-15"), hero: { firstName: "Maya", source: "template" },
-        nextStep: { kind: "give_monthly", href: "index.html#give",
-          text: "If you would like to keep this going, a monthly gift would show up here as it happens. No pressure: this page stays just as it is either way." },
-        photos: []
-      },
-      donor_a06: { id: "donor_a06", recognized: true, displayName: "Sam W.", lastVisitAt: null, hero: { firstName: "Sam", source: "template" }, // brand-new donor: thin data, say less
-        nextStep: { kind: "share", href: "index.html", text: "Nothing to do right now. Your page fills in as the pantry logs updates." },
-        photos: []
-      }
-    }
-  };
-
-  // ---- helpers ----
-  const money = c => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: c % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(c / 100); // the one money formatter (integer cents in)
-  const fmtDate = (t, y) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", ...(y ? { year: "numeric" } : {}), timeZone: "UTC" });
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
-  const DAY = 864e5;
-  const monthOf = t => new Date(t).toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
-  const dateLabel = t => new Date(t).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
-  // PRODUCT_SPEC §3 rounding: below 1 shows 0, below 100 rounds down to a whole number, 100 and up rounds down to a multiple of 5. Never overstates.
-  const roundEstimate = v => { v += 1e-9; return !(v >= 1) ? 0 : v < 100 ? Math.floor(v) : Math.floor(v / 5) * 5; };
-  // PRODUCT_SPEC §3 allocation: for each staff log in the 30-day window, this donor's share = their gift cents ÷ everyone's gift cents,
-  // counting only gifts inside the window made on or before the log's date. Per-log quantity = share × log count (kept exact, rounded only after summing).
-  function allocate(donorId) {
-    const from = NOW - DEMO.charity.windowDays * DAY;
-    return DEMO.logs.filter(l => l.loggedAt >= from && l.loggedAt <= NOW).sort((a, b) => a.loggedAt - b.loggedAt).map(log => {
-      const elig = DEMO.pool.filter(g => g.cents > 0 && g.at >= from && g.at <= log.loggedAt);
-      const poolCents = sum(elig, g => g.cents), mineCents = sum(elig.filter(g => g.donor === donorId), g => g.cents);
-      return { log, poolCents, mineCents, share: poolCents ? mineCents / poolCents : 0, qty: poolCents ? mineCents * log.count / poolCents : 0 };
-    }).filter(r => r.poolCents > 0 && r.mineCents > 0);
-  }
-  const estimatesOf = rows => ["meals", "produce"].map(kind => ({ kind, unit: kind === "meals" ? "meals" : "lb", approxQuantity: roundEstimate(sum(rows.filter(r => r.log.kind === kind), r => r.qty)), marker: "about" })).filter(e => e.approxQuantity > 0);
-  const recordOf = l => ({ logId: l.id, kind: l.kind, count: l.count, unit: l.unit, dateLabel: dateLabel(l.loggedAt), note: l.note, hasPhoto: false, loggedAt: l.loggedAt });
-  // the one computed result every section below reads: gifts, records, estimates, since-last-visit
-  function resultFor(dv) {
-    const rows = allocate(dv.id);
-    const gifts = DEMO.pool.filter(g => g.donor === dv.id).sort((a, b) => b.at - a.at).map(g => ({ at: g.at, amountCents: g.cents, label: g.label })); // newest first
-    const firstAt = gifts.length ? gifts[gifts.length - 1].at : NOW, from = NOW - DEMO.charity.windowDays * DAY;
-    const records = DEMO.logs.filter(l => l.loggedAt >= Math.max(from, firstAt) && l.loggedAt <= NOW).sort((a, b) => b.loggedAt - a.loggedAt).map(recordOf);
-    const sRecords = dv.lastVisitAt ? records.filter(r => r.loggedAt > dv.lastVisitAt) : [], sRows = dv.lastVisitAt ? rows.filter(r => r.log.loggedAt > dv.lastVisitAt) : [];
-    return { gifts, rows, records, estimates: estimatesOf(rows),
-      sinceLastVisit: sRecords.length ? { sinceDateLabel: fmtDate(dv.lastVisitAt), records: sRecords, rows: sRows, estimates: estimatesOf(sRows) } : null };
-  }
-  const recText = r => r.kind === "produce" ? `${r.count} ${r.unit} of produce received` : `${r.count} ${r.count === 1 ? "meal" : "meals"} served`;
+  const { money, fmtDate, isoDate, esc, sum, monthOf, recText, estText, roundEstimate, tipHtml, setCharityName, initTooltips, donorResult, ART_SVG } = CT;
+  const DEMO = window.DEMO_DATA, NOW = DEMO.now; // sample data lives in demo-data.js; every number below is computed from it by CT.allocate() / CT.donorResult()
   const estShort = e => `about ${e.approxQuantity} ${e.kind === "produce" ? e.unit : e.approxQuantity === 1 ? "meal" : "meals"}`;
-  const estText = e => `about ${e.approxQuantity} ${e.kind === "produce" ? e.unit + " of produce" : e.approxQuantity === 1 ? "meal" : "meals"}`;
   const ICON = {
     heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>'
   };
-  let tipN = 0;
   // an estimate always shows the visible word "about" and its formula is reachable by hover, keyboard focus and tap
   const fl2 = n => (Math.floor(n * 100 + 1e-6) / 100).toFixed(2);
   // this donor's actual inputs, generated from the computed rows, e.g. "Oct 20: your $35 of $290 given by then × 80 meals = 9.65"
@@ -329,20 +169,22 @@
     const totals = ["meals", "produce"].filter(k => rows.some(r => r.log.kind === k)).map(k => { const t = sum(rows.filter(r => r.log.kind === k), r => r.qty); return `<span class="in"><b>${k === "meals" ? "Meals" : "Produce"}: ${fl2(t)}, rounded down to ${roundEstimate(t)}</b></span>`; });
     return `<span class="in in-h">Your numbers, from the sample gifts:</span>${lines.join("")}${totals.join("")}`;
   };
-  const tip = (label = "How we got this", rows) => { const id = "tip" + ++tipN; return `<span class="ct-tip"><button type="button" class="ct-why" aria-expanded="false" aria-describedby="${id}">${label}</button><span role="tooltip" id="${id}" class="ct-tip-body" hidden>${esc(DEMO.charity.formula)}${inputs(rows)}</span></span>`; };
+  const tip = (label = "How we got this", rows) => tipHtml(label, `${esc(DEMO.charity.formula)}${inputs(rows)}`);
 
   const app = document.getElementById("app");
   const params = new URLSearchParams(location.search);
-  document.querySelectorAll("[data-charity-name]").forEach(el => el.textContent = DEMO.charity.name);
+  setCharityName(DEMO.charity.name);
+  // title and meta description come from DEMO.charity.name too (static HTML holds only generic fallbacks)
+  document.title = `My Impact · ${DEMO.charity.name}`;
+  document.querySelector('meta[name="description"]').setAttribute("content", `Fictional demo from ${DEMO.charity.name}: a returning donor's impact page, with logged facts and labeled estimates kept apart.`);
 
   // ---- state views ----
-  const art = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of a crate of fresh produce"><circle cx="290" cy="110" r="52" fill="#ffc94d"/><path d="M0 330q110-70 220-20t180-30v220H0z" fill="#24543a"/><g fill="#7bc47f"><ellipse cx="150" cy="238" rx="16" ry="38" transform="rotate(-24 150 238)"/><ellipse cx="190" cy="226" rx="16" ry="42" transform="rotate(4 190 226)"/><ellipse cx="228" cy="236" rx="16" ry="38" transform="rotate(26 228 236)"/></g><circle cx="118" cy="296" r="32" fill="#f08a2b"/><circle cx="186" cy="288" r="36" fill="#f5a03a"/><circle cx="256" cy="298" r="30" fill="#8d2f4c"/><circle cx="304" cy="306" r="26" fill="#f08a2b"/><rect x="52" y="312" width="296" height="22" rx="8" fill="#cf9650"/><rect x="62" y="334" width="276" height="130" rx="10" fill="#b9803f"/><path d="M62 378h276M62 420h276" stroke="#8f5f2b" stroke-width="5"/></svg>';
-  const skeleton = () => `<div class="sk-hero"><div class="wrap" style="padding-block:48px"><div class="sk" style="height:46px;width:min(560px,90%)"></div><div class="sk" style="height:46px;width:min(380px,70%);margin-top:12px"></div><div class="sk" style="height:18px;width:min(520px,90%);margin-top:28px"></div></div></div>
-    <div class="wrap block"><div class="sk" style="height:120px"></div><div class="sk" style="height:200px;margin-top:16px"></div></div><span class="sr-only">Loading your impact…</span>`;
+  const skeleton = () => `<div class="sk-hero"><div class="wrap"><div class="sk sk-l1"></div><div class="sk sk-l2"></div><div class="sk sk-l3"></div></div></div>
+    <div class="wrap block"><div class="sk sk-card"></div><div class="sk sk-card tall"></div></div><span class="sr-only">Loading your impact…</span>`;
   const stateMsg = (h, p, btn) => `<div class="state" role="status"><h1>${h}</h1><p>${p}</p>${btn || ""}</div>`;
 
   function renderReady(dv) {
-    const v = { ...dv, ...resultFor(dv) }; // everything below reads this one computed result
+    const v = { ...dv, ...donorResult(dv) }; // everything below reads this one computed result
     const g = v.gifts, total = sum(g, x => x.amountCents), first = g[g.length - 1], winStart = NOW - DEMO.charity.windowDays * 864e5;
     const inWin = g.filter(x => x.at >= winStart), winTotal = sum(inWin, x => x.amountCents);
     const meals = v.estimates.find(e => e.kind === "meals"), produce = v.estimates.find(e => e.kind === "produce"), lead = meals || v.estimates[0];
@@ -362,8 +204,8 @@
         ${thin ? "" : `<div class="tip-row">An estimate, not a count. ${tip(undefined, v.rows)}</div>`}
         <p class="story">${story}</p>
         <p class="facts"><span class="ct-record">${g.length} ${g.length === 1 ? "gift" : "gifts"}</span><span class="ct-record">${money(total)} given</span><span class="ct-record">since ${fmtDate(first.at, true)}</span></p>
-        <div class="cta">${thin ? "" : `<a class="btn btn-primary" href="${esc(v.nextStep.href || "index.html")}">Give again</a>`}<a class="btn btn-ghost" href="#timeline">See your giving timeline</a></div>
-      </div><div class="art">${art}</div></div></section>`;
+        <div class="cta"><a class="btn btn-ghost" href="#timeline">See your giving timeline</a></div>
+      </div><div class="art">${ART_SVG}</div></div></section>`;
 
     const legend = `<div class="wrap"><div class="legend"><b>Two kinds of numbers on this page</b>
         <p><span class="ct-record">Logged fact</span><br>Counted by pantry staff when it happened.</p>
@@ -373,8 +215,8 @@
     if (v.sinceLastVisit) {
       const s = v.sinceLastVisit;
       since = `<section class="block" id="new" aria-labelledby="new-h"><div class="wrap"><h2 id="new-h">New since your last visit on ${esc(s.sinceDateLabel)}</h2>
-        <div class="card since"><div><h3>The pantry logged</h3><ul>${s.records.map(r => `<li><span class="ct-record">${esc(recText(r))}</span> <time>${esc(r.dateLabel)}</time>${r.note ? `<div class="note">“${esc(r.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`).join("")}</ul></div>
-        <div><h3>Your estimated share of that</h3><ul>${s.estimates.map(e => `<li><span class="ct-estimate">${esc(estText(e))}</span></li>`).join("")}</ul><p style="margin-top:8px">${tip("How we got these", s.rows)}</p></div></div></div></section>`;
+        <div class="card since"><div><h3>The pantry logged</h3><ul>${s.records.map(r => `<li><span class="ct-record">${esc(recText(r))}</span> <time datetime="${isoDate(r.loggedAt)}">${esc(r.dateLabel)}</time>${r.note ? `<div class="note">“${esc(r.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`).join("")}</ul></div>
+        <div><h3>Your estimated share of that</h3><ul>${s.estimates.map(e => `<li><span class="ct-estimate">${esc(estText(e))}</span></li>`).join("")}</ul><p class="tip-line">${tip("How we got these", s.rows)}</p></div></div></div></section>`;
     }
 
     const lastLog = v.records.find(r => r.kind === "meals");
@@ -392,15 +234,14 @@
 
     // timeline: the donor's gifts and the pantry's logs, newest first (all logged facts)
     const events = [...g.map(x => ({ t: x.at, type: "gift", x })), ...v.records.map(x => ({ t: x.loggedAt, type: "log", x }))].sort((a, b) => b.t - a.t);
-    const iso = t => new Date(t).toISOString().slice(0, 10);
     const li = e => e.type === "gift"
-      ? `<li class="gift"><span class="dot">${ICON.heart}</span><div class="row1"><span class="ct-record">You gave ${money(e.x.amountCents)}</span>${e.x === first ? '<span class="pill">First gift</span>' : ""}<time datetime="${iso(e.t)}">${fmtDate(e.t, true)}</time></div><p class="what">${esc(e.x.label)}</p></li>`
-      : `<li class="log"><span class="dot">${ICON.check}</span><div class="row1"><span class="ct-record">Pantry logged ${esc(recText(e.x))}</span><time datetime="${iso(e.t)}">${fmtDate(e.t, true)}</time></div>${e.x.note ? `<div class="note">“${esc(e.x.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`;
+      ? `<li class="gift"><span class="dot">${ICON.heart}</span><div class="row1"><span class="ct-record">You gave ${money(e.x.amountCents)}</span>${e.x === first ? '<span class="pill">First gift</span>' : ""}<time datetime="${isoDate(e.t)}">${fmtDate(e.t, true)}</time></div><p class="what">${esc(e.x.label)}</p></li>`
+      : `<li class="log"><span class="dot">${ICON.check}</span><div class="row1"><span class="ct-record">Pantry logged ${esc(recText(e.x))}</span><time datetime="${isoDate(e.t)}">${fmtDate(e.t, true)}</time></div>${e.x.note ? `<div class="note">“${esc(e.x.note)}”<small>Staff note, shown as written</small></div>` : ""}</li>`;
     const SHOW = 7, head = events.slice(0, SHOW), rest = events.slice(SHOW);
     const timeline = `<section class="card" id="timeline" aria-labelledby="tl-h"><h2 id="tl-h">Your giving timeline</h2>
         <p class="sub">Your gifts, with what the pantry logged around them.</p>
         <ol class="tl">${head.map(li).join("")}</ol>
-        ${rest.length ? `<ol class="tl" id="tl-more" hidden style="margin-top:0">${rest.map(li).join("")}</ol><button class="btn btn-quiet more" type="button" id="more-btn" aria-expanded="false" aria-controls="tl-more">Show ${rest.length} earlier ${rest.length === 1 ? "entry" : "entries"}</button>` : ""}</section>`;
+        ${rest.length ? `<ol class="tl tl-more" id="tl-more" hidden>${rest.map(li).join("")}</ol><button class="btn btn-quiet more" type="button" id="more-btn" aria-expanded="false" aria-controls="tl-more">Show ${rest.length} earlier ${rest.length === 1 ? "entry" : "entries"}</button>` : ""}</section>`;
 
     const ms = meals && DEMO.charity.milestones.find(m => m > meals.approxQuantity);
     const next = `<section class="card next sticky" aria-labelledby="nx-h">${
@@ -409,7 +250,7 @@
         <p><span class="ct-estimate">about ${meals.approxQuantity} of ${ms} meals</span> ${tip(undefined, mealRows)}</p>`
       : `<h2 id="nx-h">What happens next</h2>`}
       <p class="ask">${esc(v.nextStep.text)}</p>
-      ${thin ? `<a class="btn btn-quiet" href="index.html">Back to the home page</a>` : `<a class="btn btn-primary" href="${esc(v.nextStep.href || "index.html#give")}">Give again</a>`}</section>`;
+      ${thin ? `<a class="btn btn-primary" href="index.html">Back to the home page</a>` : `<a class="btn btn-primary" data-impact-donate href="${esc(v.nextStep.href || "index.html#give")}">Give again</a>`}</section>`;
 
     app.innerHTML = hero + (thin ? "" : legend) + since + journey + `<section class="block"><div class="wrap cols">${timeline}${next}</div></section>`;
     document.title = `My Impact · ${DEMO.charity.name}`; // no donor name in the tab title or history
@@ -419,16 +260,18 @@
   }
 
   // ---- data access: the one function to swap for the Convex query (GET /donor-view) ----
+  // DEMO DATA (fictional) — swap for Convex query
   async function getDonorView() {
     await new Promise(r => setTimeout(r, 350)); // stands in for network latency
     const st = params.get("state"), token = params.get("ct");
     if (st === "error") throw new Error("demo error");
     if (st === "unrecognized") return { recognized: false };
-    if (st === "thin") return DEMO.donorViews[DEMO.tokens.t3x8v5];
-    if (!token) return DEMO.donorViews[DEMO.tokens.k7q2m9]; // opening the file directly shows the demo donor
-    const id = DEMO.tokens[token]; return id ? DEMO.donorViews[id] : { recognized: false };
+    const view = id => { const v = DEMO.donorViews[id]; return v && { id, recognized: true, displayName: v.shortName, lastVisitAt: v.lastVisitAt, hero: v.hero, nextStep: v.nextStep, photos: v.photos }; };
+    if (st === "thin") return view(DEMO.demo.firstGiftDonorId);
+    if (!token) return view(DEMO.demo.returningDonorId); // opening the file directly shows the demo donor
+    const owner = DEMO.donors.find(d => d.viewToken === token); // opaque ?ct= stand-in -> donor
+    return (owner && view(owner.id)) || { recognized: false };
   }
-
   async function boot() {
     app.setAttribute("aria-busy", "true"); document.getElementById("me").hidden = true;
     app.innerHTML = skeleton();
@@ -444,21 +287,8 @@
     app.setAttribute("aria-busy", "false");
   }
 
-  // formula tooltips: hover, keyboard focus and tap/click (click pins it open); Escape or an outside tap closes
-  (function () {
-    const place = b => { b.style.left = "0"; const r = b.getBoundingClientRect(), over = r.right - (document.documentElement.clientWidth - 12); if (over > 0) b.style.left = -over + "px"; };
-    const parts = t => ({ b: t.querySelector(".ct-why"), body: t.querySelector(".ct-tip-body") });
-    const open = t => { const { b, body } = parts(t); body.hidden = false; b.setAttribute("aria-expanded", "true"); place(body); };
-    const close = t => { const { b, body } = parts(t); body.hidden = true; b.setAttribute("aria-expanded", "false"); delete t.dataset.pinned; };
-    const tipOf = e => e.target.closest && e.target.closest(".ct-tip");
-    app.addEventListener("mouseover", e => { const t = tipOf(e); if (t) open(t); });
-    app.addEventListener("mouseout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget) && !t.dataset.pinned && !t.contains(document.activeElement)) close(t); });
-    app.addEventListener("focusin", e => { const t = tipOf(e); if (t) open(t); });
-    app.addEventListener("focusout", e => { const t = tipOf(e); if (t && !t.contains(e.relatedTarget)) close(t); });
-    app.addEventListener("click", e => { const t = tipOf(e); if (!t) return; if (t.dataset.pinned) close(t); else { t.dataset.pinned = "1"; open(t); } });
-    document.addEventListener("click", e => { app.querySelectorAll(".ct-tip[data-pinned]").forEach(t => { if (!t.contains(e.target)) close(t); }); });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") app.querySelectorAll(".ct-tip").forEach(t => { if (!parts(t).body.hidden) close(t); }); });
-  })();
+  initTooltips(app);
+  CT.initDemoPath(3); // demo path: step 3 = this impact page
 
   const sel = document.getElementById("state-sel"); sel.value = params.get("state") || "";
   sel.addEventListener("change", () => { if (sel.value) params.set("state", sel.value); else params.delete("state"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); boot(); });

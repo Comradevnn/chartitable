@@ -1,6 +1,6 @@
 # Handoff: Teammate 1 (Lane B: dashboard + demo sites)
 
-Last updated: Sat Oct 24, ~12:50 AM PT. Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, ~2:00 AM PT. Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
 
 ## Where things stand
 - Not started on the dashboard yet. Spec is in `docs/DASHBOARD_SPEC.md`; your one starting prompt is `docs/TEAMMATE_DASHBOARD_PROMPT.md`.
@@ -8,6 +8,27 @@ Last updated: Sat Oct 24, ~12:50 AM PT. Update this file whenever you stop or sw
 
 ## Already pushed
 - `/frontend/index.html`, `dashboard.html`, `admin.html` (static, no backend calls yet, "Second Helping"). Decide whether it becomes the base of `/dashboard` or stays as the donor-facing/demo pages. Check the name against a live search (D5).
+
+## State of `frontend/` (uncommitted on `dashboard`)
+Plain HTML/CSS/JS, no build step, works by double-clicking (file://). Fictional pantry; the name is the demo charity "Tansy Street Pantry", kept separate from the product name Chartitable.
+- `index.html` pantry home (toggle first-time visitor vs returning donor), `dashboard.html` donor impact page, `admin.html` staff donor list (search, filter, sort, drawer, single and batch send, Reset demo).
+- `shared.css` (tokens on `:root`, base, buttons, record/estimate styles, demo bar), `shared.js` (`window.CT`: `allocate`, `donorResult`, `roundEstimate`, tooltips, `initDemoPath`), `demo-data.js` (`window.DEMO_DATA`, the single fictional dataset).
+- Fonts: Hanken Grotesk loads without blocking render; if Google Fonts is unreachable the system-font stack in `--font` is used.
+
+### Where to swap in real data
+- `window.DEMO_DATA` in `demo-data.js`, marked "DEMO DATA (fictional) — swap for Convex query".
+- `load()` and `buildModel()` in `index.html` and `admin.html` (`load()` returns the raw data, `buildModel()` derives what the page shows; only `load()` should need to change).
+- `getDonorView()` in `dashboard.html` (stands in for the donor-view query; the `?ct=` token maps to a donor there).
+- Estimates must keep coming from `CT.allocate()` / `CT.donorResult()` so the home page and impact page cannot disagree.
+
+### Demo path
+A small bar on each page (hidden when the real layer script is present) walks the pitch story: 1 first-time home (`index.html?view=stranger`), 2 returning-donor home (`index.html?ct=<opaque demo token>`, token stripped from the address bar), 3 impact page, 4 staff view. It shows "step N of 4" and a Next link; step 4 offers Start over. Relative links only, no names or emails in URLs. `admin.html` also has "Reset demo", which clears sent flags, search, filter, sort, any open drawer and the preview-state choice, then re-runs `boot()` (load, buildModel, render) without a reload.
+
+### Open items
+- Cream `--bg` (#f6f5ef) is still a pending decision for the user; it was not changed.
+- The demo charity name "Tansy Street Pantry" is pending confirmation (check it against a live search, D5).
+- Lane A's seed name "Larkspur Lane Pantry" (`seed/data.ts`) matches a real pantry and should be renamed by the lead (Lane A owns `/seed`).
+- Nothing here was browser-tested in the last pass (no-testing instruction): open all three pages and walk the demo path once, including 375px width.
 
 ## Next, in order
 1. Clone, create branch `dashboard`, read CLAUDE.md, PROGRESS.md, the dashboard spec, `docs/demo-site-reference.md`.
