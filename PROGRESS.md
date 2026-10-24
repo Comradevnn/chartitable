@@ -8,7 +8,7 @@
 - **Community:** small food pantries/food banks without fundraising staff, and their donors.
 - **Tracks:** Anthropic "Claude for Public Benefit" (primary) · Figma · Convex · SpaceXSI (built with Cursor) · stretch: Cartesia
 - **Current phase:** build — plan approved Fri 10:40 PM; C1 lane running
-- **Last updated:** Fri Oct 23, 10:58 PM PT
+- **Last updated:** Fri Oct 23, 11:05 PM PT
 
 ## Team & ownership
 | Who | Role | Owns |
@@ -77,17 +77,17 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | ID | Task | Owner | Status | Files | Acceptance check |
 |---|---|---|---|---|---|
 | T1 | Repo scaffold: git init, npm workspaces, Convex init, `.env.example`, `.gitignore`, Vitest, esbuild | Revnn/CC | done (convex dev pending lead login) | root | `npm test` runs; `npx convex dev` connects; `git ls-files` shows no secrets |
-| T2 | Convex schema: charities, donors, donations, impactLogs (+photo storage id), allocations, visits, narratives | Revnn/CC (Sonnet) | doing | `/convex/schema.ts`, `/convex/seed.ts` | Schema deploys; seed loads into it |
+| T2 | Convex schema: charities, donors, donations, impactLogs (+photo storage id), allocations, visits, narratives | Revnn/CC (Sonnet) | done in code; live deploy BLOCKED (Convex login) | `/convex/schema.ts`, `/convex/seed.ts` | Schema deploys; seed loads into it |
 | T3 | Hosted test-mode donate page + `createDonation` mutation; redirects back with `?ct=` | Revnn/CC | todo | `/staff/donate*`, `/convex/donations.ts` | $25 test donation appears in DB; redirect carries only token |
 | T4 | Staff impact update page (text + count + unit + optional photo) | Revnn/Cursor (proposed) | todo | `/staff/update*`, `/convex/impact.ts` | "Served 80 meals" stored with photo; allocations recompute |
 | T5 | Allocation engine (proportional, time-windowed) | Revnn/CC (Sonnet) | done | `/engine/allocate.ts` + tests | Vitest: shares sum ≤ 100%, zero-donation window, late donor, rounding labeled |
-| T6 | Claude narrative + next-step (facts in → JSON out) + fact-check guard (D8) | Revnn/CC | todo | `/engine/facts.ts`, `/engine/guard.ts`, `/engine/prompt.ts`, `/convex/narrative.ts` | Guard tests: invented number/name rejected → template fallback; estimates labeled |
+| T6 | Claude narrative + next-step (facts in → JSON out) + fact-check guard (D8) | Revnn/CC (Sonnet) | doing (T6a pure engine; convex/narrative.ts after) | `/engine/facts.ts`, `/engine/guard.ts`, `/engine/prompt.ts`, `/convex/narrative.ts` | Guard tests: invented number/name rejected → template fallback; estimates labeled |
 | T7 | Signed donor tokens (HMAC) + visits table for "since last visit" | Revnn/CC (Sonnet: pure part) | T7a pure done; T7b (convex/tokens.ts, http.ts, visits) todo | `/engine/token.ts`, `/convex/tokens.ts`, `/convex/http.ts` | Tampered/expired token rejected; no PII in URL |
 | T8 | `layer.js` embed: read token, fetch donor view, fill slots, rewrite donate link | Revnn/Cursor (proposed) | todo | `/layer` | Works on 2 demo sites; unknown visitor sees normal site; no console errors |
 | T9 | Milestone check (scheduled) + "See where your donation has gone" email via Resend | Revnn/CC | todo | `/convex/milestones.ts`, `/convex/email.ts` | Email arrives at team inbox; link opens site with personalized view |
 | T10 | Demo charity site #1 (fictional food pantry) from Figma | Teammate 1 | todo | `/demo-sites/one` | Includes contract v1 slots + donate button; looks complete with slots empty |
 | T11 | Demo charity site #2 (different look) | Teammate 1 | todo | `/demo-sites/two` | Same embed works unchanged |
-| T12 | Fictional seed data: donors, donations, a week of pantry logs + photos | Revnn/CC (Sonnet, with T2) | doing | `/seed` | Clearly labeled fictional; loader is idempotent |
+| T12 | Fictional seed data: donors, donations, a week of pantry logs + photos | Revnn/CC (Sonnet, with T2) | done in code; `npx convex run seed:load` BLOCKED (Convex login) | `/seed` | Clearly labeled fictional; loader is idempotent |
 | T13 | End-to-end demo run-through (Definition of done 1–6) | Teammate 2 | todo | — | All six steps pass twice in a row on deployed URLs |
 | T14 | Demo video, Devpost write-up, project image | Teammate 2 | todo | `/docs` | Uploaded before 8:30 AM Sun |
 | T15 | Pitch script (3 min) + Q&A prep (honesty rule, failure modes) | Teammate 2 + Revnn | todo | `/docs` | Rehearsed twice, timed |
@@ -125,6 +125,8 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | Convex account login (`npx convex dev` is interactive) | Revnn | Fri 10:35 PM |
 | `ANTHROPIC_API_KEY`, `RESEND_API_KEY` in `.env`; name the Resend account-owner inbox for demo | Revnn | Fri 10:35 PM |
 | Vercel account login (needed by C4, not before) | Revnn | Fri 10:35 PM |
+| C1 "seed loads": run `npx convex dev` (link deployment), then `npx convex run seed:load` | Revnn | Fri 11:05 PM |
+| Seed charity names ("Larkspur Lane Pantry", "Copperfield Table Food Bank") are placeholders — Teammate 1 picks final display names; tell orchestrator to update `seed/data.ts` | Teammate 1 | Fri 11:05 PM |
 
 ## Handoff log
 <!-- Append only. Format: `- [Sat 10:42 AM PT] <who/tool>: <what changed, files, what's next>` -->
@@ -136,3 +138,5 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 10:47 PM PT] Sonnet/T7a: Added /engine/token.ts (async HMAC-SHA256 signToken/verifyToken via Web Crypto, DEFAULT_TOKEN_TTL_MS 30d) + token.test.ts; 8 tests green. Check order: structure → signature → expiry. T7b can import directly.
 - [Fri 10:50 PM PT] Sonnet/T5: /engine/allocate.ts + allocate.test.ts (allocate, roundEstimate); 11 tests green. Rule: a donation is eligible for a log if same charity and window.from <= createdAt <= loggedAt; share = donor cents / eligible cents; roundEstimate floors (<1 → 0, <100 → integer, >=100 → multiple of 5).
 - [Fri 10:58 PM PT] Claude Code (Opus orchestrator): Gated T5 + T7a (re-ran tests, read code, Haiku H2/H3 scan: PASS; the only "@" is a negative test that rejects a token carrying an email). Committed. Saved H1 Convex cheat sheet to `convex/CONVEX_NOTES.md` — later Convex lanes read it first. Waiting on T2+T12.
+- [Fri 10:50 PM PT] Sonnet/T2+T12: convex/schema.ts (8 tables, engine string keys + by_key indexes), convex/seed.ts (idempotent upsert loader via internalMutationGeneric), seed/data.ts (pure fictional seed: 2 charities, 12 donors, 25 donations over 21 days, 7 days of logs; edge cases: donor_a05 no recent gift, donor_a12 late donor, pantry A empty day), 8 tests, 3 placeholder SVGs. Demo donor = donor_a01 "Mira", $25 to demo-pantry-a.
+- [Fri 11:05 PM PT] Claude Code (Opus orchestrator): Gated T2+T12. Fixed loader so re-seed never resets `impactLogs.photoStorageId`. Haiku H2/H3/H4: PASS (no secrets/real orgs/PII; schema mirrors types; photoStorageId is `Id<"_storage">` in DB vs string in engine — fine). **C1 status: allocation + token + seed tests green (27/27), typecheck clean; "seed loads" BLOCKED on lead's Convex login.** Started T6a early (facts/guard/prompt/template, pure engine).
