@@ -65,6 +65,11 @@
   function render(d, now) {
     var n = d.narrative || {}, m = d.milestones || {}, e = d.email || {}, s = d.seed || {}, sm = d.smoke || {};
     var run = m.lastRun;
+    var vs = d.visitStates || {};
+    var STATE_LABELS = [
+      ["just_gave", "Just gave"], ["news", "News"], ["first_impact", "First impact"],
+      ["repeat", "Repeat"], ["lapsed", "Lapsed"], ["returning", "Returning"], ["unknown", "Unknown"]
+    ];
     var smokeCount = (Number(sm.donors) || 0) + (Number(sm.impactLogs) || 0);
     var nodes = [
       section("Narrative", [
@@ -88,6 +93,9 @@
         ["Last time", typeof e.lastAt === "number" ? when(e.lastAt, now) : "never"],
         ["Total sent", val(e.sentTotal)]
       ]),
+      section("Donor states shown (last 24 h)", STATE_LABELS.map(function (p) {
+        return [p[1], val(vs[p[0]] === undefined ? 0 : vs[p[0]])];
+      })),
       section("Seed data", [
         ["Charities", val(s.charities)],
         ["Donors", val(s.donors)],
