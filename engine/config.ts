@@ -19,6 +19,13 @@ export const NARRATIVE_MIN_INTERVAL_MS = 60_000; // env NARRATIVE_MIN_INTERVAL_M
 // Donor view (§15)
 export const DONOR_VIEW_MAX_PER_MINUTE = 30;
 
+// Contract v2: donor state and live updates (docs/PLAN_DYNAMIC_SITE.md §3)
+export const JUST_GAVE_WITHIN_MS = 48 * 60 * 60 * 1000; // newest gift this recent + no estimates → just_gave
+export const REGULAR_VISITS_IN_30_DAYS = 3; // trait "regular"
+export const DONOR_GIFTS_MAX = 50; // bound on the all-time gift read per donor+charity
+export const LIVE_POLL_MS = 6000; // layer polls /donor-pulse this often while the tab is visible
+export const LIVE_MAX_MS = 10 * 60 * 1000; // and stops after this long
+
 // Donate page (§14)
 export const DONATION_MIN_DOLLARS = 1;
 export const DONATION_MAX_DOLLARS = 500;

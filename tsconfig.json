@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["engine/**/*.ts", "layer/src/**/*.ts", "layer/src/css.d.ts", "seed/**/*.ts", "vitest.config.ts"]
+  "include": ["engine/**/*.ts", "layer/src/**/*.ts", "layer/src/css.d.ts", "layer/test/**/*.ts", "seed/**/*.ts", "vitest.config.ts"]
 }

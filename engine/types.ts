@@ -107,6 +107,24 @@ export interface DonorFacts {
     estimates: EstimateFact[];
   } | null;
   thinData: boolean; // true → say less
+  /** v2: next-step kind chosen by the donor-state rule (engine/donor-state.ts); Claude writes only the text. */
+  nextStepKind?: NextStepKind;
+}
+
+// ---- Donor state (contract v2, deterministic rules in engine/donor-state.ts) ----
+
+/** Priority order: the first rule that matches wins. */
+export const DONOR_STATES = ["just_gave", "news", "first_impact", "repeat", "lapsed", "returning"] as const;
+export type DonorState = (typeof DONOR_STATES)[number];
+
+export const DONOR_TRAITS = ["named", "has_photos", "regular"] as const;
+export type DonorTrait = (typeof DONOR_TRAITS)[number];
+
+export interface DonorProfile {
+  state: DonorState;
+  traits: DonorTrait[];
+  gifts: DonationFact[]; // the donor's own gifts at this charity, all-time, newest first (records)
+  giftCount: number;
 }
 
 // ---- Narrative ----
@@ -114,6 +132,8 @@ export interface DonorFacts {
 export type NextStepKind = "give_again" | "give_monthly" | "volunteer" | "share";
 
 export interface NarrativeOutput {
+  /** v2 (T30): number-free headline; checked by guard() like every other field. */
+  headline?: string;
   story: string;
   nextStep: { kind: NextStepKind; text: string };
 }
@@ -138,19 +158,38 @@ export type TokenVerifyResult =
   | { ok: true; payload: TokenPayload }
   | { ok: false; reason: "malformed" | "bad-signature" | "expired" };
 
-// ---- GET /donor-view response (draft until C3; layer.js consumes it) ----
+// ---- GET /donor-view response (layer.js consumes it) ----
+// Contract v2 fields are optional and additive: a v1 layer ignores them, and buildDonorView fills
+// them from T24 on. GET /donor-view?peek=1 returns the same shape without recording a visit.
 
 export type DonorView =
   | { recognized: false }
   | {
       recognized: true;
-      hero: { firstName: string | null; story: string; source: "claude" | "template" };
+      hero: {
+        firstName: string | null;
+        story: string;
+        source: "claude" | "template";
+        headline?: string; // v2: number-free; deterministic per state, or Claude under the guard (T30)
+        body?: string; // v2: story without a leading thank-you sentence
+      };
       sinceLastVisit: { sinceDateLabel: string; records: RecordFact[]; estimates: EstimateFact[] } | null;
-      nextStep: { kind: NextStepKind; text: string; href: string | null };
+      nextStep: {
+        kind: NextStepKind;
+        text: string;
+        href: string | null;
+        label?: string; // v2: ≤ 4 words from a fixed table per kind
+      };
       records: RecordFact[]; // render as .ct-record
       estimates: EstimateFact[]; // render as .ct-estimate with visible "about"/"estimate"
       photos: { logId: string; url: string }[];
+      donor?: DonorProfile; // v2
+      rev?: string; // v2: opaque change marker, compared against GET /donor-pulse
+      live?: { pollMs: number } | null; // v2: null = don't poll
     };
+
+/** GET /donor-pulse: cheap change check for live updates. Never records a visit. */
+export type DonorPulse = { recognized: false } | { recognized: true; rev: string };
 
 // ---- Expenses (T19 dashboard) ----
 
