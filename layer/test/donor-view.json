@@ -1,0 +1,75 @@
+{
+  "recognized": true,
+  "hero": {
+    "firstName": "Mira",
+    "story": "Mira, the pantry logged a hot supper and an evening restock after your gift. Your share of those logs is an estimate, marked below. The gifts are pooled, so the share is proportional.",
+    "source": "template"
+  },
+  "sinceLastVisit": {
+    "sinceDateLabel": "Tue, Oct 14",
+    "records": [
+      {
+        "logId": "log_preview_03",
+        "kind": "produce",
+        "count": 140,
+        "unit": "pounds of produce",
+        "dateLabel": "Fri, Oct 17",
+        "note": "Apples and squash from the Saturday farm drop.",
+        "hasPhoto": false
+      }
+    ],
+    "estimates": [
+      {
+        "kind": "produce",
+        "unit": "pounds of produce",
+        "approxQuantity": 5,
+        "marker": "about"
+      }
+    ]
+  },
+  "nextStep": {
+    "kind": "volunteer",
+    "text": "Saturday sorting has open shifts. Come if you can. The shelf is covered if you can't.",
+    "href": "#volunteer"
+  },
+  "records": [
+    {
+      "logId": "log_preview_01",
+      "kind": "meals",
+      "count": 86,
+      "unit": "meals",
+      "dateLabel": "Tue, Oct 21",
+      "note": "Hot supper in the side room.",
+      "hasPhoto": true
+    },
+    {
+      "logId": "log_preview_02",
+      "kind": "volunteer_shifts",
+      "count": 11,
+      "unit": "volunteer shifts",
+      "dateLabel": "Thu, Oct 16",
+      "note": "Evening restock crew.",
+      "hasPhoto": false
+    }
+  ],
+  "estimates": [
+    {
+      "kind": "meals",
+      "unit": "meals",
+      "approxQuantity": 4,
+      "marker": "about"
+    },
+    {
+      "kind": "volunteer_shifts",
+      "unit": "volunteer shifts",
+      "approxQuantity": 1,
+      "marker": "about"
+    }
+  ],
+  "photos": [
+    {
+      "logId": "log_preview_01",
+      "url": "preview-crate.svg"
+    }
+  ]
+}

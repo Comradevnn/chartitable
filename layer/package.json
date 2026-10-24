@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --minify --outfile=dist/layer.js",
-    "dev": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --outdir=dist --servedir=dist --serve=5174 --cors-origin=*"
+    "build": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --minify --outfile=dist/layer.js --define:CT_API_BASE='\"https://acoustic-donkey-399.convex.site\"' --define:CT_DONATE_URL='\"https://chartitable.vercel.app/staff/donate\"'",
+    "build:silent": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --minify --outfile=dist/layer.silent.js --define:CT_API_BASE='\"\"' --define:CT_DONATE_URL='\"\"'",
+    "build:smoke": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --minify --outfile=dist/layer.smoke.js --define:CT_API_BASE='\"http://127.0.0.1:5198\"' --define:CT_DONATE_URL='\"http://127.0.0.1:5198/donate.html\"'",
+    "dev": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --outdir=dist --servedir=dist --serve=5174 --cors-origin=* --define:CT_API_BASE='\"https://acoustic-donkey-399.convex.site\"' --define:CT_DONATE_URL='\"http://localhost:5175/donate.html\"'",
+    "dev:stub": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --outdir=dist --servedir=dist --serve=5174 --cors-origin=* --define:CT_API_BASE='\"http://127.0.0.1:5198\"' --define:CT_DONATE_URL='\"http://localhost:5175/donate.html\"'"
   }
 }

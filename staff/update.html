@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Log an update</title>
+  <link rel="stylesheet" href="update.css">
+</head>
+<body>
+  <div class="banner" role="status">DEMO — fictional pantry log</div>
+  <main class="wrap">
+    <h1>Log an update</h1>
+    <p class="lede">Record what the pantry served. Donors see the note. No names.</p>
+    <p id="notice" class="notice" hidden></p>
+
+    <form id="form" method="post" action="#" novalidate hidden>
+      <div class="field">
+        <label for="pin">Staff PIN</label>
+        <input id="pin" name="pin" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <fieldset>
+        <legend>What was logged</legend>
+        <div class="kinds" role="radiogroup" aria-label="What was logged">
+          <label class="kind"><input type="radio" name="kind" value="meals" checked><span>Meals</span></label>
+          <label class="kind"><input type="radio" name="kind" value="produce"><span>Produce</span></label>
+          <label class="kind"><input type="radio" name="kind" value="volunteer_shifts"><span>Volunteer shifts</span></label>
+        </div>
+      </fieldset>
+
+      <div class="pair">
+        <div class="field">
+          <label for="count">Count</label>
+          <input id="count" name="count" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done">
+        </div>
+        <div class="field">
+          <span class="label" id="unit-label">Unit</span>
+          <output id="unit" for="count" aria-labelledby="unit-label">meals</output>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="note">Note <span class="opt">(optional)</span></label>
+        <textarea id="note" name="note" maxlength="200" rows="3"></textarea>
+        <p class="fine">Visible to donors. Don't include names or personal info.</p>
+        <p id="note-count" class="count" aria-live="polite">0 / 200</p>
+      </div>
+
+      <div class="field">
+        <label for="photo">Photo <span class="opt">(optional)</span></label>
+        <input id="photo" name="photo" type="file" accept="image/*">
+        <p id="photo-status" class="fine" aria-live="polite"></p>
+        <p class="fine">Image only, 5 MB or smaller. The phone resizes it before upload.</p>
+      </div>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <p id="success" class="success" role="status" tabindex="-1" hidden></p>
+      <button type="submit" id="submit">Record update</button>
+    </form>
+
+    <section id="recent-section" aria-labelledby="recent-title" hidden>
+      <h2 id="recent-title">Recent updates</h2>
+      <ul id="recent"></ul>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="update.js"></script>
+</body>
+</html>

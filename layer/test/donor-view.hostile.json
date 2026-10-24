@@ -1,0 +1,39 @@
+{
+  "recognized": true,
+  "hero": {
+    "firstName": null,
+    "story": "<img src=x onerror=alert(1)>",
+    "source": "template"
+  },
+  "sinceLastVisit": null,
+  "nextStep": {
+    "kind": "share",
+    "text": "<script>alert(1)</script>",
+    "href": "javascript:alert(1)"
+  },
+  "records": [
+    {
+      "logId": "log_hostile",
+      "kind": "meals",
+      "count": 80,
+      "unit": "meals",
+      "dateLabel": "Tue, Oct 20",
+      "note": "<b>bold</b>",
+      "hasPhoto": true
+    }
+  ],
+  "estimates": [
+    {
+      "kind": "meals",
+      "unit": "meals",
+      "approxQuantity": 22,
+      "marker": "about"
+    }
+  ],
+  "photos": [
+    {
+      "logId": "log_hostile",
+      "url": "javascript:alert(1)"
+    }
+  ]
+}
