@@ -16,6 +16,7 @@
 | Revnn (lead) | Architecture, most code, via Claude Code + Cursor/Grok | `/convex`, `/engine`, `/layer`, `/staff`, `/seed` |
 | Teammate 1 (on site) | Figma designs → demo charity websites, Figma tracks | `/demo-sites` |
 | Teammate 2 (arrives Sat afternoon) | QA run-throughs, Devpost, video, pitch (see T13–T15) | `/docs` |
+| Nael (naelqdl) | Static frontend pages: landing, dashboard, admin (fictional sample data, no backend calls) | `/frontend` |
 
 **Tool split:** Claude Code (Opus orchestrator + Sonnet/Haiku subagents) and Cursor/Grok both write code. **Never edit a file owned by an in-progress task from the other tool.** Note the tool in the Owner column, e.g. `Revnn/CC` or `Revnn/Cursor`.
 
@@ -46,6 +47,7 @@
 /demo-sites/one  Fictional pantry site #1 (Teammate 1)
 /demo-sites/two  Fictional pantry site #2, different look (Teammate 1)
 /seed            Fictional donors, donations, a week of pantry logs, placeholder photos, loader
+/frontend        Static HTML/CSS/inline-JS pages: index (landing), dashboard, admin; fictional sample data, no backend calls (Nael)
 /docs            Pitch script, Devpost draft, Q&A prep
 .env.example     ANTHROPIC_API_KEY, RESEND_API_KEY, TOKEN_SECRET, CONVEX_URL, DEMO_INBOXES
 ```
@@ -159,3 +161,4 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 11:59 PM PT] Claude (main chat): Created PRIVATE repo https://github.com/Comradevnn/chartitable (secret scan of history + pending files clean), committed pending files, pushed main. Added T17 (go public before submission). Other orchestrator session: pull nothing needed, just `git push` as you commit.
 - [Sat 12:35 AM PT] Claude (main chat): Lead decided on a charity dashboard (D12). Wrote `docs/DASHBOARD_SPEC.md` (MVP M1–M3, Next, idea pool, privacy rules, mock data contract) and `docs/TEAMMATE_DASHBOARD_PROMPT.md` (one prompt: Figma first, then `/dashboard` with Impeccable, branch `dashboard`). Added T18 (Teammate 1) and T19 (backend, Revnn). Open: teammate needs a repo invite (private repo); Figma track pick; staff login = PIN stub proposed.
 - [Sat 1:05 AM PT] [ALL] Claude (main chat): Added `docs/PRODUCT_SPEC.md` (Lane A spec: flow, rules, API, failure modes, tests; OPEN items marked) and a Read map in CLAUDE.md saying which files each role reads or skips. Log lines are now tagged by lane.
+- [Sat 12:13 AM PT] [ALL] Nael/CC: Added `/frontend` (index, dashboard, admin static pages; fictional data, no backend calls) in 92a7ba8, merged to main e37e7bf; `/frontend` owned by Nael (naelqdl).
