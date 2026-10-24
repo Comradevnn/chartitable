@@ -23,6 +23,8 @@ export const DONOR_VIEW_MAX_PER_MINUTE = 30;
 export const DONATION_MIN_DOLLARS = 1;
 export const DONATION_MAX_DOLLARS = 500;
 export const DONATION_PRESETS_DOLLARS = [10, 25, 50] as const;
+/** Public donate mutation: at most this many test donations per hour across the deployment (audit, Sat 2:45 AM). */
+export const DONATIONS_MAX_PER_HOUR = 120;
 
 // Milestones (§7, calibrated in §16)
 export const MILESTONE_THRESHOLDS: Record<ImpactKind, readonly number[]> = {

@@ -1,11 +1,13 @@
 // Hosted test-mode donate flow (D10). Thin wrapper: validation lives in engine/donate.ts.
 // Never log inputs or tokens. Always creates a NEW donor row (never looked up by email).
 import { v } from "convex/values";
-import { redirectUrl, validateDonation } from "../engine/donate";
+import { DONATIONS_MAX_PER_HOUR } from "../engine/config";
+import { CHARITY_IDS } from "../engine/types";
+import { keepAllowlistedEmail, redirectUrl, validateDonation } from "../engine/donate";
 import type { DonateError } from "../engine/donate";
 import { DEFAULT_TOKEN_TTL_MS, signToken } from "../engine/token";
 import { internal, mutation, query } from "./lib/builders";
-import { tokenSecret } from "./lib/env";
+import { demoInboxes, tokenSecret } from "./lib/env";
 import { vCharityId } from "./lib/validators";
 
 function randomKey(prefix: string): string {
@@ -43,11 +45,22 @@ export const create = mutation({
     if (!charity) return { ok: false, error: "charity" };
 
     const now = Date.now();
+    // Public endpoint: cap test donations per hour so a script can't flood rows or dilute shares.
+    let lastHour = 0;
+    for (const id of CHARITY_IDS) {
+      const rows = await ctx.db
+        .query("donations")
+        .withIndex("by_charity_createdAt", (q) => q.eq("charityId", id).gte("createdAt", now - 60 * 60 * 1000))
+        .take(DONATIONS_MAX_PER_HOUR);
+      lastHour += rows.length;
+    }
+    if (lastHour >= DONATIONS_MAX_PER_HOUR) return { ok: false, error: "unavailable" };
+
     const donorKey = randomKey("donor_");
     await ctx.db.insert("donors", {
       key: donorKey,
       firstName: d.firstName,
-      email: d.email,
+      email: keepAllowlistedEmail(d.email, demoInboxes()), // D4: never store addresses we may not email
       hideFromTopDonors: d.hideFromTopDonors,
       ...(args.smoke ? { smoke: true } : {}),
     });

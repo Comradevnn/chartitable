@@ -70,6 +70,11 @@ export function validateDonation(input: {
   };
 }
 
+/** Keep an email only if it is on the DEMO_INBOXES allowlist (D4): other addresses are never stored. */
+export function keepAllowlistedEmail(email: string | null, allowlist: ReadonlySet<string>): string | null {
+  return email !== null && allowlist.has(email) ? email : null;
+}
+
 /** siteUrl with its query/hash replaced by ?ct=<token>. Only the token ever rides in the URL. */
 export function redirectUrl(siteUrl: string, token: string): string {
   const u = new URL(siteUrl); // throws on unparseable input

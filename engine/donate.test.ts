@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { redirectUrl, validateDonation } from "./donate";
+import { redirectUrl, validateDonation, keepAllowlistedEmail } from "./donate";
 
 const base = { charityId: "demo-pantry-a", amountCents: 2500 };
 
@@ -58,6 +58,16 @@ describe("validateDonation", () => {
     expect(validateDonation({ ...base, hideFromTopDonors: true })).toMatchObject({ value: { hideFromTopDonors: true } });
     expect(validateDonation({ ...base, hideFromTopDonors: false })).toMatchObject({ value: { hideFromTopDonors: false } });
     expect(validateDonation({ ...base, hideFromTopDonors: "true" })).toMatchObject({ value: { hideFromTopDonors: false } });
+  });
+});
+
+describe("keepAllowlistedEmail", () => {
+  it("keeps only allowlisted addresses", () => {
+    const allow = new Set(["demo@example.com"]);
+    expect(keepAllowlistedEmail("demo@example.com", allow)).toBe("demo@example.com");
+    expect(keepAllowlistedEmail("stranger@example.com", allow)).toBeNull();
+    expect(keepAllowlistedEmail(null, allow)).toBeNull();
+    expect(keepAllowlistedEmail("demo@example.com", new Set())).toBeNull();
   });
 });
 
