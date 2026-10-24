@@ -255,3 +255,96 @@ describe("guard audit fixes (H5)", () => {
     }
   });
 });
+
+describe("guard quantity-unit binding (R1, R2, R3)", () => {
+  const why = (story: string, f: DonorFacts = facts, nextStep: unknown = goodNext) =>
+    reasonsOf(guard(withStory(story, nextStep), f)).join("|");
+
+  it("rejects a gift amount used as a meal count", () => {
+    const r = guard(withStory("Thank you, Priya. Your gift provided 25 meals."), facts);
+    expect(r.ok).toBe(false);
+    expect(reasonsOf(r).join("|")).toContain("quantity not in facts for meals: 25");
+  });
+
+  it("rejects a date digit used as a meal count", () => {
+    expect(why("Thank you, Priya. Your gift provided 5 meals.")).toContain("quantity not in facts for meals: 5");
+  });
+
+  it("rejects crediting the donor with the whole pooled record", () => {
+    expect(why("Thank you, Priya. Your $25 gift paid for 80 meals.")).toContain("record credited to donor: 80");
+    expect(why("Thank you, Priya. You provided 80 meals.")).toContain("record credited to donor: 80");
+    expect(why("Thank you. Priya provided 80 meals.")).toContain("record credited to donor: 80");
+  });
+
+  it("rejects a people/food-count noun that no note backs", () => {
+    const withNote: DonorFacts = {
+      ...facts,
+      records: [
+        { logId: "l1", kind: "meals", count: 80, unit: "meals", dateLabel: "Thu, Oct 8", note: "Packed 40 boxes with the crew", hasPhoto: false },
+      ],
+    };
+    // 40 is a real number in a note, but it counted boxes, not families.
+    expect(why("Thank you, Priya. The crew fed 40 families.", withNote)).toContain("unsupported quantity: 40 families");
+    // and with no note at all, the number is simply invented
+    expect(why("Thank you, Priya. The pantry fed 40 families.")).toContain("invented number: 40");
+  });
+
+  it("rejects vague small quantities like 'a couple of meals'", () => {
+    const r = guard(withStory("Thank you, Priya. Your share was a couple of meals."), facts);
+    expect(r.ok).toBe(false);
+    expect(reasonsOf(r).join("|")).toContain("invented number: couple");
+    expect(why("Thank you, Priya. A pair of volunteers helped.")).toContain("invented number: pair");
+  });
+
+  it("rejects dollars that are not a gift", () => {
+    const f: DonorFacts = {
+      ...facts,
+      donations: [{ amountDollars: 20, dateLabel: "Mon, Oct 5" }],
+      totalGivenDollars: 20,
+      records: [{ logId: "l1", kind: "meals", count: 25, unit: "meals", dateLabel: "Thu, Oct 8", note: null, hasPhoto: false }],
+    };
+    expect(why("Thank you, Priya. You gave 25 dollars to Juniper Street Pantry.", f)).toContain("invented amount: 25 dollars");
+    expect(guard(withStory("Thank you, Priya. You gave 20 dollars to Juniper Street Pantry."), f)).toEqual({ ok: true });
+  });
+
+  it("still accepts the faithful story", () => {
+    expect(guard(good, facts)).toEqual({ ok: true });
+  });
+
+  it("accepts a people/food-count noun echoed from a record note", () => {
+    const f: DonorFacts = {
+      ...facts,
+      records: [
+        { logId: "l1", kind: "meals", count: 80, unit: "meals", dateLabel: "Thu, Oct 8", note: "Packed 40 boxes with the crew", hasPhoto: false },
+      ],
+    };
+    expect(guard(withStory("Thank you, Priya. The crew packed 40 boxes on Thu, Oct 8."), f)).toEqual({ ok: true });
+  });
+
+  it("accepts a labeled estimate even when the donor is the agent", () => {
+    const r = guard(
+      withStory("Thank you, Priya. Your gift provided about 12 meals as a proportional share of pooled gifts, an estimate."),
+      facts,
+    );
+    expect(r).toEqual({ ok: true });
+  });
+
+  it("accepts record counts in a non-donor sentence", () => {
+    expect(guard(withStory("Thank you, Priya. Juniper Street Pantry logged 200 pounds of produce on Thu, Oct 15."), facts)).toEqual({ ok: true });
+  });
+
+  it("accepts since-last-visit record counts", () => {
+    const f: DonorFacts = {
+      ...facts,
+      sinceLastVisit: {
+        sinceDateLabel: "Fri, Oct 9",
+        records: [{ logId: "l3", kind: "volunteer_shifts", count: 14, unit: "volunteer shifts", dateLabel: "Sat, Oct 17", note: null, hasPhoto: false }],
+        estimates: [],
+      },
+    };
+    expect(guard(withStory("Thank you, Priya. Since Fri, Oct 9, Juniper Street Pantry logged 14 volunteer shifts on Sat, Oct 17."), f)).toEqual({ ok: true });
+    expect(why("Thank you, Priya. Since Fri, Oct 9, Juniper Street Pantry logged 15 volunteer shifts.", f)).toContain(
+      "quantity not in facts for volunteer_shifts: 15",
+    );
+  });
+});

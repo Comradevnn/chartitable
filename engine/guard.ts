@@ -4,8 +4,15 @@
 // name, unlabeled estimate, percentage, or pressure language not supported by the facts payload
 // is rejected, and the caller falls back to the template. False rejections are acceptable
 // (they fail safe); false accepts are not.
+//
+// Quantity-unit binding (R1): a number followed (within 3 tokens) by a unit noun must match a fact
+// OF THAT KIND (meals/pounds/shifts: a record count or estimate of that kind; dollars: a gift;
+// people/food-count nouns like "families" or "boxes": only if a record note says the same thing).
+// R2: a sentence where the donor is the direct agent ("your gift provided 80 meals") must not
+// credit them with a pooled record count unless the number is labeled an estimate.
+// R3: vague small quantities ("couple", "pair") count as numbers and must be backed by facts.
 
-import type { DonorFacts, GuardResult, NextStepKind, RecordFact } from "./types";
+import type { DonorFacts, GuardResult, ImpactKind, NextStepKind, RecordFact } from "./types";
 
 const KIND_TABLE: Record<NextStepKind, true> = {
   give_again: true,
@@ -58,7 +65,7 @@ const NUMBER_WORDS: Record<string, number> = {
   eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
   eighteen: 18, nineteen: 19, ...TENS,
   hundred: 100, thousand: 1000, million: 1e6, billion: 1e9, dozen: 12,
-  twice: 2, thrice: 3, double: 2, triple: 3, half: 0.5,
+  twice: 2, thrice: 3, double: 2, triple: 3, half: 0.5, couple: 2, pair: 2,
   third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10,
   // vague plural quantities can never be backed by the facts
   dozens: NaN, hundreds: NaN, thousands: NaN, millions: NaN,
@@ -286,6 +293,97 @@ function creditsDonor(sentence: string, facts: DonorFacts): boolean {
   return refersToDonor || ATTRIBUTION.test(sentence);
 }
 
+// ---------------------------------------------------------------------------
+// Quantity-unit binding (R1) and donor-as-agent credit (R2)
+// ---------------------------------------------------------------------------
+
+const KIND_NOUNS: Record<string, ImpactKind> = {
+  meals: "meals", meal: "meals",
+  pounds: "produce", pound: "produce", lb: "produce", lbs: "produce",
+  shifts: "volunteer_shifts", shift: "volunteer_shifts",
+};
+const DOLLAR_NOUNS = new Set(["dollars", "dollar"]);
+// People/food-count nouns no fact can back. Maps to a canonical form so "box" matches "boxes".
+const GENERIC_NOUNS: Record<string, string> = {
+  families: "family", family: "family", people: "people", neighbors: "neighbors", neighbours: "neighbors",
+  households: "household", household: "household", kids: "kids", children: "kids", seniors: "seniors",
+  boxes: "box", box: "box", bags: "bag", bag: "bag", servings: "servings", plates: "plates",
+  dinners: "dinners", lunches: "lunches", breakfasts: "breakfasts", volunteers: "volunteers",
+  hours: "hours", visits: "visits", items: "items", cans: "cans",
+};
+const MONTHS = new Set([
+  "january", "february", "march", "april", "may", "june", "july", "august", "september", "october",
+  "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec",
+]);
+
+type BoundNoun =
+  | { type: "kind"; kind: ImpactKind; raw: string }
+  | { type: "dollar"; raw: string }
+  | { type: "generic"; canon: string; raw: string };
+
+/** The first quantity noun within 3 tokens after the number (stops at another number or a sentence end). */
+function boundNoun(text: string, tokens: Token[], tokenIndex: number, numberTokens: Set<number>): BoundNoun | null {
+  for (let j = tokenIndex + 1; j <= tokenIndex + 3 && j < tokens.length; j++) {
+    const prev = tokens[j - 1] as Token;
+    const tok = tokens[j] as Token;
+    if (/[.!?]/.test(text.slice(prev.index + prev.text.length, tok.index))) return null;
+    if (tok.type === "num" || numberTokens.has(j)) return null;
+    const w = tok.text.toLowerCase().replace(/’/g, "'").replace(/'s$/, "");
+    if (Object.hasOwn(KIND_NOUNS, w)) return { type: "kind", kind: KIND_NOUNS[w] as ImpactKind, raw: tok.text };
+    if (DOLLAR_NOUNS.has(w)) return { type: "dollar", raw: tok.text };
+    if (Object.hasOwn(GENERIC_NOUNS, w)) return { type: "generic", canon: GENERIC_NOUNS[w] as string, raw: tok.text };
+  }
+  return null;
+}
+
+/** A date like "Oct 8": the digits are a label, not a quantity. */
+function isDateNumber(tokens: Token[], tokenIndex: number): boolean {
+  const prev = tokens[tokenIndex - 1]?.text.toLowerCase().replace(/\.$/, "");
+  return prev !== undefined && MONTHS.has(prev);
+}
+
+/** True if a record note itself says "<value> … <noun>" (same number, same generic noun). */
+function noteBacks(facts: DonorFacts, value: number, canon: string): boolean {
+  for (const r of recordsOf(facts)) {
+    if (!r.note) continue;
+    const toks = tokenize(r.note);
+    const mentions = extractNumbers(r.note);
+    const numberTokens = new Set(mentions.map((m) => m.tokenIndex));
+    for (const m of mentions) {
+      if (m.raw.startsWith("$") || m.percent || Number.isNaN(m.value) || key(m.value) !== value) continue;
+      const b = boundNoun(r.note, toks, m.tokenIndex, numberTokens);
+      if (b?.type === "generic" && b.canon === canon) return true;
+    }
+  }
+  return false;
+}
+
+function countsOfKind(facts: DonorFacts, kind: ImpactKind): { records: Set<number>; estimates: Set<number> } {
+  const records = new Set<number>();
+  const estimates = new Set<number>();
+  for (const r of recordsOf(facts)) if (r.kind === kind) records.add(key(r.count));
+  for (const e of [...facts.estimates, ...(facts.sinceLastVisit?.estimates ?? [])]) {
+    if (e.kind === kind) estimates.add(key(e.approxQuantity));
+  }
+  return { records, estimates };
+}
+
+const DONOR_AGENT_VERBS =
+  "(?:alone\\s+|directly\\s+)?(?:provided|provide|served|serve|fed|feed|bought|buy|paid\\s+for|pay\\s+for|funded|fund|covered|cover|delivered|deliver|made|make|gave|give|supplied|supply)\\b";
+const DONOR_AGENT_RE = new RegExp(
+  `\\b(?:you|your\\s+(?:\\$\\d+(?:\\.\\d+)?\\s+)?(?:gift|donation|contribution)s?)\\s+${DONOR_AGENT_VERBS}`,
+  "i",
+);
+
+/** The donor (you / your gift / their first name) is the direct agent: "your gift provided ...". */
+function donorIsAgent(sentence: string, facts: DonorFacts): boolean {
+  if (DONOR_AGENT_RE.test(sentence)) return true;
+  const name = facts.donorFirstName;
+  if (!name) return false;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}(?:'s|’s)?\\s+${DONOR_AGENT_VERBS}`, "i").test(sentence);
+}
+
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
@@ -343,7 +441,9 @@ export function guard(output: unknown, facts: DonorFacts): GuardResult {
     // b. Numbers (percentages are never allowed)
     if (hasPercentage(text)) reasons.add(`${name}: percentage not allowed`);
     const tokens = tokenize(text);
-    for (const m of extractNumbers(text)) {
+    const mentions = extractNumbers(text);
+    const numberTokens = new Set(mentions.map((m) => m.tokenIndex));
+    for (const m of mentions) {
       if (Number.isNaN(m.value) || !allowed.all.has(key(m.value))) {
         reasons.add(`invented number: ${m.raw}`);
         continue;
@@ -354,10 +454,27 @@ export function guard(output: unknown, facts: DonorFacts): GuardResult {
         if (!allowed.money.has(v)) reasons.add(`invented amount: ${m.raw}`);
         continue;
       }
+      const labeled = isLabeledEstimate(tokens, m.tokenIndex);
+      // R1/R2: bind the number to the unit noun after it and check it against facts of that kind.
+      if (!isDateNumber(tokens, m.tokenIndex)) {
+        const b = boundNoun(text, tokens, m.tokenIndex, numberTokens);
+        if (b?.type === "dollar" && !allowed.money.has(v)) {
+          reasons.add(`invented amount: ${m.raw} ${b.raw}`);
+        } else if (b?.type === "generic" && !noteBacks(facts, v, b.canon)) {
+          reasons.add(`unsupported quantity: ${m.raw} ${b.raw}`);
+        } else if (b?.type === "kind") {
+          const { records, estimates } = countsOfKind(facts, b.kind);
+          if (!records.has(v) && !estimates.has(v)) {
+            reasons.add(`quantity not in facts for ${b.kind}: ${m.raw}`);
+          } else if (records.has(v) && !labeled) {
+            const at = tokens[m.tokenIndex]?.index ?? 0;
+            if (donorIsAgent(sentenceAround(text, at), facts)) reasons.add(`record credited to donor: ${m.raw}`);
+          }
+        }
+      }
       // d. Estimate labels
       const isEstimateValue = allowed.estimates.has(v);
       const isRecordValue = allowed.other.has(v);
-      const labeled = isLabeledEstimate(tokens, m.tokenIndex);
       if (isEstimateValue && !isRecordValue && !labeled) reasons.add(`unlabeled estimate: ${m.raw}`);
       if (isEstimateValue && isRecordValue && !labeled) {
         const at = tokens[m.tokenIndex]?.index ?? 0;
