@@ -2,7 +2,7 @@
 
 **A personalization layer for small charities' own websites.** Online shops remember you: your last order is front and center when you return. Chartitable gives returning donors the same experience. When a donor comes back to a food pantry's site, the page shows what their gift has done since their last visit and suggests one helpful next step.
 
-Built at Cal Hacks 13.0 (Oct 23–25, 2026). **Status: work in progress.** The backend (allocation, guarded Claude narrative, signed tokens, donor-view API, test-mode donate, milestone email, dashboard queries) is built, tested and running on a Convex dev deployment. `layer.js`, the staff update page and the dashboard UI are still being built. This README describes what exists today and what is planned, and marks the difference.
+Built at Cal Hacks 13.0 (Oct 23–25, 2026). **Status: work in progress.** The backend (allocation, guarded Claude narrative, signed tokens, donor-view API, test-mode donate, milestone email, dashboard queries) is built, tested and running on a Convex dev deployment, and an end-to-end smoke script (`scripts/e2e-smoke.mjs`) passes against it. `layer.js`, the staff update page and the dashboard UI are still being built. This README describes what exists today and what is planned, and marks the difference.
 
 ## The problem
 Small food pantries and food banks run on volunteers and have no fundraising staff. They can't afford to thank and update donors personally, so donors drift away. Donors rarely hear what their gift did.
