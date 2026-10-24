@@ -18,6 +18,8 @@ People using a small fictional food pantry or food bank website:
 - Volunteers looking for the schedule, the address, and how to help.
 - Neighbors seeking food, who need hours, location, and what to bring, in plain language.
 
+- Returning donor (T22): someone who gave a modest gift (about $25) once and is coming back, usually on a phone. They want to feel seen and informed, never watched.
+
 Staff dashboards are a different product and are out of scope here.
 
 ## Product Purpose
@@ -31,6 +33,10 @@ The charity site stays the charity's site. Personalization is a layer, not a rep
 ## Operating Context
 
 Local demo at Cal Hacks 13.0. Four hosts on ports 5501–5504. The production layer script, when present, loads from `http://localhost:5174/layer.js`. A dev-only preview (`?preview=1`) fills the slots from sample JSON so layouts can be checked before that script exists. Donor links in the real product carry only an opaque `?ct=` token. No names, emails, or other personal data in URLs.
+
+## Returning-donor slots (T22, D15)
+
+Owned by Teammate 1, delivered as `docs/design/ct-slots.css` and bundled into `layer.js`. Three blocks fill the empty slots inside the charity's own site: **hero** (short story, what the pantry logged, the donor's estimated share), **since-last-visit**, and **next-step**. Goal: the donor feels seen and informed. Tone: neighborly, specific, honest. Thin data means a shorter, more modest view; an error or empty state shows nothing at all and the site looks normal. Styles use zero-specificity `:where()` selectors on existing `ct-*` classes only, take colors, font and radius from `--ct-*` with fallbacks, add no markup, no animation and no external requests, so the host's CSS always wins. Records and estimates stay visually distinct, and every estimate carries the word "about" or "estimate".
 
 ## Capabilities and Constraints
 

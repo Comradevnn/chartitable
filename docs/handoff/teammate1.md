@@ -2,6 +2,8 @@
 
 Last updated: Sat Oct 24, ~4:15 AM PT (by Revnn's session; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
 
+## Status (Sat): T22 ct-slots.css polished (review); T18 dashboard MVP incl. donor detail in /dashboard (review, checked 390/768/keyboard). Open: Figma, receipts, deploy wiring (Revnn)
+
 ## Start here (new, Sat ~4 AM PT)
 Your next prompt is **`docs/TEAMMATE_NEXT_PROMPT.md`**. Priority 1: design the returning-donor experience (T22) and deliver `docs/design/ct-slots.css`. Priority 2: dashboard MVP (T18). Leave the four Cursor test hosts alone (fixtures, D14). Demo names are being replaced (T21): "Tansy Street Pantry" is flagged as near-identical to a real business name; don't ship it until Revnn confirms a name. Vercel shows your pushes as Blocked (expected, see below); tell Revnn when you want a deploy.
 
