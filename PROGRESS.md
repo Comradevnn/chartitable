@@ -7,8 +7,8 @@
 - **Project:** Chartitable — personalization layer that shows returning donors their impact on a small charity's own website.
 - **Community:** small food pantries/food banks without fundraising staff, and their donors.
 - **Tracks:** Anthropic "Claude for Public Benefit" (primary) · Figma · Convex · SpaceXSI (built with Cursor) · stretch: Cartesia
-- **Current phase:** planning — plan below is **PROPOSED, awaiting lead approval** before coding subagents start
-- **Last updated:** Fri Oct 23, 10:35 PM PT
+- **Current phase:** build — plan approved Fri 10:40 PM; C1 lane running
+- **Last updated:** Fri Oct 23, 10:50 PM PT
 
 ## Team & ownership
 | Who | Role | Owns |
@@ -29,9 +29,9 @@
 | D5 | Fictional charities only; no real orgs or donor data | Avoid impersonation and privacy issues | Decided |
 | D6 | Donor links carry a signed opaque token, no personal data in URLs | Privacy | Decided |
 | D7 | Name: **Chartitable** (was ImpactLayer). CSS class prefix `ct-`, storage key prefix `chartitable:` | Lead's choice | Decided |
-| D8 | Narrative model `claude-sonnet-5-5`, structured JSON output; a deterministic **fact-check guard** rejects any output containing a number/name not in the facts payload and falls back to a template | Makes the honesty rule enforced, not just prompted — core of the Anthropic pitch | Proposed |
-| D9 | Monorepo with npm workspaces (no pnpm installed). `engine` is pure TS (no Convex imports) so it's unit-testable with Vitest; `layer` bundles to one IIFE via esbuild | Fast tests, zero framework in the embed | Proposed |
-| D10 | Donations go through our hosted **test-mode donate page** (`/donate?charity=<id>`), not a form inside the charity site | Mirrors Stripe Checkout redirect; one form serves both sites; returns donor to the site with their token | Proposed |
+| D8 | Narrative model `claude-sonnet-5-5`, structured JSON output; a deterministic **fact-check guard** rejects any output containing a number/name not in the facts payload and falls back to a template | Makes the honesty rule enforced, not just prompted — core of the Anthropic pitch | Decided (plan approved) |
+| D9 | Monorepo with npm workspaces (no pnpm installed). `engine` is pure TS (no Convex imports) so it's unit-testable with Vitest; `layer` bundles to one IIFE via esbuild | Fast tests, zero framework in the embed | Decided (plan approved) |
+| D10 | Donations go through our hosted **test-mode donate page** (`/donate?charity=<id>`), not a form inside the charity site | Mirrors Stripe Checkout redirect; one form serves both sites; returns donor to the site with their token | Decided (plan approved) |
 
 ## Repo structure (proposed)
 ```
@@ -76,18 +76,18 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 
 | ID | Task | Owner | Status | Files | Acceptance check |
 |---|---|---|---|---|---|
-| T1 | Repo scaffold: git init, npm workspaces, Convex init, `.env.example`, `.gitignore`, Vitest, esbuild | Revnn/CC | todo | root | `npm test` runs; `npx convex dev` connects; `git ls-files` shows no secrets |
-| T2 | Convex schema: charities, donors, donations, impactLogs (+photo storage id), allocations, visits, narratives | Revnn/CC | todo | `/convex/schema.ts` | Schema deploys; seed loads into it |
+| T1 | Repo scaffold: git init, npm workspaces, Convex init, `.env.example`, `.gitignore`, Vitest, esbuild | Revnn/CC | done (convex dev pending lead login) | root | `npm test` runs; `npx convex dev` connects; `git ls-files` shows no secrets |
+| T2 | Convex schema: charities, donors, donations, impactLogs (+photo storage id), allocations, visits, narratives | Revnn/CC (Sonnet) | doing | `/convex/schema.ts`, `/convex/seed.ts` | Schema deploys; seed loads into it |
 | T3 | Hosted test-mode donate page + `createDonation` mutation; redirects back with `?ct=` | Revnn/CC | todo | `/staff/donate*`, `/convex/donations.ts` | $25 test donation appears in DB; redirect carries only token |
 | T4 | Staff impact update page (text + count + unit + optional photo) | Revnn/Cursor (proposed) | todo | `/staff/update*`, `/convex/impact.ts` | "Served 80 meals" stored with photo; allocations recompute |
-| T5 | Allocation engine (proportional, time-windowed) | Revnn/CC | todo | `/engine/allocate.ts` + tests | Vitest: shares sum ≤ 100%, zero-donation window, late donor, rounding labeled |
+| T5 | Allocation engine (proportional, time-windowed) | Revnn/CC (Sonnet) | doing | `/engine/allocate.ts` + tests | Vitest: shares sum ≤ 100%, zero-donation window, late donor, rounding labeled |
 | T6 | Claude narrative + next-step (facts in → JSON out) + fact-check guard (D8) | Revnn/CC | todo | `/engine/facts.ts`, `/engine/guard.ts`, `/engine/prompt.ts`, `/convex/narrative.ts` | Guard tests: invented number/name rejected → template fallback; estimates labeled |
-| T7 | Signed donor tokens (HMAC) + visits table for "since last visit" | Revnn/CC | todo | `/engine/token.ts`, `/convex/tokens.ts`, `/convex/http.ts` | Tampered/expired token rejected; no PII in URL |
+| T7 | Signed donor tokens (HMAC) + visits table for "since last visit" | Revnn/CC (Sonnet: pure part) | doing (T7a pure) | `/engine/token.ts`, `/convex/tokens.ts`, `/convex/http.ts` | Tampered/expired token rejected; no PII in URL |
 | T8 | `layer.js` embed: read token, fetch donor view, fill slots, rewrite donate link | Revnn/Cursor (proposed) | todo | `/layer` | Works on 2 demo sites; unknown visitor sees normal site; no console errors |
 | T9 | Milestone check (scheduled) + "See where your donation has gone" email via Resend | Revnn/CC | todo | `/convex/milestones.ts`, `/convex/email.ts` | Email arrives at team inbox; link opens site with personalized view |
 | T10 | Demo charity site #1 (fictional food pantry) from Figma | Teammate 1 | todo | `/demo-sites/one` | Includes contract v1 slots + donate button; looks complete with slots empty |
 | T11 | Demo charity site #2 (different look) | Teammate 1 | todo | `/demo-sites/two` | Same embed works unchanged |
-| T12 | Fictional seed data: donors, donations, a week of pantry logs + photos | Revnn/CC | todo | `/seed` | Clearly labeled fictional; loader is idempotent |
+| T12 | Fictional seed data: donors, donations, a week of pantry logs + photos | Revnn/CC (Sonnet, with T2) | doing | `/seed` | Clearly labeled fictional; loader is idempotent |
 | T13 | End-to-end demo run-through (Definition of done 1–6) | Teammate 2 | todo | — | All six steps pass twice in a row on deployed URLs |
 | T14 | Demo video, Devpost write-up, project image | Teammate 2 | todo | `/docs` | Uploaded before 8:30 AM Sun |
 | T15 | Pitch script (3 min) + Q&A prep (honesty rule, failure modes) | Teammate 2 + Revnn | todo | `/docs` | Rehearsed twice, timed |
@@ -100,7 +100,7 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 5. First-time visitor sees the normal site
 6. Same embed works on two different demo sites
 
-## Plan to Sunday 9:00 AM (PT) — PROPOSED
+## Plan to Sunday 9:00 AM (PT) — APPROVED
 | When | Work | Parallel lanes | Checkpoint |
 |---|---|---|---|
 | Fri 10:35–11:15 PM | Lead: Convex login, Vercel login, put keys in `.env`. CC: T1 scaffold | Teammate 1 starts Figma for site #1 against contract v1 | — |
@@ -131,3 +131,5 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 10:15 PM PT] Claude (planning chat): Created MASTER_PROMPT.md and PROGRESS.md. Next: open D2–D4, propose plan, lock contract.
 - [Fri 10:19 PM PT] Claude Code (Opus orchestrator): Imported PROGRESS.md into the project root (Chartitable/). Repo is otherwise empty, not yet a git repo. Next: answer D2–D4, then T1 scaffold.
 - [Fri 10:35 PM PT] Claude Code (Opus orchestrator): D2 Convex, D3 Convex+Vercel, D4 Resend, D7 renamed to Chartitable. Proposed D8–D10, repo structure, hour plan. **Locked integration contract v1** (charity ids, donate button, state hooks, token param, theming vars) — Teammate 1 can build now. Next: lead approves plan → T1 scaffold.
+- [Fri 10:43 PM PT] Claude Code (Opus orchestrator): T1 done. Root package with npm workspaces `engine`, `layer`; `convex/` lives at root (Convex CLI convention, root has the `convex` dep), not a workspace. Vitest at root (`engine/**`, `seed/**` tests), `npm run build` → `layer/dist/layer.js` (IIFE), `npm run dev:layer` serves :5174. TS 7, Vitest 5, esbuild 0.28, convex 1.48. Lead still needs to run `npx convex dev` once to link a deployment.
+- [Fri 10:48 PM PT] Claude Code (Opus orchestrator): Wrote `/engine/types.ts` (shared contract: Charity, Donor, Donation, ImpactLog, Allocation, DonorFacts, NarrativeOutput/Result, TokenPayload, DonorView draft). Lanes import, never edit. Convex tables reference engine string ids (not `v.id`). Token API is async (Web Crypto) so it runs in Convex's default runtime. Launching C1 lane: T2+T12, T5, T7a (Sonnet) + H1 (Haiku). Subagents report their handoff line; orchestrator appends it (avoids concurrent edits to this file).
