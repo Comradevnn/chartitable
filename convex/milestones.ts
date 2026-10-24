@@ -237,6 +237,16 @@ export const check = internalAction({
         url.searchParams.set("ct", token);
         const email = buildMilestoneEmail({ facts, narrative, link: url.toString(), hit: plan.announce });
 
+        // Warm the donor's narrative for the page they land on from the email (best effort).
+        try {
+          await ctx.scheduler.runAfter(0, internal.narrative.getOrGenerate, {
+            donorId: c.donorId,
+            charityId: c.charityId,
+          });
+        } catch {
+          // best effort
+        }
+
         const res: { ok: true; id: string | null } | { ok: false; reason: "not_allowlisted" | "no_key" | "failed" } =
           await ctx.runAction(internal.email.sendMilestone, {
             to: c.email,

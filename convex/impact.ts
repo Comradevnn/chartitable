@@ -105,6 +105,28 @@ export const log = mutation({
     });
     const donorsCredited = new Set(allocate(donations, [newLog], window).map((a) => a.donorId)).size;
 
+    // Warm narratives for a few recent visitors, so a live-refresh peek finds Claude's text ready.
+    // Skipped for smoke-test logs. Bounded: look at <= 25 credited donors, schedule <= 5. The call caps
+    // in narrative.ts still apply.
+    if (!smoke) {
+      try {
+        const since = now - 30 * 86_400_000;
+        const credited = [...new Set(allocate(donations, [newLog], window).map((a) => a.donorId))].slice(0, 25);
+        let scheduled = 0;
+        for (const donorId of credited) {
+          if (scheduled >= 5) break;
+          const recent = await ctx.db
+            .query("visits")
+            .withIndex("by_donor_charity_at", (q) => q.eq("donorId", donorId).eq("charityId", charityId).gte("at", since))
+            .first();
+          if (!recent) continue;
+          await ctx.scheduler.runAfter(0, internal.narrative.getOrGenerate, { donorId, charityId });
+          scheduled++;
+        }
+      } catch {
+        // best effort; never fails the staff update
+      }
+    }
     await ctx.scheduler.runAfter(0, internal.allocations.recompute, { charityId });
     // Don't wait up to 5 min for the cron: a staff update is what crosses milestones (§16 demo step 2→3).
     await ctx.scheduler.runAfter(0, internal.milestones.check, {});
