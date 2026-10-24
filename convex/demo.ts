@@ -5,7 +5,7 @@
 // Email still goes only to DEMO_INBOXES (enforced again inside milestones.check and email.ts); payments are test mode only.
 import { ConvexError, v } from "convex/values";
 import { roundEstimate } from "../engine/allocate";
-import { MILESTONE_THRESHOLDS, NARRATIVE_MAX_PER_HOUR, NARRATIVE_MIN_INTERVAL_MS } from "../engine/config";
+import { MILESTONE_THRESHOLDS, NARRATIVE_MAX_PER_HOUR } from "../engine/config";
 import {
   buildReport,
   CHARITY_LABELS,
@@ -582,6 +582,7 @@ export const recordProbe = internalMutation({
     source: v.union(v.literal("claude"), v.literal("template")),
     outcome: v.string(),
     latencyMs: v.number(),
+    guardReasons: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args): Promise<null> => {
     await ctx.db.insert("demoProbes", args);
@@ -591,15 +592,20 @@ export const recordProbe = internalMutation({
   },
 });
 
-type ProbeResult = { at: number; source: "claude" | "template"; outcome: string; latencyMs: number };
+type ProbeResult = { at: number; source: "claude" | "template"; outcome: string; latencyMs: number; guardReasons?: string[] };
 
 /** One live, guarded Claude call for the hero's facts. Stores no narrative; counts toward the hourly cap only. */
 export const runProbe = internalAction({
   args: {},
   handler: async (ctx): Promise<ProbeResult> => {
     const now = Date.now();
-    const finish = async (source: "claude" | "template", outcome: string, latencyMs: number): Promise<ProbeResult> => {
-      const result: ProbeResult = { at: now, source, outcome, latencyMs };
+    const finish = async (
+      source: "claude" | "template",
+      outcome: string,
+      latencyMs: number,
+      guardReasons: string[] = [],
+    ): Promise<ProbeResult> => {
+      const result: ProbeResult = { at: now, source, outcome, latencyMs, guardReasons };
       await ctx.runMutation(internal.demo.recordProbe, result);
       return result;
     };
@@ -628,7 +634,8 @@ export const runProbe = internalAction({
           ...stats,
           callsInLastHour: stats.callsInLastHour + attempt,
           maxPerHour: intEnv("NARRATIVE_MAX_PER_HOUR", NARRATIVE_MAX_PER_HOUR),
-          minIntervalMs: attempt === 0 ? intEnv("NARRATIVE_MIN_INTERVAL_MS", NARRATIVE_MIN_INTERVAL_MS) : 0,
+          // The probe is gated by PROBE_TTL_MS already; the per-donor interval would only report "capped".
+          minIntervalMs: 0,
         },
         callModel: apiKey ? makeCallModel(apiKey) : null,
       });
@@ -643,7 +650,7 @@ export const runProbe = internalAction({
       }
       if (out.outcome !== "rejected") break;
     }
-    return await finish(out!.result.source, out!.outcome, out!.latencyMs);
+    return await finish(out!.result.source, out!.outcome, out!.latencyMs, out!.result.guardReasons);
   },
 });
 
@@ -710,12 +717,12 @@ export const preflight = action({
       if (!tokenSecret()) return { status: "red", detail: "TOKEN_SECRET missing or too short" };
       const missing = ["DONATE_PAGE_URL", "ASSET_BASE_URL"].filter((name) => !process.env[name]);
       if (missing.length > 0) return { status: "amber", detail: `Missing: ${missing.join(", ")}` };
-      return { status: "green", detail: "TOKEN_SECRET, DONATE_PAGE_URL, ASSET_BASE_URL set" };
+      return { status: "green", detail: "Donor links, donate page and photos configured" };
     });
 
     const anthropicCheck = runCheck("anthropic", "Claude key", async () =>
       process.env.ANTHROPIC_API_KEY
-        ? { status: "green", detail: "ANTHROPIC_API_KEY set" }
+        ? { status: "green", detail: "Configured" }
         : { status: "amber", detail: "No key: template stories only" },
     );
 

@@ -163,7 +163,7 @@ describe("buildOverview (seed)", () => {
       expect(o.totalRaised).toBe(mine.reduce((s, d) => s + d.amountCents, 0));
       expect(o.prevPeriodRaised).toBe(prev.reduce((s, d) => s + d.amountCents, 0));
       expect(o.donorCounts.total).toBe(new Set(all.map((d) => d.donorId)).size);
-      // new = first gift in the period; returning = gave before the period and again in it (Jonas, Omar at A; Lena, Nadia, Ines at B).
+      // new = first gift in the period; returning = gave before the period and again in it (Caleb, Omar at A; Priya, Nadia, Ines at B).
       const firstAt = new Map<string, number>();
       for (const d of all) firstAt.set(d.donorId, Math.min(firstAt.get(d.donorId) ?? Infinity, d.createdAt));
       const inPeriodDonors = new Set(mine.map((d) => d.donorId));

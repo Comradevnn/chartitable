@@ -160,6 +160,7 @@ export default defineSchema({
     source: v.union(v.literal("claude"), v.literal("template")),
     outcome: v.string(), // runNarrative outcome: claude | rejected | error | capped | no_key
     latencyMs: v.number(),
+    guardReasons: v.optional(v.array(v.string())), // guard reason codes only (no PII), for debugging
   }).index("by_at", ["at"]),
 
   // Dashboard (T19)

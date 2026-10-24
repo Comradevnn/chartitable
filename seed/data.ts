@@ -165,11 +165,11 @@ export function buildSeed(now: number): SeedData {
   ];
   // Earlier gifts from regular donors (31-44 days ago): outside the 30-day allocation window, so
   // they change no estimate, but the dashboard shows active/returning donors, not only "new" ones.
-  // None of these donors is a persona whose state depends on its gift count.
+  // None of these donors is a persona, so no persona page shows a gift its story leaves out.
   personaGifts.push(
-    [2, "demo-pantry-a", 30, 40 * DAY], // Jonas
+    [8, "demo-pantry-a", 30, 40 * DAY], // Caleb
     [6, "demo-pantry-a", 25, 38 * DAY], // Omar
-    [5, "demo-pantry-b", 20, 42 * DAY], // Lena
+    [3, "demo-pantry-b", 20, 42 * DAY], // Priya (not Lena: the B story donor keeps two gifts, both in the window)
     [7, "demo-pantry-b", 50, 36 * DAY], // Nadia
     [11, "demo-pantry-b", 15, 44 * DAY], // Ines
   );
