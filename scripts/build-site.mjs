@@ -2,6 +2,7 @@
 //   /layer.js            the embeddable layer (built from /layer)
 //   /staff/*             hosted donate page (and the staff update page when it exists)
 //   /sites/<name>/*      fictional demo/test host sites from /demo-sites/test-hosts
+//   /seed/photos/*       fictional placeholder photos for seeded logs (ASSET_BASE_URL)
 //   /app/*               Lane B static pages from /frontend (landing, donor dashboard, staff donors)
 // Only these folders are published. Docs, source, .env and the backend are never copied.
 // Test hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
@@ -24,6 +25,12 @@ if (existsSync(join(root, "staff"))) {
     recursive: true,
     filter: (src) => !/README\.md$/.test(src),
   });
+}
+
+// Fictional placeholder photos for seeded impact logs (photoPath "seed/photos/*.svg");
+// Convex builds their URLs from ASSET_BASE_URL (= this site's origin).
+if (existsSync(join(root, "seed", "photos"))) {
+  cpSync(join(root, "seed", "photos"), join(out, "seed", "photos"), { recursive: true });
 }
 
 if (existsSync(join(root, "frontend"))) {
