@@ -37,11 +37,14 @@ export const load = internalMutationGeneric({
         siteUrl: c.siteUrl,
         fictional: true,
       })),
-      donors: await upsertTable(ctx, "donors", seed.donors, (d) => ({
-        firstName: d.firstName,
-        email: d.email,
-        hideFromTopDonors: d.hideFromTopDonors ?? false,
-      })),
+      // email is insert-only so re-seeding keeps the demo inbox set by milestones:setDemoEmail.
+      donors: await upsertTable(
+        ctx,
+        "donors",
+        seed.donors,
+        (d) => ({ firstName: d.firstName, hideFromTopDonors: d.hideFromTopDonors ?? false }),
+        { email: null },
+      ),
       donations: await upsertTable(ctx, "donations", seed.donations, (d) => ({
         donorId: d.donorId,
         charityId: d.charityId,
@@ -167,6 +170,69 @@ export const cleanSmoke = internalMutation({
     }
 
     // Stored allocations were derived from the rows just removed; rebuild them for the real data.
+    for (const charityId of CHARITY_IDS) await ctx.scheduler.runAfter(0, internal.allocations.recompute, { charityId });
+    return counts;
+  },
+});
+
+/**
+ * Rehearsal reset (demo-day): removes every donor, donation and impact log that is not from the
+ * seed (donate-page gifts, staff updates, smoke rows) with their dependents, and clears fired
+ * milestones so the 25-meal email can fire again. Seed rows, the demo inbox and seed visits stay.
+ * Run `seed:load` afterwards to re-anchor dates to now. Requires { confirm: "reset-demo" }.
+ */
+export const resetDemo = internalMutation({
+  args: { confirm: v.literal("reset-demo") },
+  handler: async (ctx) => {
+    const seed = buildSeed(Date.now());
+    const seedDonors = new Set(seed.donors.map((d) => d.id));
+    const seedDonations = new Set(seed.donations.map((d) => d.id));
+    const seedLogs = new Set(seed.impactLogs.map((l) => l.id));
+    const batch = 500;
+    const counts = { donors: 0, donations: 0, impactLogs: 0, milestoneEmails: 0, dependents: 0 };
+
+    for (const d of await ctx.db.query("donations").take(batch * 4)) {
+      if (seedDonations.has(d.key)) continue;
+      await ctx.db.delete(d._id);
+      counts.donations++;
+    }
+    for (const donor of await ctx.db.query("donors").take(batch)) {
+      if (seedDonors.has(donor.key)) continue;
+      for (const charityId of CHARITY_IDS) {
+        for (const table of ["visits", "narrativeCalls"] as const) {
+          const rows = await ctx.db
+            .query(table)
+            .withIndex("by_donor_charity_at", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+            .take(batch);
+          for (const row of rows) await ctx.db.delete(row._id);
+          counts.dependents += rows.length;
+        }
+        const narratives = await ctx.db
+          .query("narratives")
+          .withIndex("by_donor_charity_hash", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of narratives) await ctx.db.delete(row._id);
+        counts.dependents += narratives.length;
+      }
+      await ctx.db.delete(donor._id);
+      counts.donors++;
+    }
+    for (const log of await ctx.db.query("impactLogs").take(batch)) {
+      if (seedLogs.has(log.key)) continue;
+      if (log.photoStorageId) {
+        try {
+          await ctx.storage.delete(log.photoStorageId);
+        } catch {
+          // already gone; the log still gets removed
+        }
+      }
+      await ctx.db.delete(log._id);
+      counts.impactLogs++;
+    }
+    for (const row of await ctx.db.query("milestoneEmails").take(batch)) {
+      await ctx.db.delete(row._id);
+      counts.milestoneEmails++;
+    }
     for (const charityId of CHARITY_IDS) await ctx.scheduler.runAfter(0, internal.allocations.recompute, { charityId });
     return counts;
   },
