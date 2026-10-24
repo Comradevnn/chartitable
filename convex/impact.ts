@@ -4,7 +4,7 @@
 import { ConvexError, v } from "convex/values";
 import { allocate } from "../engine/allocate";
 import { windowEnding } from "../engine/config";
-import { validateImpactLog } from "../engine/impact";
+import { isRequestId, photoMetaOk, validateImpactLog } from "../engine/impact";
 import { internal, mutation, query } from "./lib/builders";
 import { staffPinMatches } from "./lib/env";
 import { toDonation, toImpactLog } from "./lib/mappers";
@@ -37,17 +37,44 @@ export const log = mutation({
     note: v.optional(v.string()),
     photoStorageId: v.optional(v.id("_storage")),
     smoke: v.optional(v.boolean()), // tags the log so seed:cleanSmoke can remove it
+    requestId: v.optional(v.string()), // client retry id: a repeat returns the first result, logs nothing
   },
   handler: async (
     ctx,
-    { pin, charityId, kind, count, note, photoStorageId, smoke },
-  ): Promise<{ ok: true; logId: string; donorsCredited: number } | { ok: false; error: "kind" | "count" | "note" }> => {
+    { pin, charityId, kind, count, note, photoStorageId, smoke, requestId },
+  ): Promise<
+    | { ok: true; logId: string; donorsCredited: number }
+    | { ok: false; error: "kind" | "count" | "note" | "photo" | "request" }
+  > => {
     requireStaff(pin);
     const checked = validateImpactLog({ kind, count, note });
     if (!checked.ok) return { ok: false, error: checked.error };
     const { value } = checked;
+    if (requestId !== undefined && !isRequestId(requestId)) return { ok: false, error: "request" };
+    if (photoStorageId && !photoMetaOk(await ctx.db.system.get("_storage", photoStorageId))) {
+      return { ok: false, error: "photo" };
+    }
 
     const now = Date.now();
+    const window = windowEnding(now);
+    const donations = (
+      await ctx.db
+        .query("donations")
+        .withIndex("by_charity_createdAt", (q) => q.eq("charityId", charityId).gte("createdAt", window.from))
+        .collect()
+    ).map(toDonation);
+
+    if (requestId !== undefined) {
+      const prior = await ctx.db
+        .query("impactLogs")
+        .withIndex("by_charity_requestId", (q) => q.eq("charityId", charityId).eq("requestId", requestId))
+        .first();
+      if (prior) {
+        const credited = new Set(allocate(donations, [toImpactLog(prior)], window).map((a) => a.donorId)).size;
+        return { ok: true, logId: prior.key, donorsCredited: credited };
+      }
+    }
+
     const key = newLogKey();
     await ctx.db.insert("impactLogs", {
       key,
@@ -60,15 +87,9 @@ export const log = mutation({
       photoPath: null,
       loggedAt: now,
       ...(smoke ? { smoke: true } : {}),
+      ...(requestId !== undefined ? { requestId } : {}),
     });
 
-    const window = windowEnding(now);
-    const donations = (
-      await ctx.db
-        .query("donations")
-        .withIndex("by_charity_createdAt", (q) => q.eq("charityId", charityId).gte("createdAt", window.from))
-        .collect()
-    ).map(toDonation);
     const newLog = toImpactLog({
       _id: "" as never,
       _creationTime: now,

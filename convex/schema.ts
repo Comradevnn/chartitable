@@ -52,9 +52,11 @@ export default defineSchema({
     photoPath: v.union(v.string(), v.null()), // seeded placeholder served statically
     loggedAt: v.number(),
     smoke: v.optional(v.boolean()), // e2e smoke-test row; removed by seed:cleanSmoke
+    requestId: v.optional(v.string()), // staff page retry id: the same id never logs twice
   })
     .index("by_key", ["key"])
     .index("by_charity_loggedAt", ["charityId", "loggedAt"])
+    .index("by_charity_requestId", ["charityId", "requestId"])
     .index("by_smoke", ["smoke"]),
 
   allocations: defineTable({

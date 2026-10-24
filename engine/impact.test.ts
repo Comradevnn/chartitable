@@ -1,7 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { UNIT_FOR_KIND, validateImpactLog } from "./impact";
+import { UNIT_FOR_KIND, validateImpactLog, isRequestId, photoMetaOk } from "./impact";
 
 const ok = (o: { kind: unknown; count: unknown; note?: unknown }) => validateImpactLog(o);
+
+describe("photoMetaOk / isRequestId", () => {
+  it("accepts images up to 5 MB only", () => {
+    expect(photoMetaOk({ size: 1000, contentType: "image/jpeg" })).toBe(true);
+    expect(photoMetaOk({ size: 5 * 1024 * 1024, contentType: "image/png" })).toBe(true);
+    expect(photoMetaOk({ size: 5 * 1024 * 1024 + 1, contentType: "image/png" })).toBe(false);
+    expect(photoMetaOk({ size: 1000, contentType: "application/pdf" })).toBe(false);
+    expect(photoMetaOk({ size: 1000, contentType: null })).toBe(false);
+    expect(photoMetaOk({ size: 0, contentType: "image/png" })).toBe(false);
+    expect(photoMetaOk(null)).toBe(false);
+  });
+  it("request ids are short url-safe strings", () => {
+    expect(isRequestId("req_1a2b3c4d")).toBe(true);
+    expect(isRequestId("short")).toBe(false);
+    expect(isRequestId("has space 12345")).toBe(false);
+    expect(isRequestId("x".repeat(65))).toBe(false);
+    expect(isRequestId(42)).toBe(false);
+  });
+});
 
 describe("validateImpactLog", () => {
   it("accepts the three kinds and derives unit from kind", () => {

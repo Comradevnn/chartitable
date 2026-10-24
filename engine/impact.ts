@@ -11,6 +11,17 @@ export const UNIT_FOR_KIND: Record<ImpactKind, string> = {
 
 export const IMPACT_COUNT_MAX = 10_000;
 export const IMPACT_NOTE_MAX = 200;
+export const IMPACT_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+
+/** Server-side photo check (the staff page also checks, but the server must not trust it). */
+export function photoMetaOk(meta: { size: number; contentType?: string | null } | null): boolean {
+  return meta !== null && meta.size > 0 && meta.size <= IMPACT_PHOTO_MAX_BYTES && /^image\//.test(meta.contentType ?? "");
+}
+
+/** Client-generated id that makes impact:log idempotent across retries. */
+export function isRequestId(id: unknown): id is string {
+  return typeof id === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(id);
+}
 
 export type ImpactLogValidation =
   | { ok: true; value: { kind: ImpactKind; count: number; unit: string; note: string | null } }
