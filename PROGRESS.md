@@ -33,6 +33,7 @@
 | D9 | Monorepo with npm workspaces (no pnpm installed). `engine` is pure TS (no Convex imports) so it's unit-testable with Vitest; `layer` bundles to one IIFE via esbuild | Fast tests, zero framework in the embed | Decided (plan approved) |
 | D10 | Donations go through our hosted **test-mode donate page** (`/donate?charity=<id>`), not a form inside the charity site | Mirrors Stripe Checkout redirect; one form serves both sites; returns donor to the site with their token | Decided (plan approved) |
 | D11 | Voice slot stays **Cartesia** (stretch, only after DoD 1–6 pass). **Not** using the Grok Imagine/Voice API | Lead's call. Voice must be core for Cartesia; one slot can't serve both. Accepts the risk that the "Make it Legendary with SpaceXAI" track may require Grok Imagine/Voice (PRIZE_RULES §1); the MLH SpaceXSI A-Team track needs only Cursor + Grok Bot | **Decided (lead) — replaces earlier proposal**. Revisit only if the workshop says the Grok API is required AND time remains |
+| D12 | Add a **charity dashboard** (staff-facing: top donors, expense tracking, cost per meal, retention, thank-you queue, export). Spec: `docs/DASHBOARD_SPEC.md`. Teammate 1 designs it in Figma first, then implements in `/dashboard` using Impeccable (github.com/pbakaus/impeccable). Built on mock data first; Revnn adds Convex queries/`expenses` table | Lead's call (Sat 12:30 AM). Gives the pantry a home for the honesty rule, a strong Figma-track/Technical story, and the grant-report use case | Decided (lead). **Priority: after DoD 1–6; MVP = Overview, Donors, Expenses.** Lead to confirm cut order below |
 
 ## Repo structure (proposed)
 ```
@@ -94,6 +95,8 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | T15 | Pitch script (3 min) + Q&A prep (honesty rule, failure modes) | Teammate 2 + Revnn | todo | `/docs` | Rehearsed twice, timed |
 | T16 | Cursor + Grok Bot paper trail (screenshots, Cursor commits, Grok Bot notes in `/docs/cursor-grok-log.md`); project description states how both were used (MLH SpaceXSI track) | Revnn | todo | `/docs/cursor-grok-log.md` | Log has entries before Sun 5:30 AM |
 | T17 | Make GitHub repo **public** (required by Devpost): run secret/PII scan over tree + history, add README stating each sponsor tool's role, then `gh repo edit Comradevnn/chartitable --visibility public --accept-visibility-change-consequences` | Revnn (lead approves) | todo | repo | Public by Sun 8:30 AM; scan clean; README present |
+| T18 | Dashboard: Figma design (M1–M3) then `/dashboard` build on mock data per `docs/DASHBOARD_SPEC.md`; one-prompt handoff in `docs/TEAMMATE_DASHBOARD_PROMPT.md` | Teammate 1 | todo | `/dashboard`, `docs/DASHBOARD_SPEC.md` | Figma by Sat 1 PM; 3 screens on mock data by Sat 7 PM; labels for records vs estimates verified |
+| T19 | Dashboard backend: `expenses` table, `donors.hideFromTopDonors`/`thankedAt`, queries `dashboard:overview/donors/expenses`, `addExpense`; swap the mock adapter | Revnn/CC | todo | `/convex/dashboard.ts`, `/convex/schema.ts` | Matches the data contract in the spec; Vitest on status/cost-per-meal rules |
 
 ## Definition of done (demo)
 1. $25 donation on a demo site → recorded
@@ -120,7 +123,7 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | Sun 5:30–8:30 AM | Final video, Devpost, project image, secret scan, repo public, rehearse pitch twice | — | **8:30 AM submitted** (30 min buffer) |
 | **Sun 9:00 AM** | Hard deadline | | |
 
-**Cut order if behind** (drop from the bottom first): Cartesia → site #2 visual polish → photos in email → CSV import → staff page photo upload (use seeded photos). Never cut: guard (D8), labeled estimates, first-time visitor untouched.
+**Cut order if behind** (drop from the bottom first): Cartesia → dashboard Next/stretch items → site #2 visual polish → photos in email → CSV import → staff page photo upload (use seeded photos). Never cut: guard (D8), labeled estimates, first-time visitor untouched.
 
 ## Blockers
 | Blocker | Who can unblock | Since |
@@ -154,3 +157,4 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 11:40 PM PT] Claude (main chat): Lead supplied organizer-email findings; appended as PRIZE_RULES §11. Impacts: Anthropic prize = $5K credits + Max 20x (workshop Sat, time TBD, worth attending for multi-agent advice); Convex prize listed as hardware not cash; Cartesia details 'later' (keep it last priority); no Grok API requirement in emails (supports D11 rejection); venue bans hotspots (Wi-Fi only); Teammate 2 needs Hacker Pass for check-in. Open: get Hacker Guide + Devpost link contents.
 - [Fri 11:55 PM PT] Claude (main chat): Read the Devpost page (PRIZE_RULES §12). Confirmed hard requirements: **GitHub repo + project image + demo (video recommended on Devpost)**, 3-min pitch + 2-min Q&A (plan unchanged), at venue by Sun 8 AM, submit with teammates by 9 AM. No Anthropic or Annapurna row on Devpost, so ask at the Anthropic booth how to enter the track. Convex prize is $1,308 + hardware; Cartesia $1,516. SpaceXSI wants real space data + Cursor, with no Grok API requirement: a long shot for us, keep T16 paper trail only for the raffle/MLH track. Best People-First Social Impact + MLH Commit Fellowship fit Chartitable: opt in at submission. The public GitHub repo is now a confirmed requirement.
 - [Fri 11:59 PM PT] Claude (main chat): Created PRIVATE repo https://github.com/Comradevnn/chartitable (secret scan of history + pending files clean), committed pending files, pushed main. Added T17 (go public before submission). Other orchestrator session: pull nothing needed, just `git push` as you commit.
+- [Sat 12:35 AM PT] Claude (main chat): Lead decided on a charity dashboard (D12). Wrote `docs/DASHBOARD_SPEC.md` (MVP M1–M3, Next, idea pool, privacy rules, mock data contract) and `docs/TEAMMATE_DASHBOARD_PROMPT.md` (one prompt: Figma first, then `/dashboard` with Impeccable, branch `dashboard`). Added T18 (Teammate 1) and T19 (backend, Revnn). Open: teammate needs a repo invite (private repo); Figma track pick; staff login = PIN stub proposed.
