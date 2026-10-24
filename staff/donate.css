@@ -31,6 +31,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .error { background: var(--err-bg); color: var(--err-ink); }
 .notice { background: #fff3cd; color: #5c4400; }
 [hidden] { display: none !important; }
+.welcome { margin: 0 0 16px; padding: 10px 12px; border-radius: 8px; background: #e8f2ec; color: var(--ink); }
 .fine { color: var(--muted); font-size: .85rem; margin: 12px 0 0; }
 @media (prefers-reduced-motion: no-preference) { button, .chip span { transition: background .15s, border-color .15s; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

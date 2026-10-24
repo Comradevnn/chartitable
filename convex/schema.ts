@@ -77,6 +77,17 @@ export default defineSchema({
     donorId: v.string(),
     charityId,
     at: v.number(),
+    // Donor state shown on this visit (contract v2); set best-effort after the view is built.
+    state: v.optional(
+      v.union(
+        v.literal("just_gave"),
+        v.literal("news"),
+        v.literal("first_impact"),
+        v.literal("repeat"),
+        v.literal("lapsed"),
+        v.literal("returning"),
+      ),
+    ),
   }).index("by_donor_charity_at", ["donorId", "charityId", "at"]),
 
   narratives: defineTable({

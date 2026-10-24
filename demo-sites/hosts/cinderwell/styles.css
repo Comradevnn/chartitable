@@ -91,7 +91,7 @@ body {
 .hdr-hours { display: none; }
 @media (max-width: 559px) { .menu-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .menu-btn { padding-right: 0; } .hdr .btn-donate { padding: 0 .95rem; } }
 @media (min-width: 560px) { .logo svg { width: 188px; } }
-.logo { justify-self: center; display: block; color: var(--teal-900); line-height: 0; border-radius: 6px; }
+.logo { justify-self: center; display: flex; align-items: center; min-height: 44px; color: var(--teal-900); line-height: 0; border-radius: 6px; }
 .logo svg { display: block; width: 164px; height: auto; }
 .logo .badge { fill: var(--teal-700); }
 .logo .flame { fill: var(--gold); }
@@ -320,8 +320,26 @@ body {
    can be re-composed below. Nothing here applies to a first-time visitor. */
 [data-impact-region]:empty { display: none; }
 [data-impact-region="hero"] { min-height: clamp(440px, 60vh, 660px); }
-[data-impact-region][data-impact-state="ready"] { animation: region-in .5s cubic-bezier(.16, 1, .3, 1) both; }
-@keyframes region-in { from { opacity: .3; } to { opacity: 1; } }
+
+/* names for the layer's view transition: the swap morphs the headline and the re-ordered sections glide.
+   Each name is used once per document; the default h1 and the donor h1 never exist together. */
+#hero-quote, #donor-hero-h { view-transition-name: ct-headline; }
+main > .hero-region { view-transition-name: ct-hero; }
+main > .tiles { view-transition-name: ct-tiles; }
+main > .next-region { view-transition-name: ct-next; }
+main > .volunteer-section { view-transition-name: ct-volunteer; }
+main > .band { view-transition-name: ct-band; }
+main > #news { view-transition-name: ct-news; }
+main > .serve-section { view-transition-name: ct-serve; }
+main > .story-section { view-transition-name: ct-story; }
+
+/* if the layer has no label for the next step (older API), the button still reads sensibly */
+.next-btn:empty::before { content: "Your next step"; }
+
+/* "Just logged" tag: only a record that arrived live (the layer sets data-ct-new) shows it */
+.ct-new-tag { display: none; }
+[data-ct-new] .ct-new-tag { display: inline-block; margin: 0 8px 0 0; padding: 2px 10px; border-radius: 999px; background: var(--gold); color: #1c2b2a; font-size: .8125rem; font-weight: 700; letter-spacing: .02em; vertical-align: middle; }
+.donor-date .ct-new-tag { margin: 0 0 0 8px; }
 
 /* greeting strip above the header */
 .greet-bar { background: var(--teal-900); }
@@ -365,6 +383,19 @@ body {
   .donor-tile .donor-photo { order: 1; width: 100%; height: auto; aspect-ratio: 12 / 5; margin: auto 0 0; }
   .donor-tile .stat-basis { margin-bottom: 16px; }
 }
+/* the donor's own gift: a record, so solid rule and upright type (estimates are dashed and italic) */
+.donor-gift { margin: 0 0 14px; padding-left: 14px; border-left: 4px solid var(--gold); color: #fff; font-size: 1.125rem; font-weight: 700; }
+.gift-tag { display: inline-block; margin-right: 8px; font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #f6dc9b; }
+@media (max-width: 599px) { .gift-tag { display: block; margin: 0 0 2px; } }
+.donor-then { margin: 0 0 26px; max-width: 36rem; font-size: 1.125rem; line-height: 1.5; color: #fff; }
+.donor-sub-date { margin: -8px 0 14px; font-size: .9375rem; font-weight: 700; color: #dcefec; }
+
+/* thin variant (just gave): one column, nothing but thanks, what happens next and one step */
+.hero-thanks .donor-body { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+/* news variant: what was logged since the last visit leads, the labeled estimate follows, one column */
+.hero-news .donor-body { display: flex; flex-direction: column; align-items: stretch; gap: 32px; }
+.hero-news .donor-est { align-self: flex-start; }
+
 /* estimates: dashed, italic, no tile fill, so they never read as a logged record */
 .donor-est { align-self: flex-start; max-width: 40rem; padding: 18px 22px; border: 2px dashed rgba(255,255,255,.65); border-radius: var(--ct-radius); background: rgba(6,28,27,.72); }
 .donor-est .donor-sub { margin-bottom: 8px; font-style: italic; }
@@ -413,7 +444,6 @@ html[data-impact-active] .hero-region { scroll-margin-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
-  [data-impact-region][data-impact-state="ready"] { animation: none; }
 }
 @media (forced-colors: active) {
   .btn { border: 2px solid ButtonText; }

@@ -11,21 +11,6 @@
     document.head.appendChild(ps);
   }
 
-  // Region templates are cloned after the layer has rewritten the donate links, so copy the
-  // rewritten href (the header button is the reference) onto any donate link that appears later.
-  var refDonate = document.querySelector(".hdr .btn-donate");
-  var mainEl = document.getElementById("main");
-  if (refDonate && mainEl && "MutationObserver" in window) {
-    new MutationObserver(function () {
-      var href = refDonate.getAttribute("href");
-      if (!href) return;
-      var links = mainEl.querySelectorAll("a[data-impact-donate]");
-      for (var i = 0; i < links.length; i++) {
-        if (links[i].getAttribute("href") !== href) links[i].setAttribute("href", href);
-      }
-    }).observe(mainEl, { childList: true, subtree: true });
-  }
-
   var btn = document.querySelector(".menu-btn");
   var nav = document.getElementById("site-nav");
   var wide = window.matchMedia("(min-width: 980px)");

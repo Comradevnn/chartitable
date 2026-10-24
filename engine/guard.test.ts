@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractNumbers, findDisallowedNames, guard, hasPercentage } from "./guard";
+import { extractNumbers, findDisallowedNames, guard, hasPercentage, headlineProblems } from "./guard";
 import type { DonorFacts } from "./types";
 
 const facts: DonorFacts = {
@@ -346,5 +346,90 @@ describe("guard quantity-unit binding (R1, R2, R3)", () => {
     expect(why("Thank you, Priya. Since Fri, Oct 9, Juniper Street Pantry logged 15 volunteer shifts.", f)).toContain(
       "quantity not in facts for volunteer_shifts: 15",
     );
+  });
+});
+
+describe("headlineProblems", () => {
+  const ok = (h: unknown) => headlineProblems(h, facts);
+
+  it("accepts warm plain headlines, with the donor's first name or the charity name", () => {
+    expect(ok("Here is what your gift was part of")).toEqual([]);
+    expect(ok("Priya, your gift is at work")).toEqual([]);
+    expect(ok("Thank you, Priya")).toEqual([]);
+    expect(ok("Your gift is part of the good at Juniper Street Pantry")).toEqual([]);
+    expect(ok("a" .repeat(70))).toEqual([]);
+  });
+
+  it("rejects digits, even ones backed by the facts", () => {
+    expect(ok("80 neighbors fed")).toContain("headline: contains a digit");
+    expect(ok("Your $25 at work")).toContain("headline: contains a digit");
+  });
+
+  it("rejects number words, including vague ones", () => {
+    for (const h of ["Three good weeks, Priya", "A dozen thank-yous", "A couple of good weeks", "Dozens of neighbors", "Your gift, twice over", "Half of a good thing", "One more good week"]) {
+      expect(ok(h), h).toContain("headline: contains a number");
+    }
+  });
+
+  it("rejects an invented name but allows the donor's first name", () => {
+    expect(ok("Thank you, Omar").join("|")).toContain("headline: unknown name: Omar");
+    expect(ok("Thank you, Priya")).toEqual([]);
+  });
+
+  it("rejects over 70 characters, empty, non-string and multi-line", () => {
+    expect(ok("a".repeat(71))).toContain("headline: longer than 70 characters");
+    expect(ok("   ")).toEqual(["headline: must not be empty"]);
+    expect(ok(42)).toEqual(["headline: must be a string"]);
+    expect(ok("Warm line\nSecond line")).toContain("headline: must be a single line");
+  });
+
+  it("rejects pressure words, percentages, markup, links and emoji", () => {
+    expect(ok("This is urgent, Priya").join("|")).toContain("headline: pressure language: urgent");
+    expect(ok("Don't miss this").join("|")).toContain("headline: pressure language: don't miss");
+    expect(ok("Mostly good news percent").join("|")).toContain("headline: percentage not allowed");
+    expect(ok("Your <b>gift</b>")).toContain("headline: contains markup");
+    expect(ok("**Your gift**")).toContain("headline: contains markup");
+    expect(ok("See www.example.org")).toContain("headline: contains a link or address");
+    expect(ok("Thank you \u{1F499}")).toContain("headline: contains markup");
+  });
+});
+
+describe("guard with a headline (T30)", () => {
+  const withHeadline = (headline: unknown) => ({ headline, ...good });
+
+  it("accepts outputs without a headline (old cached rows) and with a good one", () => {
+    expect(guard(good, facts)).toEqual({ ok: true });
+    expect(guard(withHeadline("Priya, your gift is at work"), facts)).toEqual({ ok: true });
+  });
+
+  it("rejects the whole output with 'headline: ...' reasons", () => {
+    const cases: [string, unknown, string][] = [
+      ["digit", "Your 25 dollars at work", "headline: contains a digit"],
+      ["number word three", "Three good weeks, Priya", "headline: contains a number"],
+      ["a dozen", "A dozen thank-yous", "headline: contains a number"],
+      ["couple", "A couple of good weeks", "headline: contains a number"],
+      ["invented name", "Thank you, Omar", "headline: unknown name: Omar"],
+      ["too long", "a".repeat(71), "headline: longer than 70 characters"],
+      ["urgent", "This is urgent, Priya", "headline: pressure language: urgent"],
+      ["don't miss", "Don't miss this, Priya", "headline: pressure language: don't miss"],
+      ["markup", "Your <b>gift</b>", "headline: contains markup"],
+      ["not a string", 7, "headline: must be a string"],
+      ["undefined value", undefined, "headline: must be a string"],
+    ];
+    for (const [label, h, reason] of cases) {
+      const r = guard(withHeadline(h), facts);
+      expect(r.ok, label).toBe(false);
+      expect(reasonsOf(r).join("|"), label).toContain(reason);
+    }
+  });
+
+  it("still rejects an unknown extra key, with or without a headline", () => {
+    expect(guard({ ...good, extra: 1 }, facts).ok).toBe(false);
+    expect(guard({ ...withHeadline("Thank you, Priya"), extra: 1 }, facts).ok).toBe(false);
+  });
+
+  it("a good headline does not excuse a bad story", () => {
+    const r = guard({ headline: "Thank you, Priya", ...withStory("Thank you, Priya. You helped serve 95 meals.") }, facts);
+    expect(reasonsOf(r).join("|")).toContain("invented number: 95");
   });
 });

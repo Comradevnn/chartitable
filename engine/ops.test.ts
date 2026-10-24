@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHealth, COUNT_CAP, HOUR_MS, tallyDryRun } from "./ops";
+import { buildHealth, COUNT_CAP, countVisitStates, HOUR_MS, tallyDryRun } from "./ops";
 import type { HealthInput } from "./ops";
 
 const NOW = Date.parse("2026-10-24T08:00:00Z");
@@ -18,6 +18,7 @@ function input(p: Partial<HealthInput> = {}): HealthInput {
     sentTotal: 0,
     seedCounts: { charities: 0, donors: 0, donations: 0, impactLogs: 0, expenses: 0 },
     smokeCounts: { donors: 0, impactLogs: 0 },
+    visitStates: countVisitStates([]),
     ...p,
   };
 }
@@ -164,5 +165,34 @@ describe("tallyDryRun", () => {
       items: [{ outcome: "send", email: "demo@example.com" }],
     });
     expect(JSON.stringify(r)).not.toContain("@");
+  });
+});
+
+describe("countVisitStates", () => {
+  const ZERO = { just_gave: 0, news: 0, first_impact: 0, repeat: 0, lapsed: 0, returning: 0, unknown: 0 };
+
+  it("is zero-filled for all six states plus unknown", () => {
+    expect(countVisitStates([])).toEqual(ZERO);
+  });
+
+  it("counts each state and buckets missing or unrecognised values as unknown", () => {
+    const c = countVisitStates([
+      { state: "just_gave" },
+      { state: "repeat" },
+      { state: "repeat" },
+      { state: "lapsed" },
+      { state: "news" },
+      { state: "first_impact" },
+      { state: "returning" },
+      {},
+      { state: null },
+      { state: "bogus" },
+    ]);
+    expect(c).toEqual({ just_gave: 1, news: 1, first_impact: 1, repeat: 2, lapsed: 1, returning: 1, unknown: 3 });
+  });
+
+  it("buildHealth passes visit state counts through, zero-filled and capped", () => {
+    const h = buildHealth(input({ visitStates: { ...ZERO, repeat: 5, news: COUNT_CAP + 50 } }));
+    expect(h.visitStates).toEqual({ ...ZERO, repeat: 5, news: COUNT_CAP });
   });
 });

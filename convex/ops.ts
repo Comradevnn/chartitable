@@ -3,7 +3,7 @@
 // first names, donor ids, tokens or note text. Queries take `now` as an arg (no wall clock in queries).
 import { ConvexError, v } from "convex/values";
 import { NARRATIVE_MAX_PER_HOUR, NARRATIVE_MIN_INTERVAL_MS } from "../engine/config";
-import { buildHealth, COUNT_CAP, HOUR_MS, tallyDryRun } from "../engine/ops";
+import { buildHealth, COUNT_CAP, countVisitStates, HOUR_MS, tallyDryRun, VISIT_SCAN_CAP, VISIT_WINDOW_MS } from "../engine/ops";
 import type { DryRunReport, HealthReport } from "../engine/ops";
 import { decideRecipient, estimateTotals, planMilestones } from "../engine/milestones";
 import type { RecipientDecision } from "../engine/milestones";
@@ -71,8 +71,17 @@ export const health = query({
     const latestEmail = await ctx.db.query("milestoneEmails").order("desc").first();
     const emailRows = await ctx.db.query("milestoneEmails").take(take);
 
+    // Newest visits first (by creation time), bounded scan; rows older than 24 h are not counted. States only, no donor ids.
+    const visitRows = await ctx.db.query("visits").order("desc").take(VISIT_SCAN_CAP);
+    const visitStateRows: { state?: string }[] = [];
+    for (const r of visitRows) {
+      if (r.at < now - VISIT_WINDOW_MS) continue;
+      visitStateRows.push({ state: r.state });
+    }
+
     return buildHealth({
       now,
+      visitStates: countVisitStates(visitStateRows),
       latestCall: latestCall ? { at: latestCall.at, outcome: latestCall.outcome } : null,
       recentCallAts: recentCalls.map((r) => r.at),
       latestNarrative: latestNarrative

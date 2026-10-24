@@ -74,6 +74,9 @@ export async function parseDonorViewRequest(
   }
 }
 
+// just_gave and news headlines describe the moment, so they stay deterministic.
+const CLAUDE_HEADLINE_STATES: ReadonlySet<string> = new Set(["first_impact", "repeat", "returning"]);
+
 const DEFAULT_TIME_ZONE = "America/Los_Angeles"; // same default as engine/facts.ts
 
 export function buildDonorView(input: {
@@ -102,6 +105,8 @@ export function buildDonorView(input: {
     output = templateFallback(base);
     source = "template";
   }
+  // T30: Claude's headline (already inside the guard verdict above) is used only for these states.
+  const claudeHeadline = source === "claude" && typeof output.headline === "string" ? output.headline.trim() : "";
 
   const sinceLastVisit = buildFacts({
     charity: context.charity,
@@ -156,7 +161,10 @@ export function buildDonorView(input: {
       firstName: base.donorFirstName,
       story: output.story,
       source,
-      headline: headlineFor(state, base.donorFirstName, context.charity.name),
+      headline:
+        claudeHeadline !== "" && CLAUDE_HEADLINE_STATES.has(state)
+          ? claudeHeadline
+          : headlineFor(state, base.donorFirstName, context.charity.name),
       body: storyBody(output.story),
     },
     sinceLastVisit,

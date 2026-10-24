@@ -9,7 +9,15 @@
   var form = $("donate-form"), notice = $("notice"), errEl = $("error"), btn = $("submit");
   var custom = $("custom"), customField = $("custom-field");
 
-  var charityId = new URLSearchParams(location.search).get("charity");
+  // Returning donor: take the opaque ct token out of the address bar right away; it lives only in this variable.
+  var params = new URLSearchParams(location.search);
+  var charityId = params.get("charity");
+  var token = (params.get("ct") || "").trim() || null;
+  if (params.has("ct")) {
+    params.delete("ct");
+    var rest = params.toString();
+    try { history.replaceState(history.state, "", location.pathname + (rest ? "?" + rest : "") + location.hash); } catch (e) { /* sandboxed: token still stays in memory only */ }
+  }
   var MESSAGES = {
     charity: "This donation link isn't valid.",
     amount: "Please choose an amount from $1 to $500 in whole dollars.",
@@ -62,6 +70,7 @@
     var args = { charityId: charityId, amountCents: dollars * 100, hideFromTopDonors: $("hide").checked };
     if (first !== "") args.firstName = first;
     if (email !== "") args.email = email;
+    if (token) args.token = token;
     return { args: args };
   }
 
@@ -83,6 +92,26 @@
       showError(MESSAGES.generic);
       btn.disabled = false;
     });
+  }
+
+  // Record of the donor's last gift (a logged fact), then preselect that amount. Anything else: stay silent.
+  function applyPrefill(res) {
+    if (!res || res.ok !== true) return;
+    var d = res.lastGiftDollars, label = res.lastGiftDateLabel;
+    if (typeof d !== "number" || !isFinite(d) || d < MIN || d > MAX || Math.floor(d) !== d) return;
+    if (typeof label !== "string" || label.length > 40) return;
+    var line = $("welcome");
+    line.textContent = "Welcome back. Your last gift: $" + d + " on " + label + ".";
+    line.hidden = false;
+    var preset = form.querySelector('input[name="amount"][value="' + d + '"]');
+    if (preset && preset.value !== "custom") {
+      preset.checked = true;
+    } else {
+      form.querySelector('input[name="amount"][value="custom"]').checked = true;
+      customField.hidden = false;
+      custom.value = String(d);
+    }
+    updateButton();
   }
 
   function onAmountChange() {
@@ -114,6 +143,9 @@
       $("title").textContent = "Give to " + info.name;
       document.title = "Give to " + info.name + " (test mode)";
     }).catch(function () { showNotice(MESSAGES.generic); });
+    if (token) {
+      call("action", "donations:prefill", { token: token, charityId: charityId }).then(applyPrefill).catch(function () {});
+    }
   }
 
   init();

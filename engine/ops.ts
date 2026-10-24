@@ -3,6 +3,8 @@
 // The Convex wrapper (convex/ops.ts) gathers raw rows; these functions only shape them. Reports carry
 // counts, timestamps and enum strings only: no emails, names, donor ids, tokens or note text.
 import type { RecipientDecision } from "./milestones";
+import { DONOR_STATES } from "./types";
+import type { DonorState } from "./types";
 
 export const HOUR_MS = 60 * 60 * 1000;
 /** Every count in a report is capped here, so a runaway table can never make a read unbounded. */
@@ -11,6 +13,25 @@ export const COUNT_CAP = 1000;
 export type NarrativeOutcome = "claude" | "rejected" | "error";
 export type NarrativeSource = "claude" | "template";
 export type EmailStatus = "sent" | "skipped_not_allowlisted" | "skipped_no_email" | "skipped_rate_limited" | "failed";
+
+/** Counts of visits by donor state shown; "unknown" covers rows with no (or an unrecognised) state. */
+export type VisitStateCounts = Record<DonorState | "unknown", number>;
+
+export const VISIT_WINDOW_MS = 24 * HOUR_MS;
+/** Upper bound on visit rows scanned for the state counts. */
+export const VISIT_SCAN_CAP = 2000;
+
+/** Zero-filled counts for all six states plus "unknown". Pure; takes no ids, only state strings. */
+export function countVisitStates(rows: { state?: string | null }[]): VisitStateCounts {
+  const out = { unknown: 0 } as VisitStateCounts;
+  for (const s of DONOR_STATES) out[s] = 0;
+  for (const r of rows) {
+    const st = r.state;
+    if (typeof st === "string" && (DONOR_STATES as readonly string[]).includes(st)) out[st as DonorState]++;
+    else out.unknown++;
+  }
+  return out;
+}
 
 export interface HealthReport {
   narrative: {
@@ -36,6 +57,8 @@ export interface HealthReport {
   email: { lastStatus: EmailStatus | null; lastAt: number | null; sentTotal: number };
   seed: { charities: number; donors: number; donations: number; impactLogs: number; expenses: number }; // capped at 1000
   smoke: { donors: number; impactLogs: number };
+  /** Visits in the last 24 h by donor state shown (counts only, scan capped at VISIT_SCAN_CAP rows). */
+  visitStates: VisitStateCounts;
   generatedAt: number;
 }
 
@@ -56,6 +79,8 @@ export interface HealthInput {
   sentTotal: number;
   seedCounts: HealthReport["seed"];
   smokeCounts: HealthReport["smoke"];
+  /** Counts of visits in the last 24 h by state; the caller pre-filters by time. */
+  visitStates: VisitStateCounts;
 }
 
 const cap = (n: number): number => Math.max(0, Math.min(COUNT_CAP, Math.floor(n)));
@@ -89,6 +114,9 @@ export function buildHealth(i: HealthInput): HealthReport {
       expenses: cap(i.seedCounts.expenses),
     },
     smoke: { donors: cap(i.smokeCounts.donors), impactLogs: cap(i.smokeCounts.impactLogs) },
+    visitStates: Object.fromEntries(
+      (Object.keys(countVisitStates([])) as (DonorState | "unknown")[]).map((k) => [k, cap(i.visitStates[k] ?? 0)]),
+    ) as VisitStateCounts,
     generatedAt: i.now,
   };
 }

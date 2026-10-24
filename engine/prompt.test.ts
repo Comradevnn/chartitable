@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NARRATIVE_JSON_SCHEMA, buildPrompt } from "./prompt";
+import { NARRATIVE_JSON_SCHEMA, PROMPT_VERSION, buildPrompt } from "./prompt";
 import type { DonorFacts } from "./types";
 
 const facts: DonorFacts = {
@@ -40,10 +40,31 @@ describe("NARRATIVE_JSON_SCHEMA", () => {
   it("is strict and lists the next-step kinds", () => {
     const s = NARRATIVE_JSON_SCHEMA as any;
     expect(s.additionalProperties).toBe(false);
-    expect(s.required).toEqual(["story", "nextStep"]);
+    expect(s.required).toEqual(["headline", "story", "nextStep"]);
+    expect(s.properties.headline).toEqual({ type: "string" });
     expect(s.properties.nextStep.additionalProperties).toBe(false);
     expect(s.properties.nextStep.properties.kind.enum.sort()).toEqual(
       ["give_again", "give_monthly", "share", "volunteer"],
     );
+  });
+});
+
+describe("headline instructions (T30)", () => {
+  const { system } = buildPrompt(facts);
+
+  it("asks for a short number-free headline and a story that does not open with thanks", () => {
+    expect(system).toMatch(/headline:.*at most about 8 words/);
+    expect(system).toMatch(/NO numbers of any kind/);
+    expect(system).toMatch(/do NOT open the story with "Thank you"/);
+  });
+
+  it("keeps the existing honesty rules", () => {
+    expect(system).toMatch(/Use ONLY the facts JSON/);
+    expect(system).toMatch(/word "about" directly before/);
+    expect(system).toMatch(/Never use pressure words/);
+  });
+
+  it("exports a prompt version", () => {
+    expect(PROMPT_VERSION).toMatch(/headline/);
   });
 });

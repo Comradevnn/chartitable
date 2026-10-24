@@ -50,8 +50,7 @@
   </div>
 </header>
 <main id="main">
-  <div class="wrap"><section data-impact-slot="hero"></section></div>
-
+  <div class="hero-region" data-impact-region="hero" data-impact-requires="headline|story">
   <section class="hero dark" aria-labelledby="hero-h">
     <div class="wrap hero-inner">
       <h1 class="hero-title" id="hero-h">Fighting hunger across Tarnwick County</h1>
@@ -62,8 +61,9 @@
       </div>
     </div>
   </section>
+  </div>
 
-  <section class="section" aria-labelledby="ways-h">
+  <section class="section ways-section" aria-labelledby="ways-h">
     <div class="wrap">
       <h2 class="sr-only" id="ways-h">Ways we can help</h2>
       <ul class="tri">
@@ -107,9 +107,9 @@
       <p class="stats-note">FY2025 (July 1, 2024 to June 30, 2025). Source: Brindlecote Food Bank annual report.</p>
     </div>
   </section>
-  <div class="wrap"><section data-impact-slot="since-last-visit"></section></div>
+  <div class="since-region" data-impact-region="since" data-impact-requires="since"></div>
 
-  <section class="section" aria-labelledby="dollar-h">
+  <section class="section dollar-section" aria-labelledby="dollar-h">
     <div class="wrap dollar">
       <div>
         <h2 class="sec-title" id="dollar-h">Where your dollar goes</h2>
@@ -195,7 +195,7 @@
     </div>
   </section>
 
-  <section class="section section-tight section-soft" aria-labelledby="partners-h">
+  <section class="section section-tight section-soft partners-section" aria-labelledby="partners-h">
     <div class="wrap">
       <div class="sec-head">
         <h2 class="sec-title" id="partners-h">Our partner agencies</h2>
@@ -212,7 +212,157 @@
     </div>
   </section>
 
-  <div class="wrap"><section data-impact-slot="next-step"></section></div>
+  <div class="next-region" data-impact-region="next" data-impact-requires="next"></div>
+
+<!-- Contract v2: returning-donor compositions. The layer clones these only for a recognized donor;
+     strangers never see them. Every figure about the donor is a data-ct-* field; none is written here.
+     Hero variants are tried in order: just_gave, repeat, news, then the default for everyone else. -->
+
+<!-- Hero 1 of 4: just gave. Very little data yet, so it says less: thanks, the gift as a record, what happens next, one step. -->
+<template data-impact-for="hero" data-impact-when="state:just_gave" data-impact-variant="just-gave">
+  <section class="hero hero-donor dark" aria-labelledby="donor-hero-h">
+    <div class="wrap hero-inner donor-inner">
+      <h1 class="hero-title donor-title" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">Thank you<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+      <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span><span>You gave <strong data-ct-text="lastGift"></strong> on <span data-ct-text="lastGiftDate"></span>.</span></p>
+      <p class="hero-lede donor-lede" data-ct-if="body" data-ct-text="body"></p>
+      <p class="hero-lede donor-lede" data-ct-if="!body+story" data-ct-text="story"></p>
+      <p class="donor-then"><strong>What happens next.</strong> The food bank keeps logging what goes out each week. Come back to this page whenever you like and it will show what has been added since your last visit.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- Hero 2 of 4: repeat giver. Leads with their own gifts, then what the food bank logged, then the labeled estimate. -->
+<template data-impact-for="hero" data-impact-when="state:repeat" data-impact-variant="repeat">
+  <section class="hero hero-donor dark" aria-labelledby="donor-hero-h">
+    <div class="wrap hero-inner donor-inner">
+      <h1 class="hero-title donor-title" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">Thank you for giving again<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+      <div class="dh-gifts-wrap" data-ct-if="gifts">
+        <h2 class="dh-sub">A record of your gifts</h2>
+        <ul class="dh-gifts">
+          <li class="dh-gift" data-ct-each="gifts" data-ct-limit="4"><span class="dh-amount" data-ct-text="amount"></span><span class="dh-date" data-ct-text="date"></span></li>
+        </ul>
+      </div>
+      <p class="hero-lede donor-lede" data-ct-if="body" data-ct-text="body"></p>
+      <p class="hero-lede donor-lede" data-ct-if="!body+story" data-ct-text="story"></p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+      </div>
+      <div class="dh-block" data-ct-if="records">
+        <h2 class="dh-sub">What the food bank logged after you gave</h2>
+        <ul class="dh-facts" data-ct-live>
+          <li class="dh-fact" data-ct-each="records" data-ct-limit="3">
+            <span class="dh-num" data-ct-animate="count" data-ct-text="count"></span>
+            <span class="dh-unit" data-ct-text="unit"></span>
+            <span class="dh-when"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></span>
+            <span class="dh-note" data-ct-text="note"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="dh-est" data-ct-animate="draw" data-ct-if="estimates">
+        <h2 class="dh-sub">Your share, an estimate</h2>
+        <ul class="dh-est-list">
+          <li class="dh-est-item" data-ct-each="estimates"><span data-ct-text="estimate"></span></li>
+        </ul>
+        <p class="dh-est-note">Gifts are pooled, so this is a proportional estimate of your share, not a count.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- Hero 3 of 4: news since the last visit. A lighter hero; the since region right below it carries the records. -->
+<template data-impact-for="hero" data-impact-when="state:news" data-impact-variant="news">
+  <section class="hero hero-donor hero-donor-news dark" aria-labelledby="donor-hero-h">
+    <div class="wrap hero-inner donor-inner">
+      <h1 class="hero-title donor-title" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">New since your last visit<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+      <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span><span>You gave <strong data-ct-text="lastGift"></strong> on <span data-ct-text="lastGiftDate"></span>.</span></p>
+      <p class="hero-lede donor-lede">What the food bank has logged since your last visit is just below.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="#since-visit">See what was logged</a>
+        <a class="btn btn-light btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- Hero 4 of 4 (default): first impact, returning, lapsed. Thanks, what was logged after the gift, then the labeled estimate. -->
+<template data-impact-for="hero" data-impact-variant="thanks">
+  <section class="hero hero-donor dark" aria-labelledby="donor-hero-h">
+    <div class="wrap hero-inner donor-inner">
+      <h1 class="hero-title donor-title" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">Thank you<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+      <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span><span>You gave <strong data-ct-text="lastGift"></strong> on <span data-ct-text="lastGiftDate"></span>.</span></p>
+      <p class="hero-lede donor-lede" data-ct-if="body" data-ct-text="body"></p>
+      <p class="hero-lede donor-lede" data-ct-if="!body+story" data-ct-text="story"></p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+        <a class="btn btn-light btn-lg" data-ct-if="!state:repeat+!state:lapsed" data-impact-donate href="donate.html">Give again</a>
+      </div>
+      <div class="dh-block" data-ct-if="records">
+        <h2 class="dh-sub">What the food bank logged after you gave</h2>
+        <ul class="dh-facts" data-ct-live>
+          <li class="dh-fact" data-ct-each="records" data-ct-limit="3">
+            <span class="dh-num" data-ct-animate="count" data-ct-text="count"></span>
+            <span class="dh-unit" data-ct-text="unit"></span>
+            <span class="dh-when"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></span>
+            <span class="dh-note" data-ct-text="note"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="dh-est" data-ct-animate="draw" data-ct-if="estimates">
+        <h2 class="dh-sub">Your share, an estimate</h2>
+        <ul class="dh-est-list">
+          <li class="dh-est-item" data-ct-each="estimates"><span data-ct-text="estimate"></span></li>
+        </ul>
+        <p class="dh-est-note">Gifts are pooled, so this is a proportional estimate of your share, not a count.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- Since your last visit: sits where the old since slot was, right under the stats band. -->
+<template data-impact-for="since">
+  <section class="section section-soft since-sec" id="since-visit" aria-labelledby="since-h" data-ct-animate="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="sec-title" id="since-h">Since your last visit</h2>
+        <p class="sec-sub" data-ct-if="sinceDate">Logged since <span data-ct-text="sinceDate"></span></p>
+      </div>
+      <ul class="since-facts" data-ct-live>
+        <li class="since-fact" data-ct-each="sinceRecords" data-ct-limit="3">
+          <img class="since-photo" data-ct-photo alt="" width="320" height="180">
+          <span class="since-num" data-ct-animate="count" data-ct-text="count"></span>
+          <span class="since-unit" data-ct-text="unit"></span>
+          <span class="since-when"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></span>
+          <span class="since-note" data-ct-text="note"></span>
+        </li>
+      </ul>
+      <div class="since-est" data-ct-animate="draw" data-ct-if="sinceEstimates">
+        <h3 class="since-est-title">Your share, an estimate</h3>
+        <ul class="since-est-list">
+          <li class="since-est-item" data-ct-each="sinceEstimates"><span data-ct-text="estimate"></span></li>
+        </ul>
+        <p class="since-est-note">Gifts are pooled, so this is a proportional estimate of your share, not a count.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- One suggested next step, above the newsletter. Never guilt-based. -->
+<template data-impact-for="next">
+  <section class="section next-sec" aria-labelledby="next-h" data-ct-animate="reveal">
+    <div class="wrap">
+      <div class="callout next-callout">
+        <div>
+          <h2 class="callout-title" id="next-h">A next step, if you would like one</h2>
+          <p data-ct-text="nextText"></p>
+        </div>
+        <a class="btn btn-primary btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+      </div>
+    </div>
+  </section>
+</template>
 </main>
 <section class="newsletter" aria-labelledby="news-h">
   <div class="wrap newsletter-inner">

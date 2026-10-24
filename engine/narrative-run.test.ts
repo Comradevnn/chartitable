@@ -170,4 +170,27 @@ describe("runNarrative", () => {
       }
     }
   });
+
+  it("passes a guard-clean reply with a headline through unchanged (T30)", async () => {
+    const withHeadline = { headline: "Priya, your gift is at work", ...goodReply };
+    const out = await run(vi.fn<CallModel>().mockResolvedValue(withHeadline));
+    expect(out.outcome).toBe("claude");
+    expect(out.result).toEqual({ output: withHeadline, source: "claude", guardReasons: [] });
+    expect(out.result.output.headline).toBe("Priya, your gift is at work");
+  });
+
+  it("rejects a reply whose headline has a number, with a headline reason, and uses the template (T30)", async () => {
+    const bad = { headline: "Three good weeks, Priya", ...goodReply };
+    const out = await run(vi.fn<CallModel>().mockResolvedValue(bad));
+    expect(out.outcome).toBe("rejected");
+    expect(out.result.source).toBe("template");
+    expect(out.result.output).toEqual(templateFallback(facts));
+    expect(out.result.guardReasons.join("|")).toContain("headline: contains a number");
+  });
+
+  it("a reply missing the headline is still accepted by the guard (old schema) (T30)", async () => {
+    const out = await run(vi.fn<CallModel>().mockResolvedValue(goodReply));
+    expect(out.outcome).toBe("claude");
+    expect(out.result.output.headline).toBeUndefined();
+  });
 });

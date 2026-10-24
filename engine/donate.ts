@@ -86,3 +86,18 @@ export function redirectUrl(siteUrl: string, token: string): string {
   u.searchParams.set("ct", token);
   return u.href;
 }
+
+/** Signed tokens are short; anything longer than this is never a real token. */
+export const DONATE_TOKEN_MAX = 1024;
+
+/** The optional token argument: a non-empty string of bounded length, else null (treated as "no token"). */
+export function boundedToken(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+  const t = input.trim();
+  return t.length > 0 && t.length <= DONATE_TOKEN_MAX ? t : null;
+}
+
+/** Credit the token's donor only when the token verified for this charity AND that donor row exists. */
+export function chooseDonor(input: { tokenOk: boolean; donorExists: boolean }): "existing" | "new" {
+  return input.tokenOk && input.donorExists ? "existing" : "new";
+}

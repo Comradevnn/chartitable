@@ -3,7 +3,9 @@
   "hero": {
     "firstName": "Mira",
     "story": "Mira, the pantry logged a hot supper and an evening restock after your gift. Your share of those logs is an estimate, marked below. The gifts are pooled, so the share is proportional.",
-    "source": "template"
+    "source": "template",
+    "headline": "New from Brindlecote Food Bank since your last visit",
+    "body": "The food bank logged a hot supper and an evening restock after your gift. Your share of those logs is an estimate, marked below. The gifts are pooled, so the share is proportional."
   },
   "sinceLastVisit": {
     "sinceDateLabel": "Tue, Oct 14",
@@ -28,9 +30,10 @@
     ]
   },
   "nextStep": {
-    "kind": "volunteer",
-    "text": "Saturday sorting has open shifts. Come if you can. The shelf is covered if you can't.",
-    "href": "index.html#volunteer"
+    "kind": "share",
+    "text": "If it feels right, share Brindlecote Food Bank's latest update with a friend.",
+    "href": null,
+    "label": "Share the update"
   },
   "records": [
     {
@@ -71,5 +74,21 @@
       "logId": "log_preview_01",
       "url": "preview-crate.svg"
     }
-  ]
+  ],
+  "donor": {
+    "state": "news",
+    "traits": [
+      "named",
+      "has_photos"
+    ],
+    "gifts": [
+      {
+        "amountDollars": 35,
+        "dateLabel": "Mon, Oct 13"
+      }
+    ],
+    "giftCount": 1
+  },
+  "rev": "previewb",
+  "live": null
 }
