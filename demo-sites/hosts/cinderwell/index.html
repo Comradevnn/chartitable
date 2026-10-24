@@ -157,8 +157,6 @@
   </div>
 </section>
 
-<!-- The layer only starts when the page has at least one data-impact-slot, so this unused slot name is the v2 page's on-switch. It is never filled. -->
-<div hidden data-impact-slot="regions"></div>
 <div class="section next-region" data-impact-region="next" data-impact-requires="next"></div>
 
 <section class="band" aria-label="Newsletter and giving">
@@ -187,36 +185,108 @@
 </section>
 
 <!-- Contract v2: returning-donor compositions. The layer clones these only for a recognized donor;
-     strangers never see them. Every figure is a data-ct-* field; no numbers are written here. -->
+     strangers never see them. Every figure is a data-ct-* field; no numbers about the donor are written here.
+     Hero variants are tried in order: just_gave (thin), news, then the default for everyone else. -->
 <template data-impact-for="greeting">
   <div class="wrap greet-in"><a class="greet-chip" href="#impact"><span class="greet-hi">Hi, <span data-ct-text="firstName"></span></span><span class="greet-more">See your thank-you</span></a></div>
 </template>
 
-<template data-impact-for="hero">
-  <section class="hero hero-donor" aria-labelledby="donor-hero-h">
+<!-- Hero 1 of 3: just gave. Almost no data yet, so it says less: thanks, what happens next, one step. No tiles, no estimates. -->
+<template data-impact-for="hero" data-impact-when="state:just_gave" data-impact-variant="just-gave">
+  <section class="hero hero-donor hero-thanks" aria-labelledby="donor-hero-h">
     <img class="hero-img" src="img/hero-pantry.svg" alt="" width="1600" height="760">
     <div class="wrap hero-body donor-body">
       <div class="donor-lead">
-        <h1 class="hero-quote donor-h" id="donor-hero-h">Thank you<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</h1>
-        <p class="hero-mission donor-story" data-ct-text="story"></p>
+        <h1 class="hero-quote donor-h" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">Thank you<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+        <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span> You gave <span data-ct-text="lastGift"></span> on <span data-ct-text="lastGiftDate"></span>.</p>
+        <p class="hero-mission donor-story" data-ct-if="body" data-ct-text="body"></p>
+        <p class="hero-mission donor-story" data-ct-if="!body+story" data-ct-text="story"></p>
+        <p class="donor-then"><strong>What happens next.</strong> The pantry keeps logging what goes out the door. Come back to this page whenever you like and it will show what has been added since your last visit.</p>
         <div class="donor-cta">
-          <a class="btn btn-gold btn-lg" data-impact-donate href="donate.html">Give again</a>
-          <a class="btn btn-ghost btn-lg" data-ct-href="nextHref" href="donate.html">Your next step</a>
+          <a class="btn btn-gold btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
         </div>
       </div>
-      <div class="donor-group" data-ct-if="records">
-        <h2 class="donor-sub">Here is what the pantry logged after you gave</h2>
-        <ul class="tile-row donor-tiles">
-          <li class="tile tile-stat donor-tile" data-ct-each="records" data-ct-limit="3">
+    </div>
+  </section>
+</template>
+
+<!-- Hero 2 of 3: news since the last visit. Leads with what was logged since then, then the labeled estimate. -->
+<template data-impact-for="hero" data-impact-when="state:news" data-impact-variant="news">
+  <section class="hero hero-donor hero-news" aria-labelledby="donor-hero-h">
+    <img class="hero-img" src="img/hero-pantry.svg" alt="" width="1600" height="760">
+    <div class="wrap hero-body donor-body">
+      <div class="donor-lead">
+        <h1 class="hero-quote donor-h" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">New since your last visit<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+        <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span> You gave <span data-ct-text="lastGift"></span> on <span data-ct-text="lastGiftDate"></span>.</p>
+        <div class="donor-cta">
+          <a class="btn btn-gold btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+          <a class="btn btn-ghost btn-lg" data-impact-donate href="donate.html">Give again</a>
+        </div>
+      </div>
+      <div class="donor-group" data-ct-if="sinceRecords">
+        <h2 class="donor-sub">New since your last visit</h2>
+        <p class="donor-sub-date" data-ct-if="sinceDate">Logged since <span data-ct-text="sinceDate"></span></p>
+        <ul class="tile-row donor-tiles" data-ct-live>
+          <li class="tile tile-stat donor-tile" data-ct-each="sinceRecords" data-ct-limit="3">
             <img class="donor-photo" data-ct-photo alt="" width="320" height="180">
-            <p class="stat-num" data-ct-text="count"></p>
+            <p class="stat-num" data-ct-animate="count" data-ct-text="count"></p>
             <p class="stat-label" data-ct-text="unit"></p>
-            <p class="donor-date" data-ct-text="date"></p>
+            <p class="donor-date"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></p>
             <p class="stat-basis" data-ct-text="note"></p>
           </li>
         </ul>
       </div>
-      <div class="donor-group donor-est" data-ct-if="estimates">
+      <div class="donor-group" data-ct-if="!sinceRecords+records">
+        <h2 class="donor-sub">Here is what the pantry logged after you gave</h2>
+        <ul class="tile-row donor-tiles" data-ct-live>
+          <li class="tile tile-stat donor-tile" data-ct-each="records" data-ct-limit="3">
+            <img class="donor-photo" data-ct-photo alt="" width="320" height="180">
+            <p class="stat-num" data-ct-animate="count" data-ct-text="count"></p>
+            <p class="stat-label" data-ct-text="unit"></p>
+            <p class="donor-date"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></p>
+            <p class="stat-basis" data-ct-text="note"></p>
+          </li>
+        </ul>
+      </div>
+      <div class="donor-group donor-est" data-ct-animate="draw" data-ct-if="estimates">
+        <h2 class="donor-sub">Your share, an estimate</h2>
+        <ul class="est-list">
+          <li class="est-item" data-ct-each="estimates"><span data-ct-text="estimate"></span></li>
+        </ul>
+        <p class="est-note">Gifts are pooled, so this is a proportional estimate of your share, not a count.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<!-- Hero 3 of 3 (default): first impact, repeat, returning. What the pantry logged, then the labeled estimate. -->
+<template data-impact-for="hero" data-impact-variant="thanks">
+  <section class="hero hero-donor" aria-labelledby="donor-hero-h">
+    <img class="hero-img" src="img/hero-pantry.svg" alt="" width="1600" height="760">
+    <div class="wrap hero-body donor-body">
+      <div class="donor-lead">
+        <h1 class="hero-quote donor-h" id="donor-hero-h"><span data-ct-if="headline" data-ct-text="headline"></span><span data-ct-if="!headline">Thank you<span data-ct-if="firstName">, <span data-ct-text="firstName"></span></span>.</span></h1>
+        <p class="donor-gift" data-ct-if="gifts"><span class="gift-tag">Your gift</span> You gave <span data-ct-text="lastGift"></span> on <span data-ct-text="lastGiftDate"></span>.</p>
+        <p class="hero-mission donor-story" data-ct-if="body" data-ct-text="body"></p>
+        <p class="hero-mission donor-story" data-ct-if="!body+story" data-ct-text="story"></p>
+        <div class="donor-cta">
+          <a class="btn btn-gold btn-lg next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
+          <a class="btn btn-ghost btn-lg" data-ct-if="!state:repeat+!state:lapsed" data-impact-donate href="donate.html">Give again</a>
+        </div>
+      </div>
+      <div class="donor-group" data-ct-if="records">
+        <h2 class="donor-sub">Here is what the pantry logged after you gave</h2>
+        <ul class="tile-row donor-tiles" data-ct-live>
+          <li class="tile tile-stat donor-tile" data-ct-each="records" data-ct-limit="3">
+            <img class="donor-photo" data-ct-photo alt="" width="320" height="180">
+            <p class="stat-num" data-ct-animate="count" data-ct-text="count"></p>
+            <p class="stat-label" data-ct-text="unit"></p>
+            <p class="donor-date"><span data-ct-text="date"></span><span class="ct-new-tag">Just logged</span></p>
+            <p class="stat-basis" data-ct-text="note"></p>
+          </li>
+        </ul>
+      </div>
+      <div class="donor-group donor-est" data-ct-animate="draw" data-ct-if="estimates">
         <h2 class="donor-sub">Your share, an estimate</h2>
         <ul class="est-list">
           <li class="est-item" data-ct-each="estimates"><span data-ct-text="estimate"></span></li>
@@ -229,34 +299,36 @@
 
 <template data-impact-for="stat">
   <h2 class="tile-title">Since your last visit</h2>
-  <p class="since-line"><span class="since-date" data-ct-text="sinceDate"></span></p>
-  <div class="since-fact" data-ct-each="sinceRecords" data-ct-limit="1">
-    <p class="stat-num" data-ct-text="count"></p>
-    <p class="stat-label" data-ct-text="unit"></p>
-    <p class="stat-basis" data-ct-text="note"></p>
+  <p class="since-line" data-ct-if="sinceDate"><span class="since-date" data-ct-text="sinceDate"></span></p>
+  <div class="since-facts" data-ct-live>
+    <div class="since-fact" data-ct-each="sinceRecords" data-ct-limit="1">
+      <p class="stat-num" data-ct-animate="count" data-ct-text="count"></p>
+      <p class="stat-label" data-ct-text="unit"></p>
+      <p class="stat-basis"><span class="ct-new-tag">Just logged</span><span data-ct-text="note"></span></p>
+    </div>
   </div>
-  <p class="since-est" data-ct-each="sinceEstimates" data-ct-limit="1"><span class="since-est-tag">Your share, an estimate</span> <span class="since-est-val" data-ct-text="estimate"></span></p>
+  <p class="since-est" data-ct-animate="draw" data-ct-each="sinceEstimates" data-ct-limit="1"><span class="since-est-tag">Your share, an estimate</span> <span class="since-est-val" data-ct-text="estimate"></span></p>
 </template>
 
 <template data-impact-for="next">
-  <div class="wrap">
+  <div class="wrap" data-ct-animate="reveal">
     <div class="callout next-card">
       <div class="next-body">
         <h2 class="h3">A next step, if you would like one</h2>
         <p class="next-text" data-ct-text="nextText"></p>
       </div>
-      <a class="btn btn-teal" data-ct-href="nextHref" href="donate.html">Take a look</a>
+      <a class="btn btn-teal next-btn" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
     </div>
   </div>
 </template>
 
 <template data-impact-for="band">
-  <div class="band-inner">
+  <div class="band-inner" data-ct-animate="reveal">
     <h2 class="h2">Give again, whenever it suits you</h2>
-    <p>Gifts of any size go toward food and getting it to our neighbors. There is no deadline.</p>
+    <p>Gifts of any size go toward food and getting it to our neighbors.</p>
     <div class="band-actions">
       <a class="btn btn-gold btn-lg" data-impact-donate href="donate.html">Give again</a>
-      <a class="btn btn-ghost btn-lg" data-ct-href="nextHref" href="donate.html">Your next step</a>
+      <a class="btn btn-ghost btn-lg next-btn" data-ct-if="!state:repeat+!state:lapsed" data-ct-href="next" data-ct-href-volunteer="#volunteer" data-ct-href-share="#news"><span data-ct-text="nextLabel"></span></a>
     </div>
     <p class="fine">Cinderwell Community Pantry is a registered nonprofit.</p>
   </div>
