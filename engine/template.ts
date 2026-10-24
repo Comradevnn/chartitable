@@ -66,7 +66,7 @@ export function templateFallback(facts: DonorFacts): NarrativeOutput {
   if (facts.thinData) {
     nextStep = {
       kind: "give_again",
-      text: `If you would like to, a future gift to ${charity} helps keep the next update going.`,
+      text: `If you would like to, you can give to ${charity} again whenever it suits you.`,
     };
   } else if (facts.sinceLastVisit && facts.sinceLastVisit.records.length > 0) {
     nextStep = { kind: "share", text: `If it feels right, share ${charity}'s latest update with a friend.` };

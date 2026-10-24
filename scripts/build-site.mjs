@@ -1,16 +1,22 @@
 // Assembles the static site Vercel serves: dist-site/
+//   /                    landing/ (static, or its `npm run build` dist/) when it exists; otherwise the generated demo link list
+//   /demo-hosts/         generated link list of demo hosts, test fixtures and tools (always written)
+//   /dashboard/          charity dashboard (Vite app from /dashboard, built with base /dashboard/); skipped with a loud warning if its build fails
 //   /layer.js            the embeddable layer (built from /layer)
 //   /staff/*             hosted donate page (and the staff update page when it exists)
 //   /sites/<name>/*      fictional host sites: the demo hosts from /demo-sites/hosts (cinderwell, brindlecote)
 //                        and the older test fixtures from /demo-sites/test-hosts (kept so old email links work)
 //   /seed/photos/*       fictional placeholder photos for seeded logs (ASSET_BASE_URL)
 //   /app/*               Lane B static pages from /frontend (landing, donor dashboard, staff donors)
+// Landing files may not overwrite paths the build wrote (layer.js, staff, sites, seed, app, dashboard, demo-hosts): the build fails instead.
+// CT_LANDING_DIR overrides the landing folder (testing only; default "landing").
+// A safety scan fails the build if dist-site holds .env*, TS sources, node_modules, .git, lockfiles or PROGRESS/CLAUDE.md.
 // Only these folders are published. Docs, source, .env and the backend are never copied.
 // Hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
 // Dev notes (NOTES.md) and donor-view.empty.json are not published from the demo hosts.
 import { execSync } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -105,9 +111,41 @@ rewrite(join(out, "sites"));
 const li = (n) => `<li><a href="/sites/${n}/">${n}</a> (<a href="/sites/${n}/?preview=1">preview</a>)</li>`;
 const demoLinks = demoSiteNames.map(li).join("\n");
 const testLinks = testSiteNames.filter((n) => !n.startsWith("_")).map(li).join("\n");
-writeFileSync(
-  join(out, "index.html"),
-  `<!doctype html><meta charset="utf-8"><title>Chartitable demo</title>
+
+// ---- Dashboard (Vite app) at /dashboard ----
+let dashboardBuilt = false;
+const dashboardDir = join(root, "dashboard");
+if (existsSync(join(dashboardDir, "package.json"))) {
+  const t0 = Date.now();
+  try {
+    const cwd = dashboardDir;
+    const env = {
+      ...process.env,
+      VITE_CONVEX_URL: process.env.VITE_CONVEX_URL || "https://acoustic-donkey-399.convex.cloud",
+      VITE_BASE: "/dashboard/",
+    };
+    execSync(existsSync(join(cwd, "package-lock.json")) ? "npm ci" : "npm install", { cwd, stdio: "inherit", env });
+    rmSync(join(cwd, "dist"), { recursive: true, force: true });
+    execSync("npm run build -- --base=/dashboard/", { cwd, stdio: "inherit", env });
+    const indexPath = join(cwd, "dist", "index.html");
+    if (!existsSync(indexPath)) throw new Error("dashboard/dist/index.html missing after build");
+    const html = readFileSync(indexPath, "utf8");
+    const refs = [...html.matchAll(/(?:src|href)="(\/[^"]*assets\/[^"]*)"/g)].map((m) => m[1]);
+    if (!refs.length || refs.some((r) => !r.startsWith("/dashboard/"))) {
+      throw new Error(`dashboard asset URLs are not under /dashboard/ (${refs.join(", ") || "none found"})`);
+    }
+    cpSync(join(cwd, "dist"), join(out, "dashboard"), { recursive: true });
+    dashboardBuilt = true;
+    console.log(`build-site: dashboard built in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  } catch (err) {
+    rmSync(join(out, "dashboard"), { recursive: true, force: true });
+    console.warn("\n!!!!!!!!!! build-site WARNING: dashboard build failed: skipped /dashboard !!!!!!!!!!");
+    console.warn(String(err && err.message ? err.message : err));
+  }
+}
+
+// ---- Generated link list: always at /demo-hosts/, and at / when there is no landing ----
+const linkListHtml = `<!doctype html><meta charset="utf-8"><title>Chartitable demo</title>
 <h1>Chartitable demo hosts</h1>
 <p>Fictional charities for testing a donor personalization layer. Test mode only.</p>
 <h2>Demo hosts</h2>
@@ -116,8 +154,69 @@ writeFileSync(
 <ul>${testLinks}</ul>
 <h2>Other</h2>
 <ul>
+<li><a href="/staff/demo">Demo control (PIN)</a></li>
+${dashboardBuilt ? '<li><a href="/dashboard/">Charity dashboard</a></li>\n' : ""}<li><a href="/demo-hosts/">Demo hosts list</a></li>
 <li><a href="/app/">Lane B frontend pages</a></li>
-<li><a href="/staff/donate.html?charity=demo-pantry-a">Test-mode donate page</a></li></ul>`,
-);
+<li><a href="/staff/donate.html?charity=demo-pantry-a">Test-mode donate page</a></li></ul>`;
+mkdirSync(join(out, "demo-hosts"), { recursive: true });
+writeFileSync(join(out, "demo-hosts", "index.html"), linkListHtml);
 
-console.log(`dist-site ready: layer.js, staff/, ${demoSiteNames.length} demo host(s), ${testSiteNames.length} test host(s)`);
+// ---- Landing at the site root ----
+let landingPublished = false;
+const landingDir = resolve(root, process.env.CT_LANDING_DIR || "landing");
+if (existsSync(landingDir) && statSync(landingDir).isDirectory()) {
+  let landingSrc = landingDir;
+  if (existsSync(join(landingDir, "package.json"))) {
+    const pkg = JSON.parse(readFileSync(join(landingDir, "package.json"), "utf8"));
+    if (pkg.scripts && pkg.scripts.build) {
+      execSync(existsSync(join(landingDir, "package-lock.json")) ? "npm ci" : "npm install", { cwd: landingDir, stdio: "inherit", env: process.env });
+      execSync("npm run build", { cwd: landingDir, stdio: "inherit", env: process.env });
+      landingSrc = join(landingDir, "dist");
+      if (!existsSync(landingSrc)) {
+        console.error("build-site: landing has a build script but produced no dist/ folder.");
+        process.exit(1);
+      }
+    }
+  }
+  const skip = (src) => {
+    if (src === landingSrc) return true;
+    const b = basename(src);
+    return !(b.startsWith(".") || b === "node_modules" || b.toLowerCase().endsWith(".md"));
+  };
+  const clashes = readdirSync(landingSrc).filter((n) => skip(join(landingSrc, n)) && existsSync(join(out, n)));
+  if (clashes.length) {
+    console.error(`build-site: landing would overwrite path(s) the build already wrote: ${clashes.join(", ")}. Rename them in landing/ (reserved: layer.js, staff, sites, seed, app, dashboard, demo-hosts).`);
+    process.exit(1);
+  }
+  cpSync(landingSrc, out, { recursive: true, filter: skip });
+  landingPublished = existsSync(join(out, "index.html"));
+}
+if (!existsSync(join(out, "index.html"))) writeFileSync(join(out, "index.html"), linkListHtml);
+
+// ---- Safety scan ----
+const forbidden = [];
+(function scan(dir) {
+  for (const entry of readdirSync(dir)) {
+    const p = join(dir, entry);
+    const rel = p.slice(out.length + 1);
+    const isDir = lstatSync(p).isDirectory();
+    if (
+      entry.startsWith(".env") ||
+      entry === "node_modules" ||
+      entry === ".git" ||
+      entry === "package-lock.json" ||
+      entry === "PROGRESS.md" ||
+      entry === "CLAUDE.md" ||
+      (!isDir && /\.(ts|tsx)$/.test(entry) && !rel.startsWith(join("dashboard", "assets") + "/"))
+    ) forbidden.push(rel);
+    if (isDir && entry !== "node_modules" && entry !== ".git") scan(p);
+  }
+})(out);
+if (forbidden.length) {
+  console.error(`build-site: refusing to publish; forbidden file(s) in dist-site: ${forbidden.join(", ")}`);
+  process.exit(1);
+}
+
+console.log(
+  `dist-site ready: layer.js, staff/, ${demoSiteNames.length} demo host(s), ${testSiteNames.length} test host(s); landing: ${landingPublished ? "yes" : "no"}; dashboard: ${dashboardBuilt ? "yes" : "no"}`,
+);

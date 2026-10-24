@@ -91,6 +91,9 @@ Real payments, real accounts/auth for donors, SMS intake, multi-tenant onboardin
 | `milestones:check` | scheduled (every 5 min in demo) | cron | T9 |
 | `email:sendMilestone` | action | `milestones:check` | T9 |
 | `dashboard:*` | queries/mutation | Lane B pages | T19 |
+| `demo:personas` | query (public, static, no donor ids) | `/staff/demo` | T34 |
+| `demo:link`, `demo:reset`, `demo:warm`, `demo:post`, `demo:sendEmail`, `demo:preflight` | actions, PIN-gated (constant-time, lockout after 10 wrong PINs / 10 min) | `/staff/demo`, `npm run demo:*` | T34 |
+| `narrative:getOrGenerate {warm}` | warm skips only the per-donor interval and a stored template; hourly cap and guard unchanged | `demo:warm`, `demo:post` | T34 |
 Rules: pure logic stays in `/engine` and is imported; Convex functions are thin wrappers. Every function validates args (Convex validators) and charity ids against `CHARITY_IDS`.
 
 ## 13. `layer.js` behavior (T8, Cursor)

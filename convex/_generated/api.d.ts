@@ -12,6 +12,7 @@ import type * as allocations from "../allocations.js";
 import type * as context from "../context.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
+import type * as demo from "../demo.js";
 import type * as donations from "../donations.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   context: typeof context;
   crons: typeof crons;
   dashboard: typeof dashboard;
+  demo: typeof demo;
   donations: typeof donations;
   email: typeof email;
   http: typeof http;

@@ -155,7 +155,7 @@ export function buildDonors(i: {
     if (!gifts || gifts.length === 0) continue;
     out.push({
       id: donor.id,
-      displayName: donor.firstName ?? "Anonymous",
+      displayName: donor.hideFromTopDonors ? "Anonymous" : (donor.firstName ?? "Anonymous"), // "Don't list me publicly"
       hideFromTopDonors: donor.hideFromTopDonors ?? false,
       totalGiven: sum(gifts.map((g) => g.amountCents)),
       giftCount: gifts.length,

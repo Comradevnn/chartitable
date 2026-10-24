@@ -1,5 +1,6 @@
 // Env access in one place. Values live in the Convex dashboard (`npx convex env set`), never the repo.
 // Callers must treat null as "feature unavailable" and fail closed (no token, no email, no Claude call).
+import { constantTimeEqual } from "../../engine/demo";
 
 /** TOKEN_SECRET, or null if unset/too short (verifyToken/signToken need >= 16 chars; spec asks >= 32). */
 export function tokenSecret(): string | null {
@@ -9,7 +10,7 @@ export function tokenSecret(): string | null {
 
 export function staffPinMatches(pin: string): boolean {
   const expected = process.env.STAFF_PIN;
-  return !!expected && pin === expected;
+  return !!expected && constantTimeEqual(pin, expected);
 }
 
 export function intEnv(name: string, fallback: number): number {

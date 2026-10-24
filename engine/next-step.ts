@@ -13,7 +13,7 @@ export function nextStepFor(kind: NextStepKind, charityName: string): { text: st
   const label = LABELS[kind];
   switch (kind) {
     case "give_again":
-      return { label, text: `If you would like to, a future gift to ${charityName} helps keep the next update going.` };
+      return { label, text: `If you would like to, you can give to ${charityName} again whenever it suits you.` };
     case "give_monthly":
       return { label, text: `If it suits you, ask ${charityName} about giving on a regular basis.` };
     case "volunteer":

@@ -48,6 +48,9 @@ const CHARITIES: Charity[] = [
 const DONOR_NAMES = [
   "Mira", "Jonas", "Priya", "Teo", "Lena", "Omar",
   "Nadia", "Caleb", "Sana", "Felix", "Ines", "Rhea",
+  // Demo personas (engine/demo.ts): a13 just gave at A, a14 lapsed at A, a15 lapsed at B,
+  // a16 is the dashboard "at risk" example (not a persona).
+  "Wren", "Hollis", "Juno", "Bram",
 ];
 
 // [donor index (1-based), charity, dollars, daysAgo]; hours offset derived from row index.
@@ -93,7 +96,7 @@ const NOTES: Record<ImpactKind, string[]> = {
     "Surplus produce rescued from a grocery partner.",
   ],
   volunteer_shifts: [
-    "Packing crew covered both shifts.",
+    "Packing crew covered the day's shifts.",
     "New volunteers trained on intake.",
     "Sorting and loading help for the weekend rush.",
   ],
@@ -152,6 +155,34 @@ export function buildSeed(now: number): SeedData {
     createdAt: now - 30 * MIN,
     testMode: true,
   });
+  // Demo persona donors (one gift each). Wren's gift lands after every pantry-a log (newest is 2 h old).
+  // The long-ago gifts sit outside the 30-day allocation window, so they dilute nothing.
+  const personaGifts: [number, CharityId, number, number][] = [
+    [13, "demo-pantry-a", 10, 40 * MIN], // Wren: just gave
+    [14, "demo-pantry-a", 40, 120 * DAY], // Hollis: lapsed at A
+    [15, "demo-pantry-b", 25, 150 * DAY], // Juno: lapsed at B
+    [16, "demo-pantry-b", 30, 60 * DAY], // Bram: dashboard at-risk example
+  ];
+  // Earlier gifts from regular donors (31-44 days ago): outside the 30-day allocation window, so
+  // they change no estimate, but the dashboard shows active/returning donors, not only "new" ones.
+  // None of these donors is a persona, so no persona page shows a gift its story leaves out.
+  personaGifts.push(
+    [8, "demo-pantry-a", 30, 40 * DAY], // Caleb
+    [6, "demo-pantry-a", 25, 38 * DAY], // Omar
+    [3, "demo-pantry-b", 20, 42 * DAY], // Priya (not Lena: the B story donor keeps two gifts, both in the window)
+    [7, "demo-pantry-b", 50, 36 * DAY], // Nadia
+    [11, "demo-pantry-b", 15, 44 * DAY], // Ines
+  );
+  for (const [d, charityId, dollars, ago] of personaGifts) {
+    donations.push({
+      id: `don_a${pad(donations.length + 1, 3)}`,
+      donorId: donorId(d),
+      charityId,
+      amountCents: dollars * 100,
+      createdAt: now - ago,
+      testMode: true,
+    });
+  }
 
   const impactLogs: SeedImpactLog[] = [];
   let seq = 0;

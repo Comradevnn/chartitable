@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Chartitable demo control</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+  <!-- PIN screen -->
+  <main id="lock" class="lock">
+    <div class="lock-inner">
+      <h1>Chartitable demo control</h1>
+      <p class="lede">One screen to run the three-minute story. Enter the demo PIN once.</p>
+      <form id="pin-form" method="post" action="#" autocomplete="off">
+        <label for="pin">Demo PIN</label>
+        <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64">
+        <p id="lock-error" class="msg err" role="alert" hidden></p>
+        <button type="submit" id="unlock" class="btn primary">Unlock</button>
+      </form>
+      <p class="lock-note">Staff only. Test mode.</p>
+    </div>
+  </main>
+
+  <!-- Control room -->
+  <div id="app" hidden>
+    <header class="top">
+      <h1 class="brand">Chartitable demo control</h1>
+      <p class="mode">Test mode. Fictional charities and donors.</p>
+    </header>
+
+    <section id="ready" class="ready" data-state="unknown" aria-label="Demo readiness">
+      <div class="ready-head">
+        <span id="ready-ico" class="ico" aria-hidden="true"></span>
+        <div class="ready-text">
+          <h2 id="ready-title" class="ready-title" role="status" aria-live="polite">Checking</h2>
+          <p id="ready-age" class="ready-age" aria-live="off"></p>
+        </div>
+        <button type="button" id="ok-toggle" class="chip-btn" aria-expanded="false" aria-controls="checks-ok" hidden><span class="ico green" aria-hidden="true"></span><span id="ok-label">0 checks OK</span></button>
+        <button type="button" id="ready-reset" class="btn attn" hidden>Reset demo</button>
+        <button type="button" id="recheck" class="btn ghost">Check again</button>
+      </div>
+      <ul id="checks" class="checks"></ul>
+      <ul id="checks-ok" class="checks checks-ok" hidden></ul>
+    </section>
+
+    <div class="layout">
+      <aside class="sheet">
+        <details id="runsheet">
+          <summary><span class="sum-title">3-minute story</span><span class="sum-note">Run sheet</span></summary>
+          <ol class="steps">
+            <li><time>0:00</time><p>Open Cinderwell as a first-time visitor: the plain site, no personalization, no request to Chartitable.</p></li>
+            <li><time>0:20</time><p>On that tab click Donate, give the test $25, return: the page now thanks you ("just gave").</p></li>
+            <li><time>0:50</time><p>Open Cinderwell as Mira (first impact): her story, records vs estimates labeled "about".</p></li>
+            <li><time>1:20</time><p>Click Served 80 meals (Cinderwell) here. Within about 6 s Mira's tab shows "Just logged: 80 meals" and her estimate moves from about 22 to about 26 meals, no reload.</p></li>
+            <li><time>1:50</time><p>The milestone email lands in the demo inbox (or click Send Mira's milestone email). Open its link: the "news" page.</p></li>
+            <li><time>2:20</time><p>Open Brindlecote as Lena (repeat): a different site, same one-line embed.</p></li>
+            <li><time>2:40</time><p>Show the staff dashboard at /dashboard/ (if published) and close on the honesty rule: estimates are labeled, Claude only narrates logged facts.</p></li>
+            <li class="after-step"><time>After</time><p>Reset demo.</p></li>
+          </ol>
+        </details>
+      </aside>
+
+      <main class="stage">
+        <section class="block" aria-labelledby="h-story">
+          <h2 id="h-story">The story</h2>
+          <p class="hint">In run-sheet order, with the time each step starts.</p>
+          <p id="story-msg" class="msg" hidden></p>
+          <div id="story" class="story"></div>
+        </section>
+
+        <section class="block" aria-labelledby="h-personas">
+          <h2 id="h-personas">All donors</h2>
+          <p class="hint">Every persona on both sites. Each button opens that donor in its own tab; clicking again reuses it.</p>
+          <p id="personas-msg" class="msg" hidden></p>
+          <div id="personas" class="personas"></div>
+        </section>
+
+        <section class="block" aria-labelledby="h-updates">
+          <h2 id="h-updates">Staff updates</h2>
+          <p class="hint">Log what the pantry just did. Open donor tabs update within about 6 seconds.</p>
+          <div id="updates" class="updates"></div>
+        </section>
+
+        <section class="block" aria-labelledby="h-email">
+          <h2 id="h-email">Milestone email</h2>
+          <p class="hint">Goes only to the demo inbox. It also sends by itself when Mira's estimate crosses about 25 meals.</p>
+          <div class="email-row">
+            <button type="button" id="send-email" class="btn secondary" disabled>Send Mira's milestone email</button>
+          </div>
+          <div id="email-out" class="msg" role="status" hidden></div>
+        </section>
+
+        <section class="block after" aria-labelledby="h-after">
+          <h2 id="h-after">Reset</h2>
+          <p class="hint">Before and after each run: restores every donor and pre-writes their stories (about 15 s).</p>
+          <div class="after-row">
+            <button type="button" id="reset" class="btn danger">Reset demo</button>
+            <button type="button" id="warm" class="btn secondary">Pre-write stories</button>
+          </div>
+          <p id="reset-out" class="msg" role="status" hidden></p>
+        </section>
+      </main>
+    </div>
+
+    <footer class="foot">
+      <a href="/staff/health" target="_blank" rel="noopener">Backend health</a>
+      <a href="/staff/update?charity=demo-pantry-a" target="_blank" rel="noopener">Staff update form</a>
+      <span>Test mode. Fictional charities and donors.</span>
+    </footer>
+  </div>
+
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <form method="dialog">
+      <h2 id="reset-title">Reset the demo?</h2>
+      <p>This removes gifts and updates made since the last reset and restores every persona. Takes about 15 seconds.</p>
+      <div class="dlg-actions">
+        <button type="submit" value="cancel" class="btn secondary" autofocus>Keep as is</button>
+        <button type="submit" value="reset" class="btn danger solid">Reset demo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

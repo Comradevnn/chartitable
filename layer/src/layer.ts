@@ -33,6 +33,8 @@ function start(script: HTMLOrSVGScriptElement | null): void {
   const fromUrl = takeUrlToken();
   const charityId = script ? script.getAttribute("data-charity") : null;
   if (charityId && fromUrl && KNOWN.indexOf(charityId) !== -1) remember(charityId, fromUrl);
+  // An empty `?ct=` means "not me": drop any token this browser holds (shared screens, demo strangers).
+  if (charityId && fromUrl === "" && KNOWN.indexOf(charityId) !== -1) forget(charityId);
   if (!script || !charityId || KNOWN.indexOf(charityId) === -1) return;
   if (!document.querySelector("[data-impact-slot],[data-impact-region]")) return;
 
@@ -70,6 +72,7 @@ function start(script: HTMLOrSVGScriptElement | null): void {
     .finally(() => clearTimeout(timer));
 }
 
+/** The `ct` param (removed from the address bar): null = absent, "" = present but empty. */
 function takeUrlToken(): string | null {
   let url: URL;
   try {
@@ -85,9 +88,7 @@ function takeUrlToken(): string | null {
   } catch {
     /* Sandboxed documents can refuse replaceState. The token still works. */
   }
-  if (!raw) return null;
-  const token = raw.trim();
-  return token ? token : null;
+  return raw ? raw.trim() : "";
 }
 
 function storageKey(charityId: string): string {

@@ -1,48 +1,62 @@
 # Handoff: Revnn (Lane A: product)
 
-Last updated: Sat Oct 24, ~3:40 AM PT (Opus prompt #3). Update this file whenever you stop or switch tools. Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, ~1:30 PM PT (Opus prompt #4, plug-and-play demo). Update this file whenever you stop or switch tools. Team-wide status lives in `PROGRESS.md`.
 
-## Where things stand (Sat ~3:40 AM PT)
-- **Everything on the donor path is live and gated:** Convex dev `acoustic-donkey-399` (283 tests), Vercel https://chartitable.vercel.app. T8 `layer.js` and T4 staff page passed the formal gate (Haiku 9/9; live browser test). Screenshots: `docs/qa/lane-a/`.
-- **Live check (Sat 3:32 AM):** first-time visitor on Cinderwell → 0 API requests, empty slots, donate link rewritten, no console errors. donor_a01 link → Claude story, 12 records, 6 photos, "about 22 meals (estimate)", `ct` stripped.
-- **Email:** Resend + DEMO_INBOXES set; donor_a01 has the demo inbox. Live dry run: 0 would send now. `engine/demo-email.test.ts` proves the post-80-meal email (meals:25, "about 26 meals (estimate)", link with only `ct`). Real send happens at demo step 2; none tested yet.
-- **Fixed today from the gate:** seed photos served (`/seed/photos`, `ASSET_BASE_URL`); host `preview.js` symlinks (console 404s on Vercel); `impact:log` server photo check + optional `requestId`; reseed no longer wipes the demo inbox; `seed:resetDemo` for rehearsals.
-- Decided by lead: D17 keep the name, D18 keep the 4-digit PIN (no rotation).
-- Open for Cursor/Teammate 1: Blockers row "T8/T4 gate follow-ups" (all LOW), `/frontend` Tansy rename, `dashboard:donorDetail` query (Revnn, T19).
+## Where things stand
+- **Everything on the donor path is live and gated** on Convex dev `acoustic-donkey-399` + Vercel https://chartitable.vercel.app (469 tests).
+- **The demo runs from one page:** https://chartitable.vercel.app/staff/demo. PIN = the `STAFF_PIN` env var on the Convex dev deployment (`npx convex env get STAFF_PIN`; never written down in the repo). No terminal needed on stage.
+- Rehearsal script passes 9/9 twice in a row (16 s each) and leaves the demo in its canonical start state.
+- Screenshots of the panel and the story: `docs/qa/lane-a/demo-panel/`.
 
-## Demo-day commands (in order)
+## Running the demo (no docs needed, but here they are)
+1. Open `/staff/demo`, type the PIN once. The bar at the top should say **Ready for the demo** (green) or **Ready, with warnings** (amber).
+2. Click **Reset demo** (about 15 s) a few minutes before going on. It removes gifts/updates made since the last reset, reseeds, sets Mira's demo inbox, restages every persona and pre-writes all 10 Claude stories ("10 of 10 stories ready (Claude)").
+3. Follow the **3-minute story** run sheet on the left of the panel:
+   - Open Cinderwell as a first-time visitor (plain site, no request to us) → Donate → test $25 → "just gave".
+   - Open Cinderwell as **Mira** (story donor) → her story, records vs estimates ("about").
+   - Click **Served 80 meals** (Cinderwell). Within ~6 s Mira's tab shows "Just logged: 80 meals" and about 22 → about 26 meals. The milestone email goes to the demo inbox by itself (button **Send Mira's milestone email** reports "Already sent").
+   - Open Brindlecote as **Lena** (repeat donor): different site, same embed.
+   - Dashboard: https://chartitable.vercel.app/dashboard/ (Lane B; still on mock data until their adapter is wired).
+4. Afterwards: **Reset demo**.
+- Each persona button opens a named tab; clicking again reuses that tab and restages the persona, so the state is always the one on the card. If the browser blocks popups, the panel shows an "Open the tab" link instead.
+- Personas: Cinderwell = Mira (first impact, story donor, email), Wren (just gave), Teo (news since last visit), Jonas (repeat), Hollis (lapsed); Brindlecote = Felix (first impact), Rhea (just gave), Sana (news), Lena (repeat, story donor), Juno (lapsed). Plus a first-time visitor per site. All fictional.
+
+## If a check is not green
+| Check | Amber/red means | Do |
+|---|---|---|
+| Claude story test | one live probe fell back to the template (guard rejection, cap, or API down) | Demo still works (templates are honest); click **Check again** in 5 min. If "capped": the hourly Claude budget is used up (see below) |
+| First views ready | some persona's first view would be a template | Click **Warm stories** |
+| Milestone email | email not configured / Mira's inbox not set / already sent | Reset demo. Needs `RESEND_API_KEY` + `DEMO_INBOXES` set in Convex env |
+| Start state | gifts or updates since the last reset | Reset demo (only matters before you start) |
+| Persona links | red: links not recognized (TOKEN_SECRET/seed problem); amber: a persona's state drifted (e.g. Wren became first_impact after a post) | Reset demo; if still red run `npm run demo:check` and check Convex env |
+| Layer on the site | red: Vercel serves a stub or nothing | Push an owner-authored commit to redeploy (Vercel Hobby rule) |
+| Seed data | red: seed rows missing | Reset demo |
+
+## CLI (optional, never needed on stage)
 ```bash
-cd "~/Claude Code/Chartitable" && git pull --rebase --autostash
-STAFF_PIN="$(npx convex env get STAFF_PIN)" node scripts/e2e-smoke.mjs        # 8/8 PASS; run it BEFORE, never during, the demo
-npx convex run seed:resetDemo '{"confirm":"reset-demo"}'                      # only between rehearsals: clears non-seed rows + fired milestones
-npx convex run seed:load                                                      # re-anchor seed dates to now (keeps the demo inbox)
-npx convex run narrative:getOrGenerate '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'   # pre-warm: should print source "claude"
+npm run demo:check       # preflight summary, exit 1 on red
+npm run demo:reset       # same as the Reset button, then preflight
+npm run demo:rehearsal   # walks the run sheet against dev (holds the email; --send-email to really send), ends with a reset
 ```
-Then on stage: (1) donate $25 at https://chartitable.vercel.app/staff/donate?charity=demo-pantry-a → back on Cinderwell with the short first view; (2) staff page https://chartitable.vercel.app/staff/update?charity=demo-pantry-a (type the PIN) → "served 80 meals" + photo → email to the demo inbox within seconds; (3) open the email link → hero story, records, labeled estimates, next step; (4) post another update → reload → "since your last visit"; (5) private window → plain site; (6) same embed on Brindlecote (`/sites/regional-bank/`). Health: https://chartitable.vercel.app/staff/health.
-Watch-outs: a smoke run during step 2 makes the milestone check skip (smoke data present) → no email; step 1's new donor dilutes donor_a01's share a little (margin holds up to ~$450 of extra pantry-A gifts); each rehearsal burns meals:25 until `seed:resetDemo`.
+PIN comes from `STAFF_PIN` in the environment or silently from `npx convex env get STAFF_PIN`; nothing prints the PIN or tokens.
 
-## Next, in order
-1. Rehearse the six steps once on Vercel (T13 with Teammate 2), then `seed:resetDemo` + `seed:load` + pre-warm.
-2. `dashboard:donorDetail(pin, donorId)` for Lane B (T19 Blockers row) if time.
-3. X Premium / Grok Bot at the SpaceXSI booth; Anthropic track entry.
-4. Before T17 (public repo): secret scan (tree + history).
-
-## Resume commands
-```bash
-cd "~/Claude Code/Chartitable" && git pull --rebase --autostash && npm install && npm test && npm run typecheck
-STAFF_PIN="$(npx convex env get STAFF_PIN)" node scripts/e2e-smoke.mjs   # dev only; never prints the PIN or tokens
-```
+## Dashboard adapter (Lane B)
+Backend functions are live on `https://acoustic-donkey-399.convex.cloud` (the `/dashboard` build gets it as `VITE_CONVEX_URL`). Call them like the static staff pages do: `POST ${VITE_CONVEX_URL}/api/query` (or `/api/mutation`) with JSON `{ "path": "dashboard:overview", "args": { "pin": "<PIN typed by staff, kept in memory>", "charityId": "demo-pantry-a" }, "format": "json" }` → `{ status: "success", value }` or `{ status: "error", errorData: "unauthorized" }`.
+- Queries: `dashboard:overview {pin, charityId, days?}` → DashOverview; `dashboard:donors {pin, charityId}` → DashDonor[]; `dashboard:expenses {pin, charityId, days?}` → DashExpense[].
+- Mutations: `dashboard:addExpense {pin, charityId, date, amountCents, category, note?, receiptStorageId?}` (input is `amountCents`; output field is `amount`); `dashboard:markThanked {pin, charityId, donorId}` → `{ok}` (refetch donors after); `dashboard:generateReceiptUploadUrl {pin}`.
+- Not built: `removeExpense`/`restoreExpense`, `donorDetail`. `thankedAt` is per donor, not per charity (known).
+- Donors who chose "Don't list me publicly" come back as `displayName: "Anonymous"`.
 
 ## Gotchas
-- `npx convex run` runs the DEPLOYED code: push first with `npx convex dev --once` after editing `convex/`, `engine/` or `seed/`.
-- Don't push Convex while another agent is mid-edit on `engine/` (the push bundles the working tree).
-- Smoke rows carry `smoke: true`; `npx convex run seed:cleanSmoke '{}'` removes them. The milestone check skips while a smoke log exists (small race: a cron run already in progress when the smoke log lands is not skipped; email IS configured now, but smoke donors have no email and donor_a01 can't cross 25 from a 3-meal smoke log).
-- Cursor edits this checkout at the same time: stage explicit paths only; never `git add -A`, stash, reset or checkout files.
-- `/donor-view` never waits on Claude: the first view after a data change is the template; pre-warm the demo donor (`npx convex run narrative:getOrGenerate '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'`).
-- Calibration: `engine/calibration.test.ts` pins 22.9 → 26.8 meals. Reseeding re-anchors dates to now (same numbers).
+- `npx convex run` runs the DEPLOYED code. A `npx convex dev` watcher has run since ~1 AM, so saves to `convex/`, `engine/`, `seed/` deploy to dev within seconds.
+- Claude budget: `NARRATIVE_MAX_PER_HOUR` is **120** calls/hour on dev (raised from the default 60 on Sat 2:10 PM; it caps warm, post re-warm and the probe together). A demo post now costs about 5 calls; a full rehearsal about 10. Over the cap the page still works from the honest template.
+- Calibration: `engine/calibration.test.ts` pins Mira (donor_a01) at 22.9 → about 26.7 meals after "Served 80 meals" (shown rounded down: about 22 → about 26). A live donation on stage (step 1, $25) dilutes slightly (still about 26, still crosses 25).
+- Smoke rows (`smoke:true`, from `scripts/e2e-smoke.mjs`) make the milestone check skip; Reset removes them. Never run the smoke script during the demo.
+- Cursor/teammates edit this checkout: stage explicit paths only; never `git add -A`, stash, reset or checkout files.
+- Verify token-bearing pages with screenshots or scripts, never with an accessibility tree / `find` (donate links carry `ct`; a browser `find` printed one dev token into a transcript on Sat 1:20 PM).
 
 ## Open (LOW, not fixed)
-- `impact:log` accepts any `photoStorageId` (a PIN holder could attach a receipt file); lowercase invented names pass the guard; 30-day token TTL with no revocation; donor first name goes to Anthropic in the facts.
+- `impact:log` accepts any `photoStorageId`; lowercase invented names pass the guard; 30-day token TTL with no revocation; donor first name goes to Anthropic in the facts; the PIN lockout is deployment-wide (someone spamming wrong PINs could lock the panel and the CLI for 10 min; `npx convex run seed:resetDemo` etc. still work as internal functions).
 
 ## Vercel owner-commit rule
 Vercel Hobby blocks deployments for commits not authored by you. After a teammate pushes to `main`, push an owner-authored commit (`git commit --allow-empty -m "Redeploy" && git push`).
