@@ -1,0 +1,10 @@
+{
+  "name": "@chartitable/layer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --minify --outfile=dist/layer.js",
+    "dev": "esbuild src/layer.ts --bundle --format=iife --target=es2019 --outdir=dist --servedir=dist --serve=5174"
+  }
+}

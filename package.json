@@ -1,0 +1,26 @@
+{
+  "name": "chartitable",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "engine",
+    "layer"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run build -w layer",
+    "typecheck": "tsc --noEmit -p tsconfig.json && if ls convex/*.ts >/dev/null 2>&1; then tsc --noEmit -p convex/tsconfig.json; fi",
+    "dev:layer": "npm run dev -w layer"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "convex": "^1.48.0"
+  }
+}

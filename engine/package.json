@@ -1,0 +1,7 @@
+{
+  "name": "@chartitable/engine",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Pure TS domain logic (no Convex imports). Unit-tested with Vitest."
+}
