@@ -1,0 +1,10 @@
+node_modules/
+out/
+work/
+clips/
+slides/
+shots/
+cards/*.png
+cards/*.html
+mira-view.json
+email.json

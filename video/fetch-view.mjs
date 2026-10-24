@@ -1,0 +1,12 @@
+import { dirname as __d, join as __j } from 'node:path'; import { fileURLToPath as __f } from 'node:url';
+const REPO = process.env.CT_REPO || __j(__d(__f(import.meta.url)), '..');
+const { PIN, callAction, siteGet } = await import(`${REPO}/scripts/demo-lib.mjs`);
+const r = await callAction('demo:sendEmail', { pin: PIN, personaId: 'a-first-impact' }, 60000);
+console.log('sendEmail result:', JSON.stringify(r.ok ? { status: r.value.status ?? r.value } : r));
+const l = await callAction('demo:link', { pin: PIN, personaId: 'a-first-impact' }, 30000);
+const url = new URL(l.value.url); const tok = url.searchParams.get('ct');
+const v = await siteGet('donor-view', 'demo-pantry-a', tok, { peek: true });
+const d = v.value;
+console.log('hero keys', Object.keys(d.hero || {}), 'estimates', JSON.stringify(d.estimates), 'story chars', (d.hero?.story || '').length);
+import { writeFileSync } from 'node:fs';
+writeFileSync('mira-view.json', JSON.stringify({ firstName: d.hero?.firstName, headline: d.hero?.headline, story: d.hero?.story, estimates: d.estimates }, null, 1));

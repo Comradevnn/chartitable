@@ -1,0 +1,7 @@
+{
+  "name": "chartitable-video",
+  "private": true,
+  "type": "module",
+  "description": "Builds the Chartitable demo video (not part of the product). Run `npm install && npx playwright install chromium` here first.",
+  "dependencies": { "ffmpeg-static": "^5.3.0", "playwright": "^1.50.0" }
+}

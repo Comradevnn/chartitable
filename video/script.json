@@ -1,0 +1,89 @@
+{
+  "title": "Chartitable pitch and demo video",
+  "speakers": {
+    "A": {
+      "name": "Lead",
+      "voice": "Reed (English (US))",
+      "rate": 172
+    },
+    "B": {
+      "name": "Teammate",
+      "voice": "Samantha",
+      "rate": 178
+    }
+  },
+  "segments": [
+    {
+      "id": "s01",
+      "speaker": "A",
+      "visual": "slide:1",
+      "text": "Hi, we're the Chartitable team. This is Chartitable. Not charitable. Chart-it-able. If your donation does good, you should be able to chart it. Not with an actual chart. We checked, nobody wants a chart. It's a pun. We're very proud of it."
+    },
+    {
+      "id": "s02",
+      "speaker": "A",
+      "visual": "slide:2",
+      "text": "Here's me giving to a small food pantry the normal way. I give twenty five dollars and I feel great. A month later I go back to the website and, nothing. Same photo, same Donate Now button. Where did my money go? Did it buy a pizza for the intern? I'll never know. Black hole."
+    },
+    {
+      "id": "s03",
+      "speaker": "B",
+      "visual": "slide:3",
+      "text": "And it's not just me. Less than half of donors ever give again: forty three point three percent, in the latest Fundraising Effectiveness Project data. Charities lose billions a year this way, and small pantries have no fundraising staff to write you back. The bucket leaks because donors never see what happened next."
+    },
+    {
+      "id": "s04",
+      "speaker": "B",
+      "visual": "slide:4",
+      "text": "Chartitable closes the loop. One line of script on the charity's own website, and when a donor comes back, the page changes for them: what the pooled gifts did, their share, one next step. Claude writes the story, and a fact checker rejects any number it was never given."
+    },
+    {
+      "id": "s05",
+      "speaker": "A",
+      "visual": "slide:5",
+      "text": "Okay. Same donation as before, now with Chartitable."
+    },
+    {
+      "id": "d1",
+      "speaker": "A",
+      "visual": "clip:d1",
+      "text": "Same pantry. First, a stranger visits. Nothing is personalized, it's just their normal website. Now I give twenty five dollars. Test mode, no real money. And when I land back on the site, it knows I just gave."
+    },
+    {
+      "id": "t1",
+      "speaker": "A",
+      "visual": "clip:t1",
+      "text": "One week later. The pantry's staff keep logging what happened. And when my pooled share crosses a milestone, I get a note."
+    },
+    {
+      "id": "d2a",
+      "speaker": "A",
+      "visual": "clip:d2a",
+      "text": "I click through, and the page rearranged itself around me. The records are what staff logged. The estimate says about, because gifts are pooled and we never claim one specific dollar."
+    },
+    {
+      "id": "d2b",
+      "speaker": "A",
+      "visual": "clip:d2b",
+      "text": "Now watch. Staff post: served eighty meals. I don't reload anything. Within seconds the page shows it, and my estimated share moves."
+    },
+    {
+      "id": "d2c",
+      "speaker": "A",
+      "visual": "clip:d2c",
+      "text": "And when I want to give again, one click, and it welcomes me back as the same donor."
+    },
+    {
+      "id": "c1",
+      "speaker": "A",
+      "visual": "card:compare",
+      "text": "Before: a page that never changes. After: what the gifts did, my share, labeled as an estimate, and one clear next step."
+    },
+    {
+      "id": "s06",
+      "speaker": "B",
+      "visual": "slide:6",
+      "text": "Donors stay when they can see the impact. Chartitable makes your giving chart-it-able. Everything you saw is labeled: records are facts, estimates say about, and when we don't know, we say less. Thank you. Please clap. Please fund us."
+    }
+  ]
+}
