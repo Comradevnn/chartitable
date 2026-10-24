@@ -1,5 +1,6 @@
 // The ONE HTTP router for the project. GET /donor-view (§5, §15).
-// Any failure → { recognized: false }. Never returns email, donorId, or error details.
+// Bad/expired/missing token or unknown donor → { recognized: false }. Rate limit → 429 and backend
+// error → 503, both { retry: true } (the token is not judged). Never returns email, donorId, or error details.
 // Never logs tokens or emails.
 import { httpRouter } from "convex/server";
 import { buildDonorView, narrativeFacts, parseDonorViewRequest } from "../engine/donor-view";
@@ -27,6 +28,15 @@ function json(body: DonorView): Response {
 }
 
 const NOT_RECOGNIZED: DonorView = { recognized: false };
+
+// Rate limit or a backend error: not a verdict on the token, so no `recognized` field. The layer
+// forgets a stored token only on an explicit recognized:false; here it keeps it and stays empty.
+function retryLater(status: 429 | 503): Response {
+  return new Response(JSON.stringify({ retry: true }), {
+    status,
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+  });
+}
 
 function donateHrefFor(charityId: string): string | null {
   try {
@@ -61,7 +71,7 @@ http.route({
         internal.visits.record,
         { donorId, charityId, now },
       );
-      if (visit.limited) return json(NOT_RECOGNIZED);
+      if (visit.limited) return retryLater(429);
 
       const context: DonorContext | null = await ctx.runQuery(internal.context.forDonor, { donorId, charityId, now });
       if (!context) return json(NOT_RECOGNIZED);
@@ -94,7 +104,7 @@ http.route({
         }),
       );
     } catch {
-      return json(NOT_RECOGNIZED);
+      return retryLater(503);
     }
   }),
 });
