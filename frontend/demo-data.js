@@ -5,13 +5,18 @@
 // Shapes follow DASHBOARD_SPEC.md (DashDonor / DashOverview / DashExpense) and DonorView in engine/types.ts.
 // No estimate is stored here: every "about" number is computed from `donors[].gifts` (the shared gift pool) and `impactLogs` by CT.allocate() in shared.js.
 window.DEMO_DATA = (function () {
+  const WINDOW_DAYS = 30; // the one place the window length is set; charity.windowDays, the formula text and the period label read it
   const ts = s => Date.parse(s + "T12:00:00Z");
   const G = (d, cents, label) => ({ at: ts(d), amountCents: cents, label });
   return {
-    charity: { id: "demo-pantry-a", name: "Tansy Street Pantry", staffName: "Jordan", windowDays: 30, milestones: [25, 50, 100, 250],
-      formula: "Your estimated share = your gifts ÷ all gifts in the 30-day window × what the pantry logged. A log only counts gifts made on or before its date. Rounded down, never up." },
+    charity: { id: "demo-pantry-a", name: "Tansy Street Pantry", staffName: "Jordan", staffRole: "pantry coordinator",
+      address: "212 Tansy Street, side door", phone: "(555) 555-0142",
+      hours: [{ days: "Tuesday", time: "4–7 pm" }, { days: "Saturday", time: "9 am–noon" }],
+      whatToBring: ["A bag or box, if you have one.", "No ID or proof of income needed."],
+      windowDays: WINDOW_DAYS, milestones: [25, 50, 100, 250],
+      formula: `Your estimated share = your gifts ÷ all gifts in the ${WINDOW_DAYS}-day window × what the pantry logged. A log only counts gifts made on or before its date. Rounded down, never up.` },
     now: ts("2026-10-24"),
-    period: { from: ts("2026-09-24"), to: ts("2026-10-24"), label: "Last 30 days" },
+    period: { from: ts("2026-09-24"), to: ts("2026-10-24"), label: `Last ${WINDOW_DAYS} days` },
     // Which donors the demo shows by default (dashboard with no ?ct=, index "Returning donor") and for the dashboard's "First gift, no updates yet" state.
     demo: { returningDonorId: "donor_a01", firstGiftDonorId: "donor_a06" },
     // Every donor and their gifts: together these are the gift pool. viewToken is the opaque ?ct= stand-in (no names in URLs).

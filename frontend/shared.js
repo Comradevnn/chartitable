@@ -89,8 +89,8 @@ window.CT = (function () {
     return { set };
   }
 
-  // illustration (authored SVG, shared by the home page hero / latest update and the dashboard hero)
-  const ART_SVG = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of a crate of fresh produce"><circle cx="290" cy="110" r="52" fill="#ffc94d"/><path d="M0 330q110-70 220-20t180-30v220H0z" fill="#24543a"/><g fill="#7bc47f"><ellipse cx="150" cy="238" rx="16" ry="38" transform="rotate(-24 150 238)"/><ellipse cx="190" cy="226" rx="16" ry="42" transform="rotate(4 190 226)"/><ellipse cx="228" cy="236" rx="16" ry="38" transform="rotate(26 228 236)"/></g><circle cx="118" cy="296" r="32" fill="#f08a2b"/><circle cx="186" cy="288" r="36" fill="#f5a03a"/><circle cx="256" cy="298" r="30" fill="#8d2f4c"/><circle cx="304" cy="306" r="26" fill="#f08a2b"/><rect x="52" y="312" width="296" height="22" rx="8" fill="#cf9650"/><rect x="62" y="334" width="276" height="130" rx="10" fill="#b9803f"/><path d="M62 378h276M62 420h276" stroke="#8f5f2b" stroke-width="5"/></svg>';
+  // The crate illustration (ART_SVG) was removed. Kept as an empty string so pages that still destructure it do not throw until they are updated.
+  const ART_SVG = "";
 
   return { DAY, ts, isoDate, layerPresent, initDemoPath, money, fmtDate, monthOf, dateLabel, esc, sum, recText, estText, setCharityName,
     roundEstimate, allocate, estimatesOf, recordOf, donorResult, tipHtml, tip, initTooltips, ART_SVG };

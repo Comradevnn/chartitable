@@ -3,155 +3,156 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Fictional demo: staff view of a food pantry's donors, who is ready for a thank-you and who may be slipping away.">
+<meta name="description" content="Fictional demo: staff view of a food pantry's donors and who is ready for a thank-you.">
 <title>Donors · Staff view</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><!-- non-blocking: if fonts.googleapis.com is unreachable the page renders at once in the system-font stack -->
-<noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="shared.css">
 <style>
-  /* Tokens, base, buttons, record/estimate styles, tooltip, tags, logo, demo ribbon, skeleton and footer live in shared.css; this file keeps only staff-view rules. */
-  h1 { font-size: var(--text-xl); font-weight: 800; }
-  h2 { font-size: var(--text-md); font-weight: 800; }
-  h3 { font-size: var(--text-sm); font-weight: 800; }
+  /* Tokens, base, buttons, record/estimate styles, tooltip, tags, logo, demo ribbon, skeleton and footer live in shared.css; this file keeps only staff-view rules.
+     A working tool: Commissioner throughout, hairline rules instead of cards, tabular numerals, no shadows except the drawer. */
+  h1 { font: 700 var(--text-xl)/1.2 var(--font-body); }
+  h2 { font: 700 var(--text-md)/1.3 var(--font-body); }
+  h3 { font: 700 var(--text-base)/1.3 var(--font-body); }
+  .btn svg { width: 16px; height: 16px; flex: none; }
 
   /* ===== Top bar ===== */
   .top { background: var(--dark); color: var(--on-dark); }
   .top .wrap { display: flex; align-items: center; gap: var(--space-4); height: 60px; }
-  .logo em { font-style: normal; font-weight: 600; color: var(--on-dark-soft); font-size: var(--text-sm); }
+  .top .logo { min-width: 0; flex: 0 1 auto; } .top .logo > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; } .top .logo em { flex: none; } /* a long charity name shortens instead of pushing the top bar wider than a phone */
+  .top nav, .who { flex: none; }
+  .logo em { font-style: normal; font-weight: 500; color: var(--on-dark-soft); font-size: var(--text-sm); font-family: var(--font-body); }
   .top nav { display: flex; gap: var(--space-1); margin-left: var(--space-3); }
-  .top nav a { text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); color: var(--on-dark-soft); font-weight: 600; font-size: var(--text-sm); }
+  .top nav a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; padding: 0 var(--space-3); border-radius: var(--radius-sm); color: var(--on-dark-soft); font-weight: 500; font-size: var(--text-sm); }
   .top nav a:hover { color: #fff; background: rgba(255,255,255,.08); }
-  .top nav a[aria-current="page"] { background: rgba(255,255,255,.14); color: #fff; }
+  .top nav a[aria-current="page"] { color: #fff; font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .4em; }
   .who { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); color: var(--on-dark-soft); }
-  .who b { color: #fff; font-weight: 600; }
-  .who .av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-weight: 800; font-size: var(--text-xs); }
-  @media (max-width: 760px) { .who span { display: none; } .top nav a.opt { display: none; } .top .wrap { gap: var(--space-2); } }
-  @media (max-width: 420px) { .logo em { display: none; } }
+  .who b { color: #fff; font-weight: 700; }
+  .who .av { width: 32px; height: 32px; border: 1px solid var(--on-dark-soft); border-radius: var(--radius-sm); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: var(--text-xs); }
+  @media (max-width: 760px) { .who span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .top nav a.opt { display: none; } .top .wrap { gap: var(--space-2); } }
 
   /* ===== Page ===== */
   main { padding-block: var(--space-5) var(--space-8); }
-  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3) var(--space-5); margin-bottom: var(--space-5); }
-  .head p { margin-top: var(--space-1); color: var(--ink-soft); max-width: 60ch; }
-  .head .per { font-size: var(--text-sm); }
-  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow-1); }
+  .head .per { margin-top: var(--space-1); color: var(--ink-soft); font-size: var(--text-sm); }
   .sub { color: var(--ink-soft); font-size: var(--text-sm); }
+  .mut { color: var(--ink-soft); font-size: var(--text-sm); }
+  .sec { margin-top: var(--space-6); }
+  .sec-h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); padding-bottom: var(--space-2); border-bottom: 1px solid var(--ink); }
+  .sec-h h2 { display: flex; align-items: baseline; gap: var(--space-2); }
+  .n { color: var(--ink-soft); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .sec > .sub { margin-top: var(--space-2); }
 
-  .kpis { display: grid; gap: var(--space-3); grid-template-columns: repeat(2, 1fr); margin-bottom: var(--space-4); }
-  @media (min-width: 900px) { .kpis { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); } }
-  .kpi { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-  .kpi .k-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-soft); font-weight: 600; flex-wrap: wrap; }
-  .kpi .val { font-size: var(--text-xl); font-weight: 800; letter-spacing: var(--tracking-tight); line-height: 1.15; font-variant-numeric: tabular-nums; }
-  .kpi .ct-record::before { display: none; }
-  .kpi .ct-estimate { font-size: var(--text-lg); }
-  .kpi small { font-size: var(--text-sm); color: var(--ink-soft); }
-  .sbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; margin-block: var(--space-1); }
-  .sbar i { display: block; min-width: 4px; }
-  .s-new { background: var(--info); } .s-active { background: var(--brand); } .s-at_risk { background: var(--accent-strong); } .s-lapsed { background: var(--risk); }
+  /* summary: one ruled ledger row, not cards */
+  .sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4) var(--space-5); margin: var(--space-5) 0 0; padding-block: var(--space-4); border-block: 1px solid var(--rule); }
+  .sum > div { min-width: 0; }
+  .sum dt { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--space-2); font-size: var(--text-sm); color: var(--ink-soft); font-weight: 500; }
+  .sum dd { margin: var(--space-1) 0 0; }
+  .sum .val { display: block; font-size: var(--text-lg); font-weight: 700; line-height: 1.25; font-variant-numeric: tabular-nums; }
+  .sum .ct-record::before { display: none; }
+  .sum .ct-estimate { font-size: var(--text-md); }
+  .sum small { display: block; margin-top: var(--space-1); font-size: var(--text-xs); color: var(--ink-soft); }
 
-  .queues { display: grid; gap: var(--space-4); margin-bottom: var(--space-4); }
-  @media (min-width: 900px) { .queues { grid-template-columns: 1fr 1fr; } }
-  .q { padding: var(--space-4) var(--space-4) var(--space-2); }
-  .q h2 { display: flex; align-items: center; gap: var(--space-2); }
-  .count { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding-inline: 8px; border-radius: var(--radius-pill); background: var(--brand-tint); color: var(--brand-strong); font-size: var(--text-sm); font-weight: 800; font-variant-numeric: tabular-nums; }
-  .q.warn .count { background: var(--accent-tint); color: var(--accent-ink); }
-  .q .sub { margin-top: var(--space-1); }
-  .q ul { margin-top: var(--space-3); }
-  .q li { display: flex; align-items: center; gap: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--rule); }
-  .q li > div { flex: 1; min-width: 0; }
-  .q li b { display: block; }
-  .q li span { display: block; color: var(--ink-soft); font-size: var(--text-sm); }
-  .q .none { color: var(--ink-soft); padding-block: var(--space-4); border-top: 1px solid var(--rule); display: block; font-size: var(--text-sm); }
-  @media (max-width: 480px) { .q li { flex-wrap: wrap; } .q li .btn { width: 100%; } }
+  /* worklist rows */
+  .work li { display: flex; align-items: center; gap: var(--space-4); min-height: 56px; padding-block: var(--space-2); border-bottom: 1px solid var(--rule); }
+  .work .w-main { flex: 1; min-width: 0; }
+  .work .w-main b { display: block; font-weight: 700; }
+  .work .w-main span { display: block; color: var(--ink-soft); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+  .work .none { display: block; min-height: 0; padding-block: var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); }
+  @media (max-width: 480px) { .work li { flex-wrap: wrap; padding-block: var(--space-3); } .work li .btn { width: 100%; } }
 
   /* donors table */
-  .tools { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; padding: 0 var(--space-4) var(--space-3); }
-  .card-h { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: baseline; justify-content: space-between; padding: var(--space-4) var(--space-4) var(--space-3); }
-  .search { flex: 1 1 220px; position: relative; }
-  .search input { width: 100%; min-height: 44px; font: 400 var(--text-base)/1.4 var(--font); padding: var(--space-2) var(--space-3) var(--space-2) 40px; border: 1.5px solid var(--rule); border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); }
-  .search input:focus-visible { border-color: var(--brand); }
-  .search svg { position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--ink-soft); pointer-events: none; }
-  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-  .chips button { min-height: 40px; font: 600 var(--text-sm)/1.3 var(--font); padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); border: 1.5px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
-  .chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
-  .chips button span { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
-  .table-wrap { overflow-x: auto; border-top: 1px solid var(--rule); }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--rule); }
-  th { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 800; background: #faf9f5; white-space: nowrap; }
-  th button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: var(--space-2) 0; min-height: 32px; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
-  th button:hover, th[aria-sort] button { color: var(--ink); }
-  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tools { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-4); align-items: center; padding-block: var(--space-3); }
+  .search { flex: 1 1 220px; max-width: 360px; }
+  .search input, .fsel { width: 100%; min-height: 44px; font: 400 var(--text-base)/1.4 var(--font-body); padding: var(--space-2) var(--space-3); border: 1px solid var(--field-line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); }
+  .fsel { display: none; width: auto; }
+  .seg { display: inline-flex; border: 1px solid var(--field-line); border-radius: var(--radius-sm); }
+  .seg button { min-height: 42px; font: 500 var(--text-sm)/1.3 var(--font-body); padding: 0 var(--space-3); background: var(--surface); color: var(--ink); border: 0; border-left: 1px solid var(--field-line); cursor: pointer; }
+  .seg button:first-child { border-left: 0; border-radius: 2px 0 0 2px; }
+  .seg button:last-child { border-radius: 0 2px 2px 0; }
+  .seg button:hover:not([aria-pressed="true"]) { background: var(--surface-2); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; font-weight: 700; }
+  .seg button:focus-visible { outline-offset: -4px; box-shadow: none; }
+  .seg .c { margin-left: 6px; font-weight: 400; font-variant-numeric: tabular-nums; }
+  @media (max-width: 699px) { .seg { display: none; } .fsel { display: block; } }
+
+  .table-wrap { overflow-x: auto; margin-inline: calc(-1 * var(--space-3)); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  th, td { text-align: left; padding: 0 var(--space-3); height: 44px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  th { font-size: var(--text-xs); color: var(--ink-soft); font-weight: 500; white-space: nowrap; border-bottom-color: var(--field-line); }
+  th[aria-sort] { color: var(--ink); font-weight: 700; }
+  th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; min-height: 44px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  th button:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
+  .arr svg { display: block; width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; visibility: hidden; }
+  th[aria-sort] .arr svg { visibility: visible; }
+  th[aria-sort="ascending"] .arr svg { transform: rotate(180deg); }
+  th.num, td.num { text-align: right; }
   th.num button { flex-direction: row-reverse; }
-  tbody tr { cursor: pointer; transition: background .15s; }
-  tbody tr:hover { background: #faf9f5; }
-  td .name { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
-  td .name button { font: inherit; color: inherit; background: none; border: 0; padding: var(--space-1) 0; min-height: 32px; cursor: pointer; text-align: left; }
-  .av-s { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-xs); font-weight: 800; color: #fff; flex: none; }
-  .tone-0 { background: #1d6b3f; } .tone-1 { background: #2c4a7a; } .tone-2 { background: #7a3d6b; } .tone-3 { background: #a3341f; } .tone-4 { background: #5b6b1d; } .tone-5 { background: #1d5f6b; } .tone-6 { background: #6b4a1d; } /* white initials on each: 5.9:1 or better */
-  .s-tag { display: inline-block; font-size: var(--text-xs); font-weight: 800; padding: 3px 10px; border-radius: var(--radius-pill); white-space: nowrap; }
-  .s-tag.new { background: var(--info-tint); color: var(--info); }
-  .s-tag.active { background: var(--brand-tint); color: var(--brand-strong); }
-  .s-tag.at_risk { background: var(--accent-tint); color: var(--accent-ink); }
-  .s-tag.lapsed { background: var(--risk-tint); color: var(--risk); }
-  .mut { color: var(--ink-soft); font-size: var(--text-sm); }
-  .empty-row td { text-align: center; color: var(--ink-soft); padding: var(--space-6); cursor: default; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--surface-2); }
+  td .nm { font: 700 var(--text-sm)/1.3 var(--font-body); color: var(--ink); background: none; border: 0; padding: 0; min-height: 44px; cursor: pointer; text-align: left; }
+  tbody tr:hover .nm { text-decoration: underline; text-underline-offset: .25em; }
+  .nm-sub { display: none; margin-top: -8px; padding-bottom: var(--space-2); color: var(--ink-soft); font-size: var(--text-xs); }
+  /* status: small text tag, color only on status, plus a square marker so color is never the only cue */
+  .s-tag { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 700; white-space: nowrap; color: var(--ink-soft); }
+  .s-tag::before { content: ""; width: 8px; height: 8px; flex: none; box-sizing: border-box; background: currentColor; }
+  .s-tag.new { color: var(--info); }
+  .s-tag.active { color: var(--brand-strong); }
+  .s-tag.at_risk { color: var(--ink); }
+  .s-tag.at_risk::before { background: transparent; border: 1.5px solid currentColor; }
+  .s-tag.lapsed::before { background: transparent; border: 1.5px dashed currentColor; }
+  .empty-row td { height: auto; text-align: center; color: var(--ink-soft); padding: var(--space-6) var(--space-3); cursor: default; }
+  .empty-row:hover td { background: none; }
   .empty-row .btn { margin-top: var(--space-3); }
-  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); }
-  @media (max-width: 699px) { .c-total, .c-gifts, .c-thx { display: none; } th, td { padding-inline: var(--space-3); } td .name .av-s { display: none; } }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-4); padding-top: var(--space-3); color: var(--ink-soft); font-size: var(--text-sm); }
+  @media (max-width: 699px) { .c-last, .c-gifts, .c-thx { display: none; } .nm-sub { display: block; } th, td { padding-inline: var(--space-2); } td:first-child { height: auto; padding-block: var(--space-1); } td .nm { min-height: 32px; } .nm-sub { margin-top: 0; padding-bottom: 0; } }
   @media (min-width: 700px) and (max-width: 959px) { .c-gifts { display: none; } }
 
   /* states */
-  .state { max-width: 520px; margin: var(--space-7) auto; text-align: center; padding: var(--space-5); }
+  .state { max-width: 520px; margin: var(--space-7) auto; padding-block: var(--space-5); border-block: 1px solid var(--rule); text-align: center; }
   .state h2 { font-size: var(--text-lg); }
-  .state p { margin-top: var(--space-2); color: var(--ink-soft); }
+  .state p { margin: var(--space-2) auto 0; color: var(--ink-soft); }
   .state .btn { margin-top: var(--space-4); }
 
   /* drawer */
-  .scrim { position: fixed; inset: 0; background: rgba(16,36,26,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 30; }
+  .scrim { position: fixed; inset: 0; background: rgba(16,36,26,.4); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
   .scrim.on { opacity: 1; pointer-events: auto; }
-  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); background: var(--surface); z-index: 31; transform: translateX(100%); transition: transform .3s var(--ease), visibility 0s linear .3s; display: flex; flex-direction: column; box-shadow: -20px 0 40px -20px rgba(16,36,26,.35); visibility: hidden; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); background: var(--surface); z-index: 31; transform: translateX(100%); transition: transform .25s var(--ease), visibility 0s linear .25s; display: flex; flex-direction: column; box-shadow: var(--shadow-float); visibility: hidden; }
   .drawer.on { transform: none; visibility: visible; transition-delay: 0s; }
-  .d-head { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--rule); display: flex; gap: var(--space-3); align-items: center; }
-  .d-head .av-s { width: 44px; height: 44px; font-size: var(--text-base); }
-  .d-head h2 { font-size: var(--text-lg); }
-  .d-head p { color: var(--ink-soft); font-size: var(--text-sm); }
-  .d-close { margin-left: auto; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--bg); cursor: pointer; display: grid; place-items: center; color: var(--ink); flex: none; }
-  .d-close svg { width: 18px; height: 18px; }
+  .d-head { padding: var(--space-3) var(--space-5) var(--space-4); border-bottom: 1px solid var(--rule); }
+  .d-bar { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .d-nav { display: flex; align-items: center; gap: var(--space-2); }
+  .d-pos { min-width: 5.5ch; text-align: center; font-size: var(--text-sm); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .d-close { margin-left: auto; min-width: 44px; padding-inline: var(--space-3); }
+  .d-head h2 { font-size: var(--text-lg); overflow-wrap: anywhere; }
+  .d-head p { color: var(--ink-soft); font-size: var(--text-sm); overflow-wrap: anywhere; }
   .d-body { padding: var(--space-4) var(--space-5) var(--space-6); overflow-y: auto; flex: 1; }
-  .d-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
-  .d-stats div { background: var(--bg); border-radius: var(--radius-sm); padding: var(--space-3); }
-  .d-stats span { display: block; font-size: var(--text-xs); color: var(--ink-soft); font-weight: 600; }
-  .d-stats b { font-size: var(--text-md); font-variant-numeric: tabular-nums; }
+  .facts { margin: 0; }
+  .facts > div { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); min-height: 40px; border-bottom: 1px solid var(--rule); font-size: var(--text-sm); }
+  .facts dt { color: var(--ink-soft); }
+  .facts dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .facts .ct-record::before { margin-right: .35em; }
   .d-sec { margin-top: var(--space-5); }
-  .d-sec h3 { color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: var(--space-2); }
-  .gl li { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-2); border-top: 1px solid var(--rule); font-size: var(--text-sm); }
-  .gl li:first-child { border-top: 0; }
+  .d-sec h3 { margin-bottom: var(--space-1); }
+  .gl li { display: flex; justify-content: space-between; gap: var(--space-3); min-height: 40px; align-items: center; border-bottom: 1px solid var(--rule); font-size: var(--text-sm); }
   .gl b { font-variant-numeric: tabular-nums; }
-  .eng { font-size: var(--text-sm); display: grid; gap: var(--space-2); margin-top: var(--space-4); }
-  .eng div { display: flex; justify-content: space-between; gap: var(--space-3); }
-  .eng span { color: var(--ink-soft); }
-  .compose { margin-top: var(--space-5); background: var(--brand-tint); border-radius: var(--radius); padding: var(--space-4); }
-  .compose h3 { text-transform: none; letter-spacing: -.01em; font-size: var(--text-md); color: var(--ink); margin-bottom: var(--space-1); }
+  .compose { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--ink); }
+  .compose h3 { font-size: var(--text-md); margin-bottom: var(--space-1); }
   .compose p { font-size: var(--text-sm); color: var(--ink-soft); margin-bottom: var(--space-3); }
   .compose label { display: block; font-weight: 700; font-size: var(--text-sm); margin-bottom: var(--space-1); }
-  textarea { width: 100%; min-height: 150px; resize: vertical; font: 400 var(--text-sm)/1.5 var(--font); padding: var(--space-3); border: 1.5px solid #bcd3c4; border-radius: var(--radius-sm); color: var(--ink); background: var(--surface); }
-  textarea:focus-visible { border-color: var(--brand); }
-  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
-  .status { font-size: var(--text-sm); margin-top: var(--space-3); min-height: 1.5em; color: var(--brand-strong); font-weight: 600; }
+  /* the draft is the staff's own words: staff voice, and it grows to fit its text so the whole message and sign-off are always visible */
+  textarea { display: block; width: 100%; min-height: 9em; resize: none; overflow: hidden; font: italic 500 var(--text-base)/1.6 var(--font-staff); padding: var(--space-3); border: 1px solid var(--field-line); border-radius: var(--radius-sm); color: var(--ink); background: var(--surface); }
+  textarea[readonly] { background: var(--surface-2); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-3); }
+  .status { font-size: var(--text-sm); margin-top: var(--space-3); min-height: 1.5em; color: var(--brand-strong); font-weight: 500; }
   .status.err { color: var(--risk); }
   .batch li { padding-block: var(--space-4); border-top: 1px solid var(--rule); }
   .batch li:first-child { border-top: 0; padding-top: 0; }
-  .batch .inc { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-weight: 700; }
-  .batch .inc input { width: 20px; height: 20px; accent-color: var(--brand); }
-  .batch textarea { min-height: 110px; }
-  .actions .mut { align-self: center; }
-  .sk-title { height: 56px; width: min(420px, 100%); margin-bottom: 24px; } .sk-kpi { height: 88px; }
-  .sk-table { padding: 16px; } .sk-table .sk-head { height: 44px; margin-bottom: 12px; } .sk-table .sk-row { height: 40px; margin-top: 10px; }
-  .toast { position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 50; background: var(--ink); color: #fff; padding: var(--space-3) var(--space-5); border-radius: var(--radius); box-shadow: var(--shadow-2); font-size: var(--text-sm); font-weight: 600; width: max-content; max-width: calc(100vw - 32px); text-align: center; }
+  .batch .inc { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); font-weight: 700; min-height: 44px; }
+  .batch .inc input { width: 20px; height: 20px; }
+  .batch textarea { min-height: 7em; }
+  .sk-title { height: 40px; width: min(320px, 100%); margin-bottom: 24px; } .sk-ledger { height: 88px; margin-bottom: 24px; }
+  .sk-table .sk-head { height: 44px; margin-bottom: 12px; } .sk-table .sk-row { height: 40px; margin-top: 10px; }
+  .toast { position: fixed; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 50; background: var(--ink); color: #fff; padding: var(--space-3) var(--space-5); border-radius: var(--radius-sm); box-shadow: var(--shadow-float); font-size: var(--text-sm); font-weight: 500; width: max-content; max-width: calc(100vw - 32px); text-align: center; }
 
-  @media (prefers-reduced-motion: reduce) { .drawer, .scrim, tbody tr { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .drawer, .scrim { transition: none; } }
 </style>
 </head>
 <body>
@@ -172,7 +173,7 @@
   <div class="demo" id="demo-bar" role="region" aria-label="Demo controls"><div class="wrap"><span><b>Demo</b> · sample data (fictional)</span><nav class="demo-path" aria-label="Demo path" data-demo-path></nav><button class="demo-reset" type="button" id="reset-demo">Reset demo</button></div></div>
 
   <main id="main" tabindex="-1">
-    <div class="wrap" id="app" aria-busy="true"><noscript><div class="card state"><h2>This demo page needs JavaScript</h2></div></noscript></div>
+    <div class="wrap" id="app" aria-busy="true"><noscript><div class="state"><h2>This demo page needs JavaScript</h2></div></noscript></div>
   </main>
 
   <footer class="page" id="foot">
@@ -192,9 +193,16 @@
   <div class="scrim" id="scrim"></div>
   <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title">
     <div class="d-head">
-      <div class="av-s" id="d-av" aria-hidden="true"></div>
-      <div><h2 id="d-title"></h2><p id="d-meta"></p></div>
-      <button class="d-close" type="button" id="d-close" aria-label="Close panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="d-bar">
+        <div class="d-nav" id="d-nav">
+          <button class="btn btn-quiet sm" type="button" id="d-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Previous<span class="sr-only"> donor</span></button>
+          <span class="d-pos" id="d-pos"></span>
+          <button class="btn btn-quiet sm" type="button" id="d-next">Next<span class="sr-only"> donor</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+        <button class="btn btn-quiet sm d-close" type="button" id="d-close" aria-label="Close panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <h2 id="d-title"></h2><p id="d-meta"></p>
+      <p class="sr-only" id="d-live" role="status"></p>
     </div>
     <div class="d-body" id="d-body"></div>
   </div>
@@ -207,14 +215,17 @@
   const DEMO = window.DEMO_DATA; // sample data lives in demo-data.js (shapes follow DASHBOARD_SPEC.md: DashDonor / DashOverview / DashExpense)
 
   // ---- helpers ----
-  const initials = n => n === "Anonymous" ? "?" : n.split(" ").map(p => p[0]).join("").slice(0, 2);
-  const TONES = 7; // avatar colors are the .tone-0 ... .tone-6 classes
-  const STATUS = { new: "New", active: "Active", at_risk: "At risk", lapsed: "Lapsed" };
-  const RULES = "New: first gift in this period. Active: gave within 45 days. At risk: 46 to 90 days. Lapsed: more than 90 days.";
+  // Internal status keys (at_risk, lapsed) match the data contract; the words staff see are kind ones, same as the /dashboard app.
+  const STATUS = { new: "New", active: "Active", at_risk: "Quiet lately", lapsed: "Gave before" };
+  const STATUS_RANK = { new: 0, active: 1, at_risk: 2, lapsed: 3 };
+  // day thresholds: defined once, used by the status logic AND the visible copy
+  const ACTIVE_DAYS = 45, LAPSED_DAYS = 90, READY_DAYS = 14, WINDOW_DAYS = DEMO.charity.windowDays;
+  const RULES = `New: first gift in this period. Active: gave within ${ACTIVE_DAYS} days. Quiet lately: ${ACTIVE_DAYS + 1} to ${LAPSED_DAYS} days since the last gift. Gave before: more than ${LAPSED_DAYS} days since the last gift.`;
+  const ago = n => n === 0 ? "today" : `${n} ${n === 1 ? "day" : "days"} ago`;
   setCharityName(DEMO.charity.name);
   // title and meta description come from DEMO.charity.name too (static HTML holds only generic fallbacks)
   document.title = `Donors · ${DEMO.charity.name} staff`;
-  document.querySelector('meta[name="description"]').setAttribute("content", `Fictional demo: staff view of ${DEMO.charity.name} donors, who is ready for a thank-you and who may be slipping away.`);
+  document.querySelector('meta[name="description"]').setAttribute("content", `Fictional demo: staff view of ${DEMO.charity.name} donors and who is ready for a thank-you.`);
 
   // ---- adapter: the one place to swap for dashboard:overview / dashboard:donors ----
   // The backend returns `status`, `totalGiven`, `giftCount`, first/lastGiftAt and the overview totals; the mock derives them in buildModel().
@@ -222,11 +233,11 @@
   function buildModel(raw) {
     const { from, to } = raw.period, prevFrom = from - (to - from);
     const inP = t => t >= from && t <= to, inPrev = t => t >= prevFrom && t < from;
-    const donors = raw.donors.map((d, i) => {
+    const donors = raw.donors.map(d => {
       const g = [...d.gifts].sort((a, b) => a.at - b.at), firstGiftAt = g[0].at, lastGiftAt = g[g.length - 1].at, days = Math.floor((to - lastGiftAt) / DAY);
-      const status = firstGiftAt >= from ? "new" : days <= 45 ? "active" : days <= 90 ? "at_risk" : "lapsed"; // spec status rules
+      const status = firstGiftAt >= from ? "new" : days <= ACTIVE_DAYS ? "active" : days <= LAPSED_DAYS ? "at_risk" : "lapsed"; // spec status rules
       return { id: d.id, displayName: d.displayName, hideFromTopDonors: d.hideFromTopDonors, totalGiven: sum(g, x => x.amountCents), giftCount: g.length, firstGiftAt, lastGiftAt, status, thankedAt: d.thankedAt,
-        email: d.email, gifts: g, viewToken: d.viewToken, days, tone: i % TONES, checkedInAt: null };
+        email: d.email, gifts: g, viewToken: d.viewToken, days, checkedInAt: null };
     });
     const logs = raw.impactLogs.filter(l => inP(l.loggedAt)), meals = sum(logs.filter(l => l.kind === "meals"), l => l.count), lb = sum(logs.filter(l => l.kind === "produce"), l => l.count);
     const expensesTotal = sum(raw.expenses.filter(e => inP(e.date)), e => e.amount);
@@ -251,12 +262,15 @@
 
   const params = new URLSearchParams(location.search);
   const app = document.getElementById("app");
-  let model;
-  const view = { q: "", filter: "all", sort: "last", dir: -1 };
+  let model, tableIds = [];
+  const DEFAULT_VIEW = { q: "", filter: "all", sort: "total", dir: -1 }; // biggest donors first, so high-value donors are never buried
+  const view = { ...DEFAULT_VIEW };
 
-  const isReady = d => d.email && d.status !== "lapsed" && DEMO.now - d.lastGiftAt <= 14 * DAY && (!d.thankedAt || d.thankedAt < d.lastGiftAt);
+  const isReady = d => d.email && d.status !== "lapsed" && DEMO.now - d.lastGiftAt <= READY_DAYS * DAY && (!d.thankedAt || d.thankedAt < d.lastGiftAt);
   const lastGift = d => d.gifts[d.gifts.length - 1];
   const thanksText = d => !d.thankedAt ? "Not yet" : d.thankedAt >= d.lastGiftAt ? `Thanked ${fmt(d.thankedAt)}` : `Last thanked ${fmt(d.thankedAt)}`;
+  const thxCell = d => d.email ? thanksText(d) : "No contact";
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
   // drafts use records only (the donor's own gifts and what staff logged since): never an invented number
   function draft(d, kind) {
@@ -268,140 +282,190 @@
     return `Hi ${first},\n\nThank you for your ${money(lg.amountCents)} gift on ${fmt(lg.at)}.${parts ? ` Since then the pantry has logged ${parts}.` : " We will add updates to your page as the pantry logs them."}\n\nGifts are pooled, so we cannot point to a single dollar. Your page shows what the pantry logged and your estimated share, clearly marked as an estimate.${sign}`;
   }
 
+  // ---- sorting (shared by the table, the drawer's Previous/Next, and the aria-sort announcement) ----
+  const sortVal = { name: d => d.displayName, status: d => STATUS_RANK[d.status], last: d => d.lastGiftAt, gifts: d => d.giftCount, total: d => d.totalGiven, thx: d => d.email ? (d.thankedAt || 0) : Infinity }; // thx ascending: not yet thanked first, no contact last
+  const sortName = { name: "name", status: "status", last: "last gift", gifts: "number of gifts", total: "total given", thx: "thank-you" };
+  const firstDir = { name: 1, status: 1, thx: 1, last: -1, gifts: -1, total: -1 };
+  function sortedDonors(list) {
+    return [...list].sort((a, b) => { const x = sortVal[view.sort](a), y = sortVal[view.sort](b); return (x > y ? 1 : x < y ? -1 : 0) * view.dir || a.displayName.localeCompare(b.displayName); });
+  }
+  const sortSentence = () => view.sort === "name" ? `sorted by name, ${view.dir > 0 ? "A to Z" : "Z to A"}` : `sorted by ${sortName[view.sort]}, ${view.dir > 0 ? "ascending" : "descending"}`;
+
   // ---- render ----
-  function skeleton() { return `<div class="sk sk-title"></div><div class="kpis">${'<div class="card kpi"><div class="sk sk-kpi"></div></div>'.repeat(4)}</div><div class="card sk-table"><div class="sk sk-head"></div>${'<div class="sk sk-row"></div>'.repeat(5)}</div><span class="sr-only">Loading donors…</span>`; }
-  function msg(h, p, btn) { return `<div class="card state" role="status"><h2>${h}</h2><p>${p}</p>${btn || ""}</div>`; }
+  const ARR = '<span class="arr"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1v8M2 6l3 3 3-3"/></svg></span>';
+  function skeleton() { return `<div class="sk sk-title"></div><div class="sk sk-ledger"></div><div class="sk-table"><div class="sk sk-head"></div>${'<div class="sk sk-row"></div>'.repeat(5)}</div><span class="sr-only">Loading donors…</span>`; }
+  function msg(h, p, btn) { return `<div class="state" role="status"><h2>${h}</h2><p>${p}</p>${btn || ""}</div>`; }
+
+  const filters = { all: ["All", () => true], new: ["New", d => d.status === "new"], active: ["Active", d => d.status === "active"], at_risk: ["Quiet lately", d => d.status === "at_risk"], lapsed: ["Gave before", d => d.status === "lapsed"] };
 
   function renderPage() {
-    const o = model.overview, ready = model.donors.filter(isReady);
+    const o = model.overview;
     if (!model.donors.length) {
-      app.innerHTML = `<div class="head"><div><h1>Donors</h1><p>${esc(o.period.label)}</p></div></div>` + msg("No donors yet", "Donors appear here after the first test donation. Once a gift comes in, you will see who gave, who is ready for a thank-you, and who may be slipping away.", '<a class="btn btn-brand" href="index.html">Open the public site</a>');
+      app.innerHTML = `<div class="head"><h1>Donors</h1><p class="per">${esc(o.period.label)}</p></div>` + msg("No donors yet", "Donors appear here after the first test donation. Once a gift comes in, you will see who gave and who is ready for a thank-you.", '<a class="btn btn-brand" href="index.html">Open the public site</a>');
       return;
     }
+    const counts = Object.fromEntries(Object.entries(filters).map(([k, [, fn]]) => [k, model.donors.filter(fn).length]));
     app.innerHTML = `
-      <div class="head">
-        <div><h1>Donors</h1><p>Who gave, who is ready for a thank-you, and who may be slipping away.</p><p class="per">${esc(o.period.label)}: ${fmt(o.period.from)} to ${fmt(o.period.to, true)}</p></div>
-        <div id="primary"></div>
-      </div>
-      <section class="kpis" id="kpis" aria-label="${esc(o.period.label)} at a glance"></section>
-      <div class="queues" id="queues"></div>
-      <section class="card" aria-labelledby="all-h">
-        <div class="card-h"><h2 id="all-h">All donors</h2><span class="sub" id="rules">${tip("How statuses work", RULES)}</span></div>
+      <div class="head"><h1>Donors</h1><p class="per">${esc(o.period.label)}: ${fmt(o.period.from)} to ${fmt(o.period.to, true)}</p></div>
+      <section aria-label="${esc(o.period.label)} at a glance"><dl class="sum" id="sum"></dl></section>
+      <div id="queues"></div>
+      <section class="sec" aria-labelledby="all-h">
+        <div class="sec-h"><h2 id="all-h">All donors</h2><span class="sub">${tip("How statuses work", RULES)}</span></div>
         <div class="tools">
           <div class="search"><label class="sr-only" for="q">Search donors by name</label>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             <input id="q" type="search" placeholder="Search by name" autocomplete="off"></div>
-          <div class="chips" role="group" aria-label="Filter by status" id="chips"></div>
+          <div class="seg" role="group" aria-label="Filter by status" id="seg">${Object.entries(filters).map(([k, [l]]) => `<button type="button" data-f="${k}" aria-pressed="${view.filter === k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
+          <div><label class="sr-only" for="fsel">Filter by status</label><select class="fsel" id="fsel">${Object.entries(filters).map(([k, [l]]) => `<option value="${k}">${l} (${counts[k]})</option>`).join("")}</select></div>
         </div>
         <div class="table-wrap"><table>
-          <caption class="sr-only">Donors, sortable by column. Select a name to open details.</caption>
+          <caption class="sr-only">Donors. Use the column headings to sort. Select a name to open details.</caption>
           <thead><tr>
-            <th scope="col" data-k="name"><button type="button">Donor<span class="arr"></span></button></th>
-            <th scope="col">Status</th>
-            <th scope="col" data-k="last"><button type="button">Last gift<span class="arr"></span></button></th>
-            <th scope="col" class="num c-gifts" data-k="gifts"><button type="button">Gifts<span class="arr"></span></button></th>
-            <th scope="col" class="num c-total" data-k="total"><button type="button">Total given<span class="arr"></span></button></th>
-            <th scope="col" class="c-thx">Thank-you</th>
+            <th scope="col" data-k="name"><button type="button">Donor${ARR}</button></th>
+            <th scope="col" data-k="status"><button type="button">Status${ARR}</button></th>
+            <th scope="col" class="c-last" data-k="last"><button type="button">Last gift${ARR}</button></th>
+            <th scope="col" class="num c-gifts" data-k="gifts"><button type="button">Gifts${ARR}</button></th>
+            <th scope="col" class="num" data-k="total"><button type="button">Total given${ARR}</button></th>
+            <th scope="col" class="c-thx" data-k="thx"><button type="button">Thank-you${ARR}</button></th>
           </tr></thead>
           <tbody id="rows"></tbody>
         </table></div>
-        <div class="foot"><span id="count" aria-live="polite"></span><span>Anonymous donors are counted but cannot be contacted.</span></div>
+        <div class="foot"><span id="count" role="status"></span><span>Anonymous donors are counted but cannot be contacted.</span></div>
       </section>`;
     document.getElementById("q").addEventListener("input", e => { view.q = e.target.value.trim().toLowerCase(); renderTable(); });
-    document.getElementById("chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { view.filter = b.dataset.f; renderTable(); } });
-    document.querySelectorAll("th[data-k] button").forEach(b => b.addEventListener("click", () => { const k = b.parentElement.dataset.k; if (view.sort === k) view.dir *= -1; else { view.sort = k; view.dir = k === "name" ? 1 : -1; } renderTable(); }));
+    document.getElementById("seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { view.filter = b.dataset.f; renderTable(); } });
+    document.getElementById("fsel").addEventListener("change", e => { view.filter = e.target.value; renderTable(); });
+    document.querySelectorAll("th[data-k] button").forEach(b => b.addEventListener("click", () => { const k = b.parentElement.dataset.k; if (view.sort === k) view.dir *= -1; else { view.sort = k; view.dir = firstDir[k]; } renderTable(); }));
     document.getElementById("rows").addEventListener("click", e => { const tr = e.target.closest("tr[data-id]"); if (tr) openDonor(tr.dataset.id, tr.querySelector("button")); });
-    renderKpis(); renderQueues(); renderTable();
+    renderSummary(); renderQueues(); renderTable();
   }
 
-  function renderKpis() {
-    const o = model.overview, c = model.donors, cnt = s => c.filter(d => d.status === s).length, diff = o.totalRaised - o.prevPeriodRaised;
-    document.getElementById("kpis").innerHTML = `
-      <div class="card kpi"><div class="k-top">Raised <span class="tag rec">Logged</span></div><span class="val ct-record">${money(o.totalRaised)}</span><small>${diff >= 0 ? "Up" : "Down"} ${money(Math.abs(diff))} from ${money(o.prevPeriodRaised)} in the 30 days before</small></div>
-      <div class="card kpi"><div class="k-top">Donors <span class="tag rec">Logged</span></div><span class="val ct-record">${o.donorCounts.total}</span>
-        <div class="sbar" role="img" aria-label="${["new", "active", "at_risk", "lapsed"].map(s => cnt(s) + " " + STATUS[s].toLowerCase()).join(", ")}">${["new", "active", "at_risk", "lapsed"].map(s => `<i class="s-${s}" style="flex:${cnt(s) || 0}"></i>`).join("")}</div>
-        <small>${cnt("new")} new · ${cnt("active")} active · ${cnt("at_risk")} at risk · ${cnt("lapsed")} lapsed</small></div>
-      <div class="card kpi"><div class="k-top">Meals served <span class="tag rec">Logged</span></div><span class="val ct-record">${o.mealsServed}</span><small>Counted by staff${o.produceLb ? `, plus ${o.produceLb} lb of produce received` : ""}</small></div>
-      <div class="card kpi"><div class="k-top">Cost per meal <span class="tag est">Estimate</span></div>${o.costPerMeal.value === null ? '<span class="val">Not yet</span><small>No meals logged in this period</small>' : `<span class="val"><span class="ct-estimate">about ${money(o.costPerMeal.value)}</span></span>`}<small>Expenses ÷ meals served ${tip("See the math", o.costPerMeal.formula)}</small></div>`;
+  // one ruled summary row. Logged = a fact staff or donors recorded; Estimate = computed, so it says "about" and shows the math.
+  function renderSummary() {
+    const o = model.overview, c = model.donors, cnt = s => c.filter(d => d.status === s).length;
+    document.getElementById("sum").innerHTML = `
+      <div><dt>Raised <span class="tag rec">Logged</span></dt><dd><span class="val ct-record">${money(o.totalRaised)}</span><small>${money(o.prevPeriodRaised)} in the ${WINDOW_DAYS} days before</small></dd></div>
+      <div><dt>Donors <span class="tag rec">Logged</span></dt><dd><span class="val ct-record">${o.donorCounts.total}</span><small>${cnt("new")} new · ${cnt("active")} active · ${cnt("at_risk")} quiet lately · ${cnt("lapsed")} gave before</small></dd></div>
+      <div><dt>Meals served <span class="tag rec">Logged</span></dt><dd><span class="val ct-record">${o.mealsServed}</span><small>Counted by staff${o.produceLb ? `, plus ${o.produceLb} lb of produce received` : ""}</small></dd></div>
+      <div><dt>Cost per meal <span class="tag est">Estimate</span></dt><dd>${o.costPerMeal.value === null ? '<span class="val">Not yet</span><small>No meals logged in this period</small>' : `<span class="val"><span class="ct-estimate">about ${money(o.costPerMeal.value)}</span></span><small>Expenses ÷ meals served ${tip("See the math", o.costPerMeal.formula)}</small>`}</dd></div>`;
   }
 
   function renderQueues() {
     const ready = model.donors.filter(isReady).sort((a, b) => b.lastGiftAt - a.lastGiftAt);
-    const slip = model.donors.filter(d => d.status === "at_risk" && !d.checkedInAt).sort((a, b) => b.days - a.days);
-    const row = (d, why, label, cls) => `<li><div><b>${esc(d.displayName)}</b><span>${why}</span></div><button type="button" class="btn sm ${cls}" data-open="${d.id}" aria-label="${label}: ${esc(d.displayName)}">${label}</button></li>`;
+    const quiet = model.donors.filter(d => d.status === "at_risk" && !d.checkedInAt).sort((a, b) => b.days - a.days);
+    const row = (d, why, label) => `<li><div class="w-main"><b>${esc(d.displayName)}</b><span>${why}</span></div><button type="button" class="btn btn-quiet sm" data-open="${d.id}" aria-label="${label}: ${esc(d.displayName)}">${label}</button></li>`;
     document.getElementById("queues").innerHTML = `
-      <section class="card q" aria-labelledby="q1"><h2 id="q1">Ready for a thank-you <span class="count">${ready.length}</span></h2><p class="sub">Gave in the last 14 days and have not been thanked since.</p>
-        <ul>${ready.length ? ready.map(d => row(d, `Gave ${money(lastGift(d).amountCents)} on ${fmt(d.lastGiftAt)} · ${d.days === 0 ? "today" : d.days + (d.days === 1 ? " day" : " days") + " ago"}`, "Write thank-you", "btn-brand")).join("") : '<li class="none">Everyone who gave recently has been thanked.</li>'}</ul></section>
-      <section class="card q warn" aria-labelledby="q2"><h2 id="q2">May be slipping away <span class="count">${slip.length}</span></h2><p class="sub">Last gift 46 to 90 days ago. A gentle check-in, never a guilt trip.</p>
-        <ul>${slip.length ? slip.map(d => row(d, `Last gift ${d.days} days ago · gave ${money(d.totalGiven)} in ${d.giftCount} ${d.giftCount === 1 ? "gift" : "gifts"}`, "Write check-in", "btn-quiet")).join("") : '<li class="none">Nobody is between 46 and 90 days since their last gift.</li>'}</ul></section>`;
-    document.getElementById("queues").onclick = e => { const b = e.target.closest("[data-open]"); if (b) openDonor(b.dataset.open, b, true); };
-    const p = document.getElementById("primary");
-    p.innerHTML = ready.length ? `<button class="btn btn-brand" type="button" id="review">Review ${ready.length} ${ready.length === 1 ? "thank-you" : "thank-yous"}</button>` : `<span class="btn btn-quiet" aria-disabled="true">No thank-yous waiting</span>`;
-    const r = document.getElementById("review"); if (r) r.addEventListener("click", () => openBatch(r));
+      <section class="sec" aria-labelledby="q1">
+        <div class="sec-h"><h2 id="q1" tabindex="-1">Ready for a thank-you <span class="n">${ready.length}</span></h2>${ready.length ? `<button class="btn btn-brand sm" type="button" id="review">Review ${plural(ready.length, "thank-you", "thank-yous")}</button>` : ""}</div>
+        <p class="sub">Gave in the last ${READY_DAYS} days and have not been thanked since.</p>
+        <ul class="work">${ready.length ? ready.map(d => row(d, `Gave ${money(lastGift(d).amountCents)} on ${fmt(d.lastGiftAt)} · ${ago(d.days)}`, "Write thank-you")).join("") : '<li class="none">Everyone who gave recently has been thanked.</li>'}</ul>
+      </section>
+      <section class="sec" aria-labelledby="q2">
+        <div class="sec-h"><h2 id="q2">Quiet lately <span class="n">${quiet.length}</span></h2></div>
+        <p class="sub">Last gift ${ACTIVE_DAYS + 1} to ${LAPSED_DAYS} days ago. A short note with what the pantry has logged since.</p>
+        <ul class="work">${quiet.length ? quiet.map(d => row(d, `Last gift ${ago(d.days)} · gave ${money(d.totalGiven)} in ${plural(d.giftCount, "gift", "gifts")}`, "Write check-in")).join("") : `<li class="none">Nobody is between ${ACTIVE_DAYS + 1} and ${LAPSED_DAYS} days since their last gift.</li>`}</ul>
+      </section>`;
+    document.getElementById("queues").onclick = e => {
+      const r = e.target.closest("#review"); if (r) return openBatch(r);
+      const b = e.target.closest("[data-open]"); if (b) openDonor(b.dataset.open, b, true);
+    };
   }
 
-  const filters = { all: ["All", () => true], new: ["New", d => d.status === "new"], active: ["Active", d => d.status === "active"], at_risk: ["At risk", d => d.status === "at_risk"], lapsed: ["Lapsed", d => d.status === "lapsed"] };
-  const sortVal = { name: d => d.displayName, last: d => d.lastGiftAt, gifts: d => d.giftCount, total: d => d.totalGiven };
   function renderTable() {
     const f = filters[view.filter][1];
-    const list = model.donors.filter(f).filter(d => !view.q || d.displayName.toLowerCase().includes(view.q))
-      .sort((a, b) => { const x = sortVal[view.sort](a), y = sortVal[view.sort](b); return (x > y ? 1 : x < y ? -1 : 0) * view.dir; });
-    document.getElementById("chips").innerHTML = Object.entries(filters).map(([k, [l, fn]]) => `<button type="button" data-f="${k}" aria-pressed="${view.filter === k}">${l}<span>${model.donors.filter(fn).length}</span></button>`).join("");
-    document.querySelectorAll("th[data-k]").forEach(th => { const on = th.dataset.k === view.sort; if (on) th.setAttribute("aria-sort", view.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort"); th.querySelector(".arr").textContent = on ? (view.dir > 0 ? "↑" : "↓") : ""; });
+    const list = sortedDonors(model.donors.filter(f).filter(d => !view.q || d.displayName.toLowerCase().includes(view.q)));
+    tableIds = list.map(d => d.id);
+    document.querySelectorAll("#seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === view.filter)));
+    document.getElementById("fsel").value = view.filter;
+    document.querySelectorAll("th[data-k]").forEach(th => { if (th.dataset.k === view.sort) th.setAttribute("aria-sort", view.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort"); });
     document.getElementById("rows").innerHTML = list.length ? list.map(d => `<tr data-id="${d.id}">
-        <td><span class="name"><span class="av-s tone-${d.tone}" aria-hidden="true">${initials(d.displayName)}</span><button type="button" data-open="${d.id}">${esc(d.displayName)}</button></span></td>
+        <td><button type="button" class="nm" data-open="${d.id}">${esc(d.displayName)}</button><span class="nm-sub">Thank-you: ${thxCell(d)}</span></td>
         <td><span class="s-tag ${d.status}">${STATUS[d.status]}</span></td>
-        <td>${fmt(d.lastGiftAt)}<span class="mut"> · ${d.days}d ago</span></td>
+        <td class="c-last">${fmt(d.lastGiftAt)}<span class="mut"> · ${ago(d.days)}</span></td>
         <td class="num c-gifts">${d.giftCount}</td>
-        <td class="num c-total"><b>${money(d.totalGiven)}</b></td>
-        <td class="c-thx mut">${d.email ? thanksText(d) : "No contact"}</td></tr>`).join("")
-      : `<tr class="empty-row"><td colspan="6">No donors match${view.q ? ` “${esc(view.q)}”` : ""}.<br><button class="btn btn-quiet sm" type="button" id="clear">Clear filters</button></td></tr>`;
+        <td class="num"><b>${money(d.totalGiven)}</b></td>
+        <td class="c-thx mut">${thxCell(d)}</td></tr>`).join("")
+      : `<tr class="empty-row"><td colspan="6">No donors match${view.q ? ` “${esc(view.q)}”` : ""}.<br><button class="btn btn-quiet sm" type="button" id="clear">Clear search and filter</button></td></tr>`;
     const c = document.getElementById("clear"); if (c) c.addEventListener("click", () => { view.q = ""; view.filter = "all"; document.getElementById("q").value = ""; renderTable(); });
-    document.getElementById("count").textContent = `Showing ${list.length} of ${model.donors.length} donors`;
+    document.getElementById("count").textContent = `Showing ${list.length} of ${model.donors.length} donors, ${sortSentence()}`;
   }
 
   // ---- drawer ----
   const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim"), body = document.getElementById("d-body");
-  let lastFocus = null;
+  const prevBtn = document.getElementById("d-prev"), nextBtn = document.getElementById("d-next");
+  let lastFocus = null, lastKey = null, navIds = [], currentId = null;
   const background = [document.getElementById("top"), document.getElementById("demo-bar"), document.getElementById("main"), document.getElementById("foot")];
   function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 4500); }
-  function showDrawer(from, title, meta, av, tone) {
-    clearTimeout(closeDrawer.t); lastFocus = from || document.activeElement;
+
+  // textareas grow to fit their text, so a draft and its sign-off are never clipped behind a scrollbar
+  function fit(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + (t.offsetHeight - t.clientHeight) + "px"; }
+  const fitAll = () => body.querySelectorAll("textarea").forEach(fit);
+  body.addEventListener("input", e => { if (e.target.matches("textarea")) fit(e.target); });
+  window.addEventListener("resize", fitAll);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+
+  function showDrawer(from, title, meta) {
+    const fresh = !drawer.classList.contains("on");
+    if (fresh) {
+      lastFocus = from || document.activeElement; lastKey = lastFocus && lastFocus.dataset ? lastFocus.dataset.open || null : null;
+      drawer.classList.add("on"); scrim.classList.add("on"); document.body.style.overflow = "hidden"; background.forEach(el => el.inert = true);
+      setTimeout(() => document.getElementById("d-close").focus(), 60);
+    }
     document.getElementById("d-title").textContent = title; document.getElementById("d-meta").textContent = meta;
-    const a = document.getElementById("d-av"); a.textContent = av || ""; a.className = "av-s" + (av ? " tone-" + tone : ""); a.hidden = !av;
-    drawer.classList.add("on"); scrim.classList.add("on"); document.body.style.overflow = "hidden"; background.forEach(el => el.inert = true);
-    setTimeout(() => document.getElementById("d-close").focus(), 60);
+    body.scrollTop = 0;
   }
   function closeDrawer() {
-    clearTimeout(closeDrawer.t);
-    if (!drawer.classList.contains("on")) return; // already closed (e.g. a delayed close after a reset)
+    if (!drawer.classList.contains("on")) return; // already closed (e.g. a close after a reset)
     drawer.classList.remove("on"); scrim.classList.remove("on"); document.body.style.overflow = ""; background.forEach(el => el.inert = false);
-    const back = lastFocus && document.contains(lastFocus) ? lastFocus : document.getElementById("review") || document.getElementById("q");
+    // return focus to where it came from; if that control was re-rendered meanwhile, find its replacement
+    const back = lastFocus && document.contains(lastFocus) ? lastFocus : (lastKey && document.querySelector(`#rows [data-open="${lastKey}"]`)) || document.getElementById("review") || document.getElementById("q1") || document.getElementById("q");
     if (back) back.focus();
   }
   document.getElementById("d-close").addEventListener("click", closeDrawer);
   scrim.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDrawer(); });
 
-  function openDonor(id, from, focusDraft) {
+  function setNavUI(i) { // i < 0 hides Previous/Next (batch view)
+    document.getElementById("d-nav").hidden = i < 0;
+    if (i < 0) return;
+    document.getElementById("d-pos").textContent = `${i + 1} of ${navIds.length}`;
+    prevBtn.setAttribute("aria-disabled", String(i === 0)); nextBtn.setAttribute("aria-disabled", String(i === navIds.length - 1));
+  }
+  function step(dir, btn) {
+    const i = navIds.indexOf(currentId) + dir; if (i < 0 || i >= navIds.length) return;
+    openDonor(navIds[i], null, false, true);
+    const d = model.donors.find(x => x.id === currentId);
+    document.getElementById("d-live").textContent = `${d.displayName}, ${i + 1} of ${navIds.length}`;
+    if (btn.getAttribute("aria-disabled") === "true") (dir > 0 ? prevBtn : nextBtn).focus(); // keep focus on a live control at either end of the list
+  }
+  prevBtn.addEventListener("click", () => step(-1, prevBtn));
+  nextBtn.addEventListener("click", () => step(1, nextBtn));
+
+  function openDonor(id, from, focusDraft, viaNav) {
     const d = model.donors.find(x => x.id === id); if (!d) return;
+    currentId = id;
+    if (!viaNav) navIds = tableIds.includes(id) ? tableIds.slice() : sortedDonors(model.donors).map(x => x.id); // walk the table as it is sorted and filtered now
     const kind = !isReady(d) && (d.status === "at_risk" || d.status === "lapsed") ? "checkin" : "thanks", first = esc(d.displayName.split(" ")[0]), lg = lastGift(d);
-    showDrawer(from, d.displayName, d.email || "No contact details on file", initials(d.displayName), d.tone);
+    showDrawer(from, d.displayName, d.email || "No contact details on file");
+    setNavUI(navIds.indexOf(id));
     const compose = !d.email
       ? `<div class="compose"><h3>Nothing to send</h3><p>This gift was left anonymous, so there is no way to contact the donor. It still counts in your totals.</p></div>`
       : `<div class="compose"><h3>${kind === "checkin" ? `Check in with ${first}` : `Thank ${first}`}</h3>
           <p>${kind === "checkin" ? "A short note with what has been logged since their last gift. Edit it first if you like." : "A personal note built from their gift and what staff have logged since. Edit it first if you like."}</p>
           <label for="d-msg">Message</label><textarea id="d-msg">${esc(draft(d, kind))}</textarea>
           <div class="actions"><button class="btn btn-brand" type="button" id="d-send">${kind === "checkin" ? "Send check-in" : "Send thank-you"}</button>
-          ${d.viewToken ? `<a class="btn btn-quiet" href="dashboard.html?ct=${d.viewToken}" target="_blank" rel="noopener">Preview their page</a>` : '<span class="mut">No donor page in this demo</span>'}</div>
+          ${d.viewToken ? `<a class="link" href="dashboard.html?ct=${d.viewToken}" target="_blank" rel="noopener">Preview their page<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:6px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>` : '<span class="mut">No donor page in this demo</span>'}</div>
           <p class="status" id="d-status" role="status"></p></div>`;
     body.innerHTML = `
-      <div class="d-stats"><div><span>Total given</span><b class="ct-record">${money(d.totalGiven)}</b></div><div><span>Gifts</span><b class="ct-record">${d.giftCount}</b></div><div><span>Last gift</span><b class="ct-record">${fmt(d.lastGiftAt)}</b></div></div>
-      <div class="eng"><div><span>Status</span><b><span class="s-tag ${d.status}">${STATUS[d.status]}</span></b></div>
-        <div><span>Donor since</span><b>${fmt(d.firstGiftAt, true)}</b></div>
-        <div><span>Last gift</span><b>${money(lg.amountCents)}, ${d.days} ${d.days === 1 ? "day" : "days"} ago</b></div>
-        <div><span>Thank-you</span><b id="d-thx">${d.email ? thanksText(d) : "No contact on file"}</b></div></div>
+      <dl class="facts">
+        <div><dt>Total given</dt><dd class="ct-record">${money(d.totalGiven)}</dd></div>
+        <div><dt>Gifts</dt><dd class="ct-record">${d.giftCount}</dd></div>
+        <div><dt>Last gift</dt><dd class="ct-record">${money(lg.amountCents)}, ${fmt(d.lastGiftAt)} · ${ago(d.days)}</dd></div>
+        <div><dt>Donor since</dt><dd>${fmt(d.firstGiftAt, true)}</dd></div>
+        <div><dt>Status</dt><dd><span class="s-tag ${d.status}">${STATUS[d.status]}</span></dd></div>
+        <div><dt>Thank-you</dt><dd id="d-thx">${d.email ? thanksText(d) : "No contact on file"}</dd></div>
+      </dl>
       <div class="d-sec"><h3>Gifts</h3><ul class="gl">${[...d.gifts].reverse().map(g => `<li><span>${fmt(g.at, true)} · ${esc(g.label)}</span><b>${money(g.amountCents)}</b></li>`).join("")}</ul></div>${compose}`;
+    fitAll(); setTimeout(fitAll, 80);
     const send = document.getElementById("d-send");
     if (send) send.addEventListener("click", () => {
       const st = document.getElementById("d-status"), text = document.getElementById("d-msg").value.trim();
@@ -409,26 +473,33 @@
       if (kind === "checkin") d.checkedInAt = DEMO.now; else d.thankedAt = DEMO.now;
       st.className = "status"; st.textContent = `Queued for ${d.email}. Demo only: no email was sent.`;
       send.textContent = "Queued"; send.disabled = true; document.getElementById("d-thx").textContent = d.thankedAt && d.thankedAt >= d.lastGiftAt ? thanksText(d) : document.getElementById("d-thx").textContent;
-      renderKpis(); renderQueues(); renderTable();
+      renderQueues(); renderTable();
     });
     if (focusDraft && document.getElementById("d-msg")) setTimeout(() => document.getElementById("d-msg").focus(), 90);
   }
 
   function openBatch(from) {
     const list = model.donors.filter(isReady).sort((a, b) => b.lastGiftAt - a.lastGiftAt);
-    showDrawer(from, `Review ${list.length} ${list.length === 1 ? "thank-you" : "thank-yous"}`, "Each note uses only logged facts. Edit or untick before sending.");
+    currentId = null;
+    showDrawer(from, `Review ${plural(list.length, "thank-you", "thank-yous")}`, "Each note uses only logged facts. Edit or untick before sending.");
+    setNavUI(-1);
     body.innerHTML = `<ul class="batch">${list.map(d => `<li><label class="inc" for="inc-${d.id}"><input type="checkbox" id="inc-${d.id}" checked> ${esc(d.displayName)}</label>
         <label class="sr-only" for="msg-${d.id}">Message to ${esc(d.displayName)}</label><textarea id="msg-${d.id}">${esc(draft(d, "thanks"))}</textarea></li>`).join("")}</ul>
-      <div class="actions"><button class="btn btn-brand" type="button" id="b-send"></button></div><p class="status" id="b-status" role="status"></p>`;
-    const send = document.getElementById("b-send"), boxes = () => list.filter(d => document.getElementById("inc-" + d.id).checked);
-    const label = () => { const n = boxes().length; send.textContent = n ? `Send ${n} ${n === 1 ? "thank-you" : "thank-yous"}` : "Nothing selected"; send.disabled = !n; };
+      <div class="actions"><button class="btn btn-brand" type="button" id="b-send"></button><button class="btn btn-quiet" type="button" id="b-done" hidden>Close</button></div><p class="status" id="b-status" role="status"></p>`;
+    fitAll(); setTimeout(fitAll, 80);
+    const send = document.getElementById("b-send"), done = document.getElementById("b-done"), boxes = () => list.filter(d => document.getElementById("inc-" + d.id).checked);
+    let sent = false;
+    const label = () => { if (sent) return; const n = boxes().length; send.textContent = n ? `Send ${plural(n, "thank-you", "thank-yous")}` : "Nothing selected"; send.disabled = !n; };
     body.querySelector(".batch").addEventListener("change", label); label(); // scoped to this render's <ul>, which is replaced on every open, so handlers never stack
+    done.addEventListener("click", closeDrawer);
     send.addEventListener("click", () => {
-      const sel = boxes(); sel.forEach(d => d.thankedAt = DEMO.now);
-      document.getElementById("b-status").textContent = `Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"}. Demo only: no email was sent.`;
-      send.disabled = true; send.textContent = "Queued";
-      renderQueues(); renderTable(); toast(`Queued ${sel.length} ${sel.length === 1 ? "thank-you" : "thank-yous"} (demo only, nothing sent)`);
-      closeDrawer.t = setTimeout(closeDrawer, 1200);
+      if (sent) return;
+      sent = true; const sel = boxes(); sel.forEach(d => d.thankedAt = DEMO.now);
+      // the result stays on screen (no auto-close): the status is announced once, and staff close the panel when they are ready
+      document.getElementById("b-status").textContent = `Queued ${plural(sel.length, "thank-you", "thank-yous")}. Demo only: no email was sent.`;
+      send.setAttribute("aria-disabled", "true"); send.textContent = "Queued"; done.hidden = false;
+      body.querySelectorAll("textarea").forEach(t => t.readOnly = true); body.querySelectorAll(".batch input").forEach(i => i.disabled = true);
+      renderQueues(); renderTable();
     });
   }
 
@@ -442,10 +513,10 @@
     ["localStorage", "sessionStorage"].forEach(k => { try { const st = window[k]; Object.keys(st).filter(x => x.startsWith("chartitable:")).forEach(x => st.removeItem(x)); } catch (e) {} });
   }
   async function resetDemo() {
-    clearTimeout(closeDrawer.t); clearTimeout(toast.t); document.getElementById("toast").hidden = true;
+    clearTimeout(toast.t); document.getElementById("toast").hidden = true;
     if (drawer.classList.contains("on")) closeDrawer();
     clearOwnStorage();
-    Object.assign(view, { q: "", filter: "all", sort: "last", dir: -1 });
+    Object.assign(view, DEFAULT_VIEW);
     params.delete("state"); sel.value = ""; history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : ""));
     await boot();
     document.getElementById("reset-demo").focus(); toast("Demo reset: back to the sample data.");

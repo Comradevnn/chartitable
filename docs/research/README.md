@@ -8,6 +8,7 @@ Rules: append or correct with a dated line; don't rewrite someone else's finding
 | `../demo-site-reference.md` | Survey of 10 real pantry/food bank sites: homepage order, donate flows, honest-language patterns, two visual directions for the fictional demo sites | Fri Oct 23 |
 | `../DASHBOARD_SPEC.md` | Dashboard spec, ideas, data contract (owner: Teammate 1; Idea log is open to all) | Sat Oct 24 |
 | `../../convex/CONVEX_NOTES.md` | Convex cheat sheet for backend lanes | Fri Oct 23 |
+| `charity-sites-2026-10-24.md` | Charity and food pantry home pages: structural/tonal reference (7 sites observed, 10 principles), Lane B, 2026-10-24, observed | Sat Oct 24 |
 
 ## Open research questions
 - YC startup from the LinkedIn demo (coffee beans, returning-shopper page rearranged from existing components). Kinect was checked and is a conversational sales agent, probably not it. Need the post link, poster name, or video title.
