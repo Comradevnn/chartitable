@@ -21,6 +21,15 @@
         ],
         "createdAt": "2026-10-24T10:55:11.519Z",
         "reason": "Claude: flagged lines are a segmented-control divider (.freq-btn + .freq-btn border-left) and a checkmark glyph (.check-list li::before), not card side-accents; user has not confirmed"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "frontend/index.html"
+        ],
+        "createdAt": "2026-10-24T17:59:58.594Z",
+        "reason": "False positive: detector reads all roles as 16px because it cannot resolve the font shorthand with var()/clamp(); rendered sizes measured in browser are h1 52px, h2 32/22px, body 17px (steps >=1.25x)."
       }
     ]
   }
