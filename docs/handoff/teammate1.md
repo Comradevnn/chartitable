@@ -1,10 +1,18 @@
 # Handoff: Teammate 1 (Lane B: dashboard + demo sites)
 
-Last updated: Sat Oct 24, ~4:15 AM PT (by Revnn's session; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, 9:43 AM PT (Teammate 1's Claude Code session; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
 
 ## Status (Sat): TEAMMATE_NEXT_PROMPT items done: ct-slots.css fitted to real layer markup, Figma at link in docs/DASHBOARD_SPEC.md, dashboard MVP + donor detail. Waiting on Revnn: bundle ct-slots.css into layer.js, deploy /dashboard, T21 names, dashboard:donorDetail query
 
 **Newest, self-contained session handoff (Sat Oct 24): `docs/handoff/teammate1-session-handoff.md`. Read it first.**
+
+## State this session (Sat)
+- The project root is a git repo (any older note saying otherwise is wrong). Branch `main-synced` is synced to origin/main `30a3479` (T24–T26) plus our uncommitted changes: `docs/design/ct-slots.css`, `PROGRESS.md`, `docs/handoff/teammate1.md`.
+- Contract v2 understood. Brindlecote v2 conversion is Lane A's T29 (D19); Lane B waits for Revnn's OK before touching `demo-sites/hosts/**`. Host review done (read-only): both hosts are stranger-safe, honest and fictional; Cinderwell nits were sent as Blockers rows.
+- `ct-slots.css`: scoped to filled v1 slots, two specificity tiers (one class for layer-owned rules, zero for `.ct-record`/`.ct-estimate`/`.ct-next*`), 44px next link, dead `.ct-greeting`/`.ct-figure` removed. T22 stays `review`.
+- Rerun the stub check: `npm run build:smoke -w layer`; serve `layer/dist/layer.smoke.js` as `layer.js` on 5174 with CORS (python with Access-Control-Allow-Origin, or `npm run dev:stub -w layer`); `node layer/test/smoke-server.mjs` (5198); serve `demo-sites/test-hosts/warm-pantry` on 5501 and `regional-bank` on 5502 (`python -m http.server`); open `http://localhost:5501/?ct=demo`. Any token other than slow/junk/bad/hostile returns the rich sample.
+- Run the DEV check once a link exists: `npm run build -w layer` (DEV API base baked in), serve dist on 5174, open the test host with `?ct=<token>` from a link minted on DEV by Revnn (`npx convex run tokens:issue '{"donorId":"donor_a01","charityId":"demo-pantry-a"}'`, and donor_a02 / demo-pantry-b). Never paste tokens into chat, logs or commits.
+- Open items: T22 DEV check; next-step link (Lane A); hero photo on stub; Brindlecote conversion pending Revnn; `markThanked` landed as `(pin, charityId, donorId)` while `removeExpense`/`restoreExpense`/`donorDetail` are not yet there; `/frontend` Tansy Street rename still open (T21); cream `#f6f5ef` pending lead.
 
 ## Start here (new, Sat ~4 AM PT)
 Your next prompt is **`docs/TEAMMATE_NEXT_PROMPT.md`**. Priority 1: design the returning-donor experience (T22) and deliver `docs/design/ct-slots.css`. Priority 2: dashboard MVP (T18). Leave the four Cursor test hosts alone (fixtures, D14). Demo names are being replaced (T21): "Tansy Street Pantry" is flagged as near-identical to a real business name; don't ship it until Revnn confirms a name. Vercel shows your pushes as Blocked (expected, see below); tell Revnn when you want a deploy.
