@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img">
+  <title>Illustrated crate of produce</title>
+  <rect width="640" height="400" fill="#f3e6d4"/>
+  <rect x="70" y="150" width="500" height="190" rx="6" fill="#8c4a2f"/>
+  <rect x="70" y="150" width="500" height="28" fill="#6e3822"/>
+  <path d="M90 178h80M190 178h80M290 178h80M390 178h80M490 178h60" stroke="#c4a574" stroke-width="6"/>
+  <ellipse cx="200" cy="250" rx="54" ry="40" fill="#c45c3e"/>
+  <ellipse cx="300" cy="246" rx="48" ry="36" fill="#d97848"/>
+  <ellipse cx="400" cy="258" rx="50" ry="38" fill="#e0a106"/>
+  <ellipse cx="470" cy="240" rx="36" ry="28" fill="#6a8f4e"/>
+  <rect x="120" y="300" width="400" height="16" fill="#6e3822"/>
+</svg>
