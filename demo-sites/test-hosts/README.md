@@ -7,9 +7,9 @@ Fictional charity websites for trying Chartitable's script-tag layer. They are n
 | Folder | Name | Charity id | Port |
 |---|---|---|---|
 | `warm-pantry` | Cinderwell Pantry | `demo-pantry-a` | 5501 |
-| `regional-bank` | Trestlebin Regional Food Bank | `demo-pantry-b` | 5502 |
-| `volunteer-run` | Pellam Street Pantry | `demo-pantry-a` | 5503 |
-| `church-community` | Osier Court Community Center | `demo-pantry-b` | 5504 |
+| `regional-bank` | Brindlecote Food Bank | `demo-pantry-b` | 5502 |
+| `volunteer-run` | Quillon Street Pantry | `demo-pantry-a` | 5503 |
+| `church-community` | Wrenfield Lane Pantry | `demo-pantry-b` | 5504 |
 
 ## Serve
 
