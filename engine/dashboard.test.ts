@@ -156,15 +156,21 @@ describe("buildOverview (seed)", () => {
         photoUrlByLogId: {},
         now: NOW,
       });
-      // Persona/at-risk donors (a14..a16) gave long ago, outside the period; every other seed gift is within 30 days.
+      // Persona/at-risk donors (a14..a16) and a few earlier gifts sit outside the period.
       const all = seed.donations.filter((d) => d.charityId === charityId);
       const mine = all.filter((d) => d.createdAt >= period.from && d.createdAt <= period.to);
       const prev = all.filter((d) => d.createdAt >= prevPeriod.from && d.createdAt <= prevPeriod.to);
       expect(o.totalRaised).toBe(mine.reduce((s, d) => s + d.amountCents, 0));
       expect(o.prevPeriodRaised).toBe(prev.reduce((s, d) => s + d.amountCents, 0));
       expect(o.donorCounts.total).toBe(new Set(all.map((d) => d.donorId)).size);
-      expect(o.donorCounts.new).toBe(new Set(mine.map((d) => d.donorId)).size); // in-period donors are all first-time
-      expect(o.donorCounts.returning).toBe(0);
+      // new = first gift in the period; returning = gave before the period and again in it (Jonas, Omar at A; Lena, Nadia, Ines at B).
+      const firstAt = new Map<string, number>();
+      for (const d of all) firstAt.set(d.donorId, Math.min(firstAt.get(d.donorId) ?? Infinity, d.createdAt));
+      const inPeriodDonors = new Set(mine.map((d) => d.donorId));
+      const fresh = [...inPeriodDonors].filter((id) => firstAt.get(id)! >= period.from);
+      expect(o.donorCounts.new).toBe(fresh.length);
+      expect(o.donorCounts.returning).toBe(inPeriodDonors.size - fresh.length);
+      expect(o.donorCounts.returning).toBe(charityId === "demo-pantry-a" ? 2 : 3);
       // Hollis (A, 120 days) and Juno (B, 150 days) are the lapsed donors; Bram (B, 60 days) is at risk, not lapsed.
       expect(o.donorCounts.lapsed).toBe(1);
       const meals = seed.impactLogs.filter((l) => l.charityId === charityId && l.kind === "meals");
@@ -205,6 +211,17 @@ describe("buildDonors / topDonors", () => {
     });
     expect(l[0]).toMatchObject({ displayName: "Anonymous", totalGiven: 1500, giftCount: 2, status: "new", thankedAt: 123, hideFromTopDonors: false });
     expect(l[0]!.firstGiftAt).toBeLessThan(l[0]!.lastGiftAt);
+  });
+  it("shows a donor who opted out of public lists as Anonymous", () => {
+    const l = buildDonors({
+      charityId: "demo-pantry-a",
+      donors: [{ id: "h", firstName: "Nadia", email: null, hideFromTopDonors: true }],
+      donations: [gift("g1", "h", 1000, 3)],
+      period,
+      now: NOW,
+    });
+    expect(l[0]).toMatchObject({ displayName: "Anonymous", hideFromTopDonors: true });
+    expect(JSON.stringify(l)).not.toContain("Nadia");
   });
   it("topDonors excludes hidden donors and keeps order", () => {
     const hidden = list.find((d) => d.id === "donor_a07");

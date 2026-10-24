@@ -23,13 +23,17 @@ describe("seed data", () => {
     expect(seed.charities.map((c) => c.name)).toEqual(["Cinderwell Pantry", "Brindlecote Food Bank"]);
     for (const c of seed.charities) expect(c.name).not.toMatch(/Larkspur|Copperfield|Pellam|Tansy|Trestlebin/);
     expect(seed.donors.length).toBe(16);
-    expect(seed.donations.length).toBe(29);
+    expect(seed.donations.length).toBe(34);
     // Persona / at-risk donors whose only gift is long ago (outside the 30-day window).
     const longAgo: Record<string, number> = { donor_a14: 120, donor_a15: 150, donor_a16: 60 };
     for (const d of seed.donations) {
       expect(d.createdAt).toBeLessThanOrEqual(NOW);
       if (d.donorId in longAgo) {
         expect(d.createdAt).toBe(NOW - longAgo[d.donorId]! * DAY);
+      } else if (Number(d.id.slice(5)) >= 30) {
+        // earlier gifts from regular donors, outside the 30-day window (dashboard believability)
+        expect(d.createdAt).toBeLessThan(NOW - 30 * DAY);
+        expect(d.createdAt).toBeGreaterThanOrEqual(NOW - 45 * DAY);
       } else {
         expect(d.createdAt).toBeGreaterThanOrEqual(NOW - 21 * DAY);
       }

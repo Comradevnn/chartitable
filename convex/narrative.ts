@@ -80,7 +80,7 @@ export const recordCall = internalMutation({
 });
 
 /** Real model call via the official SDK. Throws ModelError only; never includes response text. */
-function makeCallModel(apiKey: string): CallModel {
+export function makeCallModel(apiKey: string): CallModel {
   return async (req) => {
     try {
       const client = new Anthropic({ apiKey, maxRetries: 0, timeout: req.timeoutMs });
@@ -115,7 +115,13 @@ function makeCallModel(apiKey: string): CallModel {
 }
 
 export const getOrGenerate = internalAction({
-  args: { donorId: v.string(), charityId: vCharityId },
+  args: {
+    donorId: v.string(),
+    charityId: vCharityId,
+    // Demo warm-up: skip the per-donor interval (the hourly cap still applies) and let a stored
+    // template be upgraded to a Claude story. The guard is never bypassed.
+    warm: v.optional(v.boolean()),
+  },
   handler: async (ctx, args): Promise<NarrativeResult | null> => {
     const now = Date.now();
     const dctx = await ctx.runQuery(internal.context.forDonor, { donorId: args.donorId, charityId: args.charityId, now });
@@ -134,11 +140,12 @@ export const getOrGenerate = internalAction({
     });
     const factsHash = await hashFacts(facts);
 
-    const hit: NarrativeResult | null = await ctx.runQuery(internal.narrative.cached, {
+    const stored: NarrativeResult | null = await ctx.runQuery(internal.narrative.cached, {
       donorId: args.donorId,
       charityId: args.charityId,
       factsHash,
     });
+    const hit = args.warm === true && stored?.source === "template" ? null : stored;
     const stats: { callsInLastHour: number; lastCallAtForDonor: number | null } = await ctx.runQuery(
       internal.narrative.callStats,
       { donorId: args.donorId, charityId: args.charityId, now },
@@ -152,7 +159,7 @@ export const getOrGenerate = internalAction({
       caps: {
         ...stats,
         maxPerHour: intEnv("NARRATIVE_MAX_PER_HOUR", NARRATIVE_MAX_PER_HOUR),
-        minIntervalMs: intEnv("NARRATIVE_MIN_INTERVAL_MS", NARRATIVE_MIN_INTERVAL_MS),
+        minIntervalMs: args.warm === true ? 0 : intEnv("NARRATIVE_MIN_INTERVAL_MS", NARRATIVE_MIN_INTERVAL_MS),
       },
       callModel: apiKey ? makeCallModel(apiKey) : null,
     });

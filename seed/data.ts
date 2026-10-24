@@ -163,6 +163,16 @@ export function buildSeed(now: number): SeedData {
     [15, "demo-pantry-b", 25, 150 * DAY], // Juno: lapsed at B
     [16, "demo-pantry-b", 30, 60 * DAY], // Bram: dashboard at-risk example
   ];
+  // Earlier gifts from regular donors (31-44 days ago): outside the 30-day allocation window, so
+  // they change no estimate, but the dashboard shows active/returning donors, not only "new" ones.
+  // None of these donors is a persona whose state depends on its gift count.
+  personaGifts.push(
+    [2, "demo-pantry-a", 30, 40 * DAY], // Jonas
+    [6, "demo-pantry-a", 25, 38 * DAY], // Omar
+    [5, "demo-pantry-b", 20, 42 * DAY], // Lena
+    [7, "demo-pantry-b", 50, 36 * DAY], // Nadia
+    [11, "demo-pantry-b", 15, 44 * DAY], // Ines
+  );
   for (const [d, charityId, dollars, ago] of personaGifts) {
     donations.push({
       id: `don_a${pad(donations.length + 1, 3)}`,
