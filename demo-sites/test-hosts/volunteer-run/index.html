@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pellam Street Pantry</title>
+  <meta name="description" content="Fictional volunteer-run pantry on Pellam Street. Hours, a $35 shelf list, and a phone number.">
+  <style>
+    body, p, li, td, th, label, button, a, input, address, span { font-size: 1rem; }
+    h2 { font-size: 1.7rem; }
+    h1 { font-size: 2.5rem; }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="column">
+    <header>
+      <a class="wordmark" href="index.html">Pellam Street Pantry</a>
+      <p class="tag">A shelf run by volunteers. Updated Oct 20, 2026.</p>
+      <nav aria-label="Primary">
+        <ul class="nav-list">
+          <li><a href="about.html">About</a></li>
+          <li><a href="#hours">Hours</a></li>
+          <li><a href="#volunteer">Volunteer</a></li>
+          <li><a data-impact-donate href="#donate">Donate</a></li>
+        </ul>
+      </nav>
+    </header>
+    <section data-impact-slot="hero"></section>
+    <main id="main">
+      <div class="shelf" role="img" aria-label="A drawn shelf of jars and boxes, not a photograph."></div>
+      <h1>The shelf is open three days a week.</h1>
+      <p>Come to 9 Pellam Street during the hours below. Bring a bag if you have one. Nobody asks for ID.</p>
+      <p><a class="button" data-impact-donate href="#donate">Donate</a></p>
+
+      <h2 id="hours">Hours</h2>
+      <ul>
+        <li>Wednesday, 4–6:30 pm</li>
+        <li>Friday, 10 am–1 pm</li>
+        <li>Saturday, 9–11 am</li>
+      </ul>
+      <p>If a holiday closes us, a paper sign is on the door the week before.</p>
+
+      <h2 id="list">What $35 bought in October 2026</h2>
+      <table>
+        <thead><tr><th scope="col">Item</th><th scope="col">Amount</th><th scope="col">Cost</th></tr></thead>
+        <tbody>
+          <tr><td>Rice</td><td>2 lb</td><td>$6</td></tr>
+          <tr><td>Dried beans</td><td>1 lb</td><td>$4</td></tr>
+          <tr><td>Cooking oil</td><td>16 oz</td><td>$7</td></tr>
+          <tr><td>Oats</td><td>1 lb</td><td>$5</td></tr>
+          <tr><td>Produce</td><td>about 3 lb</td><td>$13</td></tr>
+        </tbody>
+        <tfoot><tr><th scope="row">Total</th><td></td><td>$35</td></tr></tfoot>
+      </table>
+      <p class="basis">Costs are from the October 2026 receipts in the binder. The produce weight is an estimate. The total is the sum of the five costs.</p>
+      <section data-impact-slot="since-last-visit"></section>
+
+      <h2 id="volunteer">Help if you can</h2>
+      <p>Saturday sorting starts at 8 am. Come if you can. The shelf is covered if you can't. Call (555) 010-2203.</p>
+
+      <h2 id="donate">Give</h2>
+      <p>The button stays on this page until the Chartitable layer is running. We do not take a card number here.</p>
+      <p><a class="button" data-impact-donate href="#donate">Donate</a></p>
+      <section data-impact-slot="next-step"></section>
+
+      <h2>Leave a message</h2>
+      <form class="desk-form" data-desk-form action="#" method="post" novalidate>
+        <label for="desk-email">Email</label>
+        <input id="desk-email" name="email" type="email" autocomplete="email" required>
+        <button class="button" type="submit">Send</button>
+        <p class="form-status" data-form-status role="status"></p>
+      </form>
+    </main>
+    <footer>
+      <p>Pellam Street Pantry · 9 Pellam Street · (555) 010-2203</p>
+      <p>Fictional demonstration site. Not a real charity, and not a place to send money or show up for food.</p>
+    </footer>
+  </div>
+  <script src="http://localhost:5174/layer.js" data-charity="demo-pantry-a" defer></script>
+  <script src="preview.js?v=2" defer></script>
+  <script src="site.js" defer></script>
+</body>
+</html>
