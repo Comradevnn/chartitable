@@ -1,18 +1,18 @@
 # Product spec — Lane A (donor layer + backend)
 
 Audience: Revnn and the agents working in Lane A (`/convex`, `/engine`, `/layer`, `/staff`, `/seed`). Not needed for Lane B except §6 (the dashboard queries Lane A will expose) and §9 (contract).
-Status labels: **BUILT** = exists and tested; **PROPOSED** = decided here, not yet in code; **OPEN** = needs a decision. Last updated Sat Oct 24, ~1:20 AM PT (v0.3: Lane A backend BUILT in code; live deploy pending Convex login).
+Status labels: **BUILT** = exists and tested; **PROPOSED** = decided here, not yet in code; **OPEN** = needs a decision. Last updated Sat Oct 24, ~3:40 AM PT (v0.5: backend live on Convex dev `acoustic-donkey-399`; `layer.js` (T8) and staff page (T4) gated and live on Vercel; T23 smoke script + health page; guard binds counts to units; `seed:resetDemo` for rehearsals).
 Data shapes live in `engine/types.ts` (source of truth; this file doesn't restate them). The honesty rule (D1/D8) governs everything below.
 
 ## 1. End-to-end flow
 1. Donor opens a charity site → `layer.js` (contract v1). No token → nothing changes (first-time visitor sees the normal site).
 2. Donor clicks the site's donate button → `layer.js` has rewritten its `href` to the hosted donate page `/donate?charity=<id>` (D10).
 3. Donate page records a **test-mode** donation (`createDonation`), creates a new donor (never looked up by email), signs a token, redirects to `charity.siteUrl?ct=<token>`. **BUILT (T3: `convex/donations.ts`, `staff/donate.*`)**
-4. Staff post an impact update (count, unit, note, optional photo) on the staff page → stored as an `ImpactLog`. **Backend BUILT (`convex/impact.ts`); page PROPOSED (Cursor, T4)**
+4. Staff post an impact update (count, unit, note, optional photo) on the staff page → stored as an `ImpactLog`. **Backend BUILT (`convex/impact.ts`); page BUILT and live at `/staff/update?charity=<id>` (Cursor, T4); optional `requestId` makes retries idempotent; server checks photo type/size**
 5. Allocation recomputes for the window (§3) → per-donor `Allocation` rows. **BUILT (engine)**
-6. For a donor: `buildFacts` → `buildPrompt` → Claude (`claude-sonnet-5-5`, JSON) → `guard` → accept, else `templateFallback`; cache by `factsHash` in `narratives`. **BUILT (engine); Convex action PROPOSED (T6b)**
-7. Milestone check (scheduled) finds donors who crossed a threshold → Resend email "See where your donation has gone" with `siteUrl?ct=<token>` → only to `DEMO_INBOXES`. **PROPOSED (T9)**
-8. Donor opens the link → `layer.js` stores the token (`localStorage` key `chartitable:<charity-id>`, try/catch), strips `?ct=` with `history.replaceState`, calls `GET /donor-view`, fills slots. **PROPOSED (T7b, T8)**
+6. For a donor: `buildFacts` → `buildPrompt` → Claude (`claude-sonnet-5-5`, JSON) → `guard` → accept, else `templateFallback`; cache by `factsHash` in `narratives`. **BUILT (engine + Convex action `narrative:getOrGenerate`, live)**
+7. Milestone check (scheduled) finds donors who crossed a threshold → Resend email "See where your donation has gone" with `siteUrl?ct=<token>` → only to `DEMO_INBOXES`. **BUILT (T9); Resend configured on dev; dry run in `engine/demo-email.test.ts`; first real send = demo step 2**
+8. Donor opens the link → `layer.js` stores the token (`localStorage` key `chartitable:<charity-id>`, try/catch), strips `?ct=` with `history.replaceState`, calls `GET /donor-view`, fills slots. **BUILT and live (T7b, T8; formal gate Sat 3:35 AM)**
 9. Next visit after a new staff update → "since your last visit" differs (§5).
 
 ## 2. Data model — BUILT (`convex/schema.ts`)
@@ -116,7 +116,9 @@ Rules: pure logic stays in `/engine` and is imported; Convex functions are thin 
 - **Logging:** log ids and outcomes only. Never log tokens, emails, or the narrative text with names. Dashboard shows guard reasons without PII.
 - **Costs:** one Claude call per donor per `factsHash` change; ≈ 12 seeded donors × a few regenerations stays far below the cap. Convex and Vercel free tiers suffice; Resend limited by the demo allowlist.
 - **Deploy:** Convex prod deployment for functions; Vercel for `layer.js`, `/staff`, `/frontend`, demo sites. `layer.js` URL is baked into the demo sites; keep it stable (`/layer.js`, no hash in the name).
-- **Observability for the demo:** a hidden `/staff/health` page (PIN-protected) showing last Claude call source (claude/template), last milestone run, last email result. Helps the live demo and Teammate 2's QA.
+- **Observability for the demo: BUILT (T23)** hidden `/staff/health` (PIN, not linked, noindex) over PIN-gated `ops:health`: last Claude call outcome and source, guard reason count, call-cap counters, last milestone run (configured / smoke-skipped / counts), last email status, seed and smoke row counts. No PII. `ops:milestoneDryRun` shows what a milestone run would do without writing.
+- **E2E smoke: BUILT (T23)** `STAFF_PIN=… node scripts/e2e-smoke.mjs` runs 8 checks on the dev deployment with a smoke-tagged donor and log (`smoke: true`), never `donor_a01`; `seed:cleanSmoke` removes them before and after; the milestone check skips while a smoke log exists.
+- **Rehearsal reset: BUILT** `npx convex run seed:resetDemo '{"confirm":"reset-demo"}'` removes non-seed donors/donations/logs and fired milestones; then `seed:load` re-anchors dates (keeps the demo inbox).
 
 ## 16. Demo script mapped to the seed (calibrated)
 Calibration run (script on `buildSeed(now = 2026-10-24 08:00 UTC)`, window 30 days, meals only, pantry A):
