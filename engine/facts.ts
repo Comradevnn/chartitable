@@ -5,6 +5,7 @@
 // and estimates (this donor's proportional share, D1) are kept separate and labeled.
 
 import { roundEstimate } from "./allocate";
+import { PROMPT_VERSION } from "./prompt";
 import type {
   Allocation,
   Charity,
@@ -136,9 +137,14 @@ function canonicalize(value: unknown): unknown {
   return value;
 }
 
-/** SHA-256 hex over canonical (sorted-key) JSON. Stable for equal facts; cache key for narratives. */
+/** The exact string that gets hashed: the facts plus the prompt version, so a prompt/schema change regenerates cached narratives. */
+export function hashInput(facts: DonorFacts, promptVersion: string = PROMPT_VERSION): string {
+  return JSON.stringify(canonicalize({ facts, promptVersion }));
+}
+
+/** SHA-256 hex over canonical (sorted-key) JSON of facts + PROMPT_VERSION. Stable for equal facts; cache key for narratives. */
 export async function hashFacts(facts: DonorFacts): Promise<string> {
-  const json = JSON.stringify(canonicalize(facts));
+  const json = hashInput(facts);
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(json));
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }

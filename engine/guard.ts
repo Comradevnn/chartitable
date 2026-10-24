@@ -24,6 +24,7 @@ export const NEXT_STEP_KINDS = Object.keys(KIND_TABLE) as NextStepKind[];
 
 export const MAX_STORY_CHARS = 700;
 export const MAX_NEXT_STEP_CHARS = 220;
+export const MAX_HEADLINE_CHARS = 70;
 
 // ---------------------------------------------------------------------------
 // Tokenizing and number extraction
@@ -384,6 +385,28 @@ function donorIsAgent(sentence: string, facts: DonorFacts): boolean {
   return new RegExp(`\\b${escaped}(?:'s|’s)?\\s+${DONOR_AGENT_VERBS}`, "i").test(sentence);
 }
 
+/**
+ * Headline checks (T30). The headline is a short, number-free line. Returns reason strings, all
+ * prefixed "headline: " (empty = fine). Stricter than story/nextStep on numbers: ANY number mention,
+ * even one backed by the facts or a vague one like "couple", is rejected.
+ */
+export function headlineProblems(headline: unknown, facts: DonorFacts): string[] {
+  if (typeof headline !== "string") return ["headline: must be a string"];
+  const text = headline.trim();
+  if (text === "") return ["headline: must not be empty"];
+  const reasons = new Set<string>();
+  if (text.length > MAX_HEADLINE_CHARS) reasons.add(`headline: longer than ${MAX_HEADLINE_CHARS} characters`);
+  if (/[\r\n\u2028\u2029]/.test(headline)) reasons.add("headline: must be a single line");
+  if (/\p{N}/u.test(text)) reasons.add("headline: contains a digit");
+  if (hasPercentage(text)) reasons.add("headline: percentage not allowed");
+  if (extractNumbers(text).length > 0 || /\b(?:one|once)\b/i.test(text)) reasons.add("headline: contains a number");
+  if (/[<>]/.test(text) || /[*_`#\[\]{}|\\]|\p{Extended_Pictographic}/u.test(text)) reasons.add("headline: contains markup");
+  if (/https?:|www\.|@/i.test(text)) reasons.add("headline: contains a link or address");
+  for (const w of findDisallowedNames(text, facts)) reasons.add(`headline: unknown name: ${w}`);
+  for (const p of findPressureWords(text)) reasons.add(`headline: pressure language: ${p}`);
+  return [...reasons];
+}
+
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
@@ -402,9 +425,12 @@ export function guard(output: unknown, facts: DonorFacts): GuardResult {
 
   // a. Shape
   if (!isPlainObject(output)) return { ok: false, reasons: ["shape: output is not an object"] };
-  if (!sameKeys(output, ["story", "nextStep"])) {
-    reasons.add("shape: expected exactly the keys story and nextStep");
+  // headline is optional (older cached rows and the template have none), but never an unknown extra key.
+  const hasHeadline = Object.hasOwn(output, "headline");
+  if (!sameKeys(output, hasHeadline ? ["headline", "story", "nextStep"] : ["story", "nextStep"])) {
+    reasons.add("shape: expected exactly the keys story and nextStep (plus an optional headline)");
   }
+  if (hasHeadline) for (const r of headlineProblems(output.headline, facts)) reasons.add(r);
   const story = output.story;
   const next = output.nextStep;
   if (typeof story !== "string" || story.trim() === "") reasons.add("shape: story must be a non-empty string");

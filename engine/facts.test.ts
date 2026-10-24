@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { allocate } from "./allocate";
-import { buildFacts, hashFacts, type FactsInput } from "./facts";
+import { buildFacts, hashFacts, hashInput, type FactsInput } from "./facts";
+import { PROMPT_VERSION } from "./prompt";
 import type { Charity, Donation, Donor, ImpactLog } from "./types";
 
 const charity: Charity = {
@@ -161,5 +162,17 @@ describe("hashFacts", () => {
     const f = buildFacts(input());
     const changed = buildFacts(input({ logs: [log("l1", at(10, 8), 81), logs[1]!, logs[2]!] }));
     expect(await hashFacts(changed)).not.toBe(await hashFacts(f));
+  });
+
+  it("includes PROMPT_VERSION, so a prompt change regenerates cached narratives", async () => {
+    const f = buildFacts(input());
+    const sha = async (t: string) =>
+      Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t))), (b) => b.toString(16).padStart(2, "0")).join("");
+    expect(await hashFacts(f)).toBe(await sha(hashInput(f)));
+    expect(hashInput(f)).toContain(PROMPT_VERSION);
+    expect(hashInput(f, "some-other-version")).not.toBe(hashInput(f));
+    expect(await sha(hashInput(f, "some-other-version"))).not.toBe(await hashFacts(f));
+    // never the bare facts hash used before T30
+    expect(await hashFacts(f)).not.toBe(await sha(JSON.stringify(f)));
   });
 });

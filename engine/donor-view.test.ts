@@ -341,3 +341,78 @@ describe("buildDonorView contract v2 fields", () => {
     expect(guard({ story: v.hero.story, nextStep: { kind: v.nextStep.kind, text: v.nextStep.text } }, facts)).toEqual({ ok: true });
   });
 });
+
+describe("buildDonorView Claude headline (T30)", () => {
+  const ctx = contextFor("donor_a01");
+  const facts = narrativeFacts(ctx);
+  const CLAUDE_HEADLINE = `${facts.donorFirstName}, your gift is at work`;
+  const claudeNarrative = (c: DonorViewContext, headline: unknown = `${narrativeFacts(c).donorFirstName}, your gift is at work`): NarrativeResult => {
+    const t = templateFallback(narrativeFacts(c));
+    return { output: { headline: headline as string, ...t }, source: "claude", guardReasons: [] };
+  };
+  const build = (c: DonorViewContext, extra: Partial<Parameters<typeof buildDonorView>[0]> = {}) =>
+    recognized(buildDonorView({ context: c, previousVisitAt: null, narrative: claudeNarrative(c), donateHref: null, ...extra }));
+  const deterministic = (c: DonorViewContext, extra: Partial<Parameters<typeof buildDonorView>[0]> = {}) =>
+    recognized(buildDonorView({ context: c, previousVisitAt: null, narrative: templateNarrative(c), donateHref: null, ...extra }));
+
+  it("uses Claude's headline for first_impact, repeat and returning", () => {
+    const states = new Set<string>();
+    const mine = (id: string, ageDays: number): Donation => ({
+      id, donorId: ctx.donor.id, charityId: ctx.charity.id, amountCents: 1000, createdAt: NOW - ageDays * DAY, testMode: true,
+    });
+    const variants: Partial<Parameters<typeof buildDonorView>[0]>[] = [
+      {},
+      { ownGifts: [mine("g_old", 80), mine("g_new", 2)] },
+      { visitsInLast30Days: 5 },
+      { ownGifts: [mine("g_a", 200)], visitsInLast30Days: 1 },
+    ];
+    for (const extra of variants) {
+      const v = build(ctx, extra);
+      states.add(v.donor!.state);
+      if (["first_impact", "repeat", "returning"].includes(v.donor!.state)) {
+        expect(v.hero.headline, v.donor!.state).toBe(CLAUDE_HEADLINE);
+      }
+    }
+    expect([...states].some((st) => ["first_impact", "repeat", "returning"].includes(st))).toBe(true);
+    // repeat is certain with two own gifts
+    const rep = build(ctx, { ownGifts: [mine("g_old", 80), mine("g_new", 2)] });
+    expect(rep.donor!.state).toBe("repeat");
+    expect(rep.hero.headline).toBe(CLAUDE_HEADLINE);
+  });
+
+  it("keeps the deterministic headline for just_gave and news", () => {
+    const fresh: DonorViewContext = {
+      ...ctx,
+      donor: { id: "donor_new", firstName: "Zed", email: EMAIL },
+      donations: [{ id: "g1", donorId: "donor_new", charityId: ctx.charity.id, amountCents: 2500, createdAt: NOW - 10 * 60 * 1000, testMode: true }],
+      allocations: [],
+    };
+    const j = build(fresh);
+    expect(j.donor!.state).toBe("just_gave");
+    expect(j.hero.headline).toBe(deterministic(fresh).hero.headline);
+    const logs = [...ctx.logs].sort((a, b) => a.loggedAt - b.loggedAt);
+    const prev = logs[logs.length - 1]!.loggedAt - 1;
+    const n = build(ctx, { previousVisitAt: prev });
+    expect(n.donor!.state).toBe("news");
+    expect(n.hero.headline).toBe(deterministic(ctx, { previousVisitAt: prev }).hero.headline);
+    expect(n.hero.headline).not.toBe(CLAUDE_HEADLINE);
+  });
+
+  it("keeps the deterministic headline for the template source", () => {
+    expect(deterministic(ctx).hero.headline).not.toBe(CLAUDE_HEADLINE);
+    const tpl: NarrativeResult = { ...claudeNarrative(ctx), source: "template" };
+    const v = recognized(buildDonorView({ context: ctx, previousVisitAt: null, narrative: tpl, donateHref: null }));
+    expect(v.hero.headline).toBe(deterministic(ctx).hero.headline);
+  });
+
+  it("ignores a Claude headline that fails the guard, and falls back to the template for the whole output", () => {
+    const v = build(ctx, { narrative: claudeNarrative(ctx, "Three good weeks") });
+    expect(v.hero.source).toBe("template");
+    expect(v.hero.headline).toBe(deterministic(ctx).hero.headline);
+  });
+
+  it("no headline from Claude means the deterministic one", () => {
+    const v = build(ctx, { narrative: templateNarrative(ctx) });
+    expect(v.hero.headline).toBe(deterministic(ctx).hero.headline);
+  });
+});
