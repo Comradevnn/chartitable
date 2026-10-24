@@ -2,6 +2,7 @@
 //   /layer.js            the embeddable layer (built from /layer)
 //   /staff/*             hosted donate page (and the staff update page when it exists)
 //   /sites/<name>/*      fictional demo/test host sites from /demo-sites/test-hosts
+//   /app/*               Lane B static pages from /frontend (landing, donor dashboard, staff donors)
 // Only these folders are published. Docs, source, .env and the backend are never copied.
 // Test hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
 import { execSync } from "node:child_process";
@@ -23,6 +24,10 @@ if (existsSync(join(root, "staff"))) {
     recursive: true,
     filter: (src) => !/README\.md$/.test(src),
   });
+}
+
+if (existsSync(join(root, "frontend"))) {
+  cpSync(join(root, "frontend"), join(out, "app"), { recursive: true });
 }
 
 const hosts = join(root, "demo-sites", "test-hosts");
@@ -57,6 +62,7 @@ writeFileSync(
 <h1>Chartitable demo hosts</h1>
 <p>Fictional charities for testing a donor personalization layer. Test mode only.</p>
 <ul>${links}
+<li><a href="/app/">Lane B frontend pages</a></li>
 <li><a href="/staff/donate.html?charity=demo-pantry-a">Test-mode donate page</a></li></ul>`,
 );
 
