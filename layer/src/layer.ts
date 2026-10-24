@@ -1,6 +1,6 @@
 // Chartitable embed (T8). One classic script tag. Empty slots stay empty
 // unless this browser is holding a donor token for this charity.
-import { FALLBACK_STYLES } from "./fallback-styles";
+import SLOT_STYLES from "../../docs/design/ct-slots.css";
 
 declare const CT_API_BASE: string;
 declare const CT_DONATE_URL: string;
@@ -62,10 +62,9 @@ if (API_BASE || DONATE_URL) {
 
 function start(script: HTMLOrSVGScriptElement | null): void {
   const fromUrl = takeUrlToken();
-  if (!script) return;
-  const charityId = script.getAttribute("data-charity");
-  if (!charityId || KNOWN.indexOf(charityId) === -1) return;
-  if (fromUrl) remember(charityId, fromUrl);
+  const charityId = script ? script.getAttribute("data-charity") : null;
+  if (charityId && fromUrl) remember(charityId, fromUrl);
+  if (!script || !charityId || KNOWN.indexOf(charityId) === -1) return;
   if (!document.querySelector("[data-impact-slot]")) return;
 
   rewriteDonate(charityId);
@@ -288,7 +287,7 @@ function injectStyles(): void {
   if (document.head.querySelector("style[data-ct-layer-style]")) return;
   const style = document.createElement("style");
   style.setAttribute("data-ct-layer-style", "");
-  style.textContent = FALLBACK_STYLES;
+  style.textContent = SLOT_STYLES;
   document.head.appendChild(style);
 }
 
@@ -339,7 +338,7 @@ function appendFacts(parent: Node, records: RecordFact[], estimates: EstimateFac
       item.className = "ct-record";
       item.appendChild(document.createTextNode(record.dateLabel + " · " + record.count + " " + unitFor(record.count, record.unit)));
       if (record.note) {
-        item.appendChild(document.createTextNode(" · "));
+        item.appendChild(document.createTextNode(" "));
         const note = document.createElement("span");
         note.className = "ct-note";
         note.textContent = record.note;
@@ -403,11 +402,8 @@ function unitFor(quantity: number, unit: string): string {
 
 function safeUrl(raw: string): string | null {
   const value = raw.trim();
-  if (!value || value.indexOf("//") === 0 || value.indexOf("/\\") === 0 || value.indexOf("\\") === 0) return null;
-  if (/[\u0000-\u001f\u007f]/.test(value)) return null;
-  const lower = value.toLowerCase();
-  if (lower.indexOf("javascript:") === 0 || lower.indexOf("data:") === 0 || lower.indexOf("vbscript:") === 0) return null;
-  if (value.charAt(0) === "#" || value.charAt(0) === "/" || value.charAt(0) === "." || /^https?:\/\//i.test(value)) return value;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return null;
+  if (!value || /[\u0000-\u001f\u007f]/.test(value)) return null;
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.charAt(0) !== "/" || value.charAt(1) === "/" || value.charAt(1) === "\\") return null;
   return value;
 }
