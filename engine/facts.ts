@@ -31,7 +31,7 @@ export interface FactsInput {
 
 const DEFAULT_TIME_ZONE = "America/Los_Angeles";
 
-function dateLabel(ms: number, timeZone: string): string {
+export function dateLabel(ms: number, timeZone: string): string {
   // e.g. "Tue, Oct 20"
   return new Intl.DateTimeFormat("en-US", {
     weekday: "short",

@@ -3,8 +3,11 @@
 // The response is a whitelist: hero, records, estimates, sinceLastVisit, nextStep, photos.
 // Never email, donorId, or anything about other donors. Narrative text is re-checked by guard()
 // here as a second line of defense; a rejected narrative is replaced by the deterministic template.
-import { buildFacts } from "./facts";
+import { DONOR_GIFTS_MAX, LIVE_POLL_MS } from "./config";
+import { classifyDonor, computeRev, headlineFor, nextStepKindFor, storyBody } from "./donor-state";
+import { buildFacts, dateLabel } from "./facts";
 import { guard } from "./guard";
+import { nextStepFor } from "./next-step";
 import { templateFallback } from "./template";
 import { verifyToken } from "./token";
 import { CHARITY_IDS } from "./types";
@@ -12,6 +15,7 @@ import type {
   Allocation,
   Charity,
   Donation,
+  DonationFact,
   Donor,
   DonorFacts,
   DonorView,
@@ -70,14 +74,25 @@ export async function parseDonorViewRequest(
   }
 }
 
+const DEFAULT_TIME_ZONE = "America/Los_Angeles"; // same default as engine/facts.ts
+
 export function buildDonorView(input: {
   context: DonorViewContext;
   previousVisitAt: number | null;
   narrative: NarrativeResult;
   donateHref: string | null;
   timeZone?: string;
+  /** v2: all-time gifts of this donor at this charity. Falls back to context.donations for this donor. */
+  ownGifts?: Donation[];
+  /** v2: how many times this donor visited in the last 30 days (default 0). */
+  visitsInLast30Days?: number;
+  /** v2: when the stored narrative was written, for `rev` (default null). */
+  narrativeAt?: number | null;
 }): DonorView {
   const { context, previousVisitAt, narrative, donateHref, timeZone } = input;
+  const visitsInLast30Days = input.visitsInLast30Days ?? 0;
+  const narrativeAt = input.narrativeAt ?? null;
+  const now = context.window.to;
   const base = narrativeFacts(context);
 
   // Defensive re-check: nothing unchecked ever reaches the donor.
@@ -102,18 +117,60 @@ export function buildDonorView(input: {
   const recordIds = new Set(base.records.map((r) => r.logId));
   const photos = context.photos.filter((p) => recordIds.has(p.logId)).map((p) => ({ logId: p.logId, url: p.url }));
 
-  const kind = output.nextStep.kind;
+  // ---- v2: donor state, copy and change marker ----
+  const ownGifts = (input.ownGifts ?? context.donations)
+    .filter((d) => d.donorId === context.donor.id && d.charityId === context.charity.id)
+    .sort((a, b) => b.createdAt - a.createdAt || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0));
+  const { state, traits } = classifyDonor({
+    gifts: ownGifts,
+    facts: { ...base, sinceLastVisit },
+    visitsInLast30Days,
+    photosCount: photos.length,
+    now,
+  });
+  const tz = timeZone ?? DEFAULT_TIME_ZONE;
+  const gifts: DonationFact[] = ownGifts.slice(0, DONOR_GIFTS_MAX).map((g) => ({
+    amountDollars: g.amountCents / 100,
+    dateLabel: dateLabel(g.createdAt, tz),
+  }));
+
+  const kind = nextStepKindFor(state);
+  const step = nextStepFor(kind, context.charity.name);
+  const text = output.nextStep.kind === kind ? output.nextStep.text : step.text;
+
+  let newestLog: ImpactLog | null = null;
+  for (const l of context.logs) {
+    if (!newestLog || l.loggedAt > newestLog.loggedAt || (l.loggedAt === newestLog.loggedAt && l.id > newestLog.id)) {
+      newestLog = l;
+    }
+  }
+  const rev = computeRev({
+    newestLogId: newestLog?.id ?? null,
+    narrativeAt,
+    newestGiftId: ownGifts[0]?.id ?? null,
+  });
+
   return {
     recognized: true,
-    hero: { firstName: base.donorFirstName, story: output.story, source },
+    hero: {
+      firstName: base.donorFirstName,
+      story: output.story,
+      source,
+      headline: headlineFor(state, base.donorFirstName, context.charity.name),
+      body: storyBody(output.story),
+    },
     sinceLastVisit,
     nextStep: {
       kind,
-      text: output.nextStep.text,
+      text,
       href: kind === "give_again" || kind === "give_monthly" ? donateHref : null,
+      label: step.label,
     },
     records: base.records,
     estimates: base.estimates,
     photos,
+    donor: { state, traits, gifts, giftCount: ownGifts.length },
+    rev,
+    live: { pollMs: LIVE_POLL_MS },
   };
 }

@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import { buildSeed } from "../seed/data";
 import { allocate } from "./allocate";
 import { windowEnding } from "./config";
+import { computeRev, nextStepKindFor } from "./donor-state";
 import { buildDonorView, narrativeFacts, parseDonorViewRequest } from "./donor-view";
+import { LIVE_POLL_MS } from "./config";
+import { nextStepFor } from "./next-step";
 import type { DonorViewContext } from "./donor-view";
 import { guard } from "./guard";
 import { templateFallback } from "./template";
 import { signToken } from "./token";
-import type { DonorView, NarrativeResult } from "./types";
+import type { Donation, DonorView, NarrativeResult } from "./types";
 
 const NOW = Date.UTC(2026, 9, 24, 18, 0, 0);
 const DAY = 24 * 60 * 60 * 1000;
@@ -146,7 +149,7 @@ describe("buildDonorView", () => {
     expect(v.hero.story).toBe(good.output.story);
   });
 
-  it("sets nextStep.href only for give_again / give_monthly", () => {
+  it("sets nextStep.href only for give kinds; kind comes from the donor-state rule", () => {
     const facts = narrativeFacts(ctx);
     const href = "https://donate.example/?charity=demo-pantry-a";
     const mk = (kind: "give_again" | "give_monthly" | "volunteer" | "share"): NarrativeResult => ({
@@ -154,13 +157,21 @@ describe("buildDonorView", () => {
       source: "claude",
       guardReasons: [],
     });
+    const lapsedCtx: DonorViewContext = {
+      ...ctx,
+      donations: ctx.donations.filter((d) => d.donorId !== ctx.donor.id),
+      allocations: [],
+    };
     for (const kind of ["give_again", "give_monthly", "volunteer", "share"] as const) {
       const v = recognized(buildDonorView({ context: ctx, previousVisitAt: null, narrative: mk(kind), donateHref: href }));
-      expect(v.nextStep.kind).toBe(kind);
-      expect(v.nextStep.href).toBe(kind === "give_again" || kind === "give_monthly" ? href : null);
+      expect(v.nextStep.kind).toBe(nextStepKindFor(v.donor!.state));
+      expect(v.nextStep.href).toBe(v.nextStep.kind === "give_again" ? href : null);
     }
-    const none = recognized(buildDonorView({ context: ctx, previousVisitAt: null, narrative: mk("give_again"), donateHref: null }));
+    const none = recognized(buildDonorView({ context: lapsedCtx, previousVisitAt: null, narrative: mk("give_again"), donateHref: null }));
+    expect(none.nextStep.kind).toBe("give_again");
     expect(none.nextStep.href).toBeNull();
+    const withHref = recognized(buildDonorView({ context: lapsedCtx, previousVisitAt: null, narrative: mk("give_again"), donateHref: href }));
+    expect(withHref.nextStep.href).toBe(href);
   });
 
   it("only returns photos for logs in records", () => {
@@ -185,5 +196,148 @@ describe("buildDonorView", () => {
     expect(v.hero.source).toBe("template");
     expect(JSON.stringify(v)).not.toContain("donor_none");
     expect(JSON.stringify(v)).not.toContain("@");
+  });
+});
+
+describe("buildDonorView contract v2 fields", () => {
+  const ctx = contextFor("donor_a01");
+  const build = (
+    c: DonorViewContext,
+    extra: Partial<Parameters<typeof buildDonorView>[0]> = {},
+  ) => recognized(buildDonorView({ context: c, previousVisitAt: null, narrative: templateNarrative(c), donateHref: null, ...extra }));
+
+  it("fills headline, body, label, donor, rev and live", () => {
+    const v = build(ctx);
+    expect(v.hero.headline).toBeTruthy();
+    expect(v.hero.headline).not.toMatch(/\d/);
+    expect(v.hero.body).toBeTruthy();
+    expect(v.hero.body!.startsWith("Thank you")).toBe(false);
+    expect(v.nextStep.label).toBe(nextStepFor(v.nextStep.kind, ctx.charity.name).label);
+    expect(v.donor!.traits).toContain("named");
+    expect(v.donor!.traits).toContain("has_photos");
+    expect(v.donor!.giftCount).toBe(v.donor!.gifts.length);
+    expect(v.rev).toMatch(/^[0-9a-z]+$/);
+    expect(v.live).toEqual({ pollMs: LIVE_POLL_MS });
+  });
+
+  it("does not change the facts Claude sees", () => {
+    const before = JSON.stringify(narrativeFacts(ctx));
+    build(ctx, { ownGifts: ctx.donations, visitsInLast30Days: 5, narrativeAt: 7 });
+    expect(JSON.stringify(narrativeFacts(ctx))).toBe(before);
+    expect(narrativeFacts(ctx)).not.toHaveProperty("nextStepKind");
+  });
+
+  it("donor.gifts is newest first, own gifts only, whole-dollar facts", () => {
+    const mine = (id: string, ageDays: number, cents: number): Donation => ({
+      id, donorId: ctx.donor.id, charityId: ctx.charity.id, amountCents: cents, createdAt: NOW - ageDays * DAY, testMode: true,
+    });
+    const stranger: Donation = { ...mine("g_other", 0, 99900), donorId: "donor_a02" };
+    const own = [mine("g_old", 80, 1000), mine("g_new", 2, 2500), mine("g_mid", 40, 5000), stranger];
+    const v = build(ctx, { ownGifts: own });
+    expect(v.donor!.giftCount).toBe(3);
+    expect(v.donor!.gifts.map((g) => g.amountDollars)).toEqual([25, 50, 10]);
+    expect(v.donor!.gifts[0]!.dateLabel).toMatch(/^[A-Z][a-z]{2}, [A-Z][a-z]{2} \d+$/);
+    expect(v.donor!.state).toBe("repeat");
+    expect(JSON.stringify(v)).not.toContain("99900");
+  });
+
+  it("falls back to context.donations for this donor when ownGifts is absent", () => {
+    const v = build(ctx);
+    const expected = ctx.donations.filter((d) => d.donorId === ctx.donor.id).length;
+    expect(v.donor!.giftCount).toBe(expected);
+  });
+
+  it("caps donor.gifts but keeps the true giftCount", () => {
+    const many: Donation[] = Array.from({ length: 60 }, (_, i) => ({
+      id: `g${i}`, donorId: ctx.donor.id, charityId: ctx.charity.id, amountCents: 100, createdAt: NOW - (i + 3) * DAY, testMode: true,
+    }));
+    const v = build(ctx, { ownGifts: many });
+    expect(v.donor!.gifts).toHaveLength(50);
+    expect(v.donor!.giftCount).toBe(60);
+  });
+
+  it("classifies just_gave for a fresh gift without estimates, and regular from visits", () => {
+    const fresh: DonorViewContext = {
+      ...ctx,
+      donor: { id: "donor_new", firstName: "Zed", email: EMAIL },
+      donations: [{ id: "g1", donorId: "donor_new", charityId: ctx.charity.id, amountCents: 2500, createdAt: NOW - 10 * 60 * 1000, testMode: true }],
+      allocations: [],
+    };
+    const v = build(fresh, { visitsInLast30Days: 4 });
+    expect(v.donor!.state).toBe("just_gave");
+    expect(v.donor!.traits).toEqual(["named", "has_photos", "regular"]);
+    expect(v.hero.headline).toBe("Thank you, Zed. Your gift is in.");
+    expect(v.nextStep.kind).toBe("share");
+  });
+
+  it("news when logs arrived after the previous visit", () => {
+    const logs = [...ctx.logs].sort((a, b) => a.loggedAt - b.loggedAt);
+    const v = build(ctx, { previousVisitAt: logs[logs.length - 1]!.loggedAt - 1 });
+    expect(v.donor!.state).toBe("news");
+    expect(v.hero.headline).toContain(ctx.charity.name);
+    expect(v.nextStep.kind).toBe("share");
+  });
+
+  it("keeps the narrative's next-step text when its kind matches, else uses the rule's text", () => {
+    const facts = narrativeFacts(ctx);
+    const probe = build(ctx);
+    const kind = probe.nextStep.kind;
+    const custom = "If it feels right, share this with a neighbor.";
+    const matching: NarrativeResult = {
+      output: { story: templateFallback(facts).story, nextStep: { kind, text: custom } },
+      source: "claude",
+      guardReasons: [],
+    };
+    expect(guard(matching.output, facts).ok).toBe(true);
+    expect(build(ctx, { narrative: matching }).nextStep.text).toBe(custom);
+    const other = kind === "share" ? "volunteer" : "share";
+    const mismatched: NarrativeResult = {
+      output: { story: templateFallback(facts).story, nextStep: { kind: other, text: custom } },
+      source: "claude",
+      guardReasons: [],
+    };
+    expect(build(ctx, { narrative: mismatched }).nextStep.text).toBe(nextStepFor(kind, ctx.charity.name).text);
+  });
+
+  it("rev is stable, and changes with a new log, a new narrative time, or a new gift", () => {
+    const r0 = build(ctx).rev;
+    expect(build(ctx).rev).toBe(r0);
+    expect(build(ctx, { visitsInLast30Days: 9, previousVisitAt: NOW - DAY }).rev).toBe(r0);
+    expect(build(ctx, { narrativeAt: 123 }).rev).not.toBe(r0);
+    const newLog = { ...ctx.logs[0]!, id: "log_zzz_new", loggedAt: NOW + 1000 };
+    expect(build({ ...ctx, logs: [...ctx.logs, newLog] }).rev).not.toBe(r0);
+    const newGift: Donation = { id: "g_new", donorId: ctx.donor.id, charityId: ctx.charity.id, amountCents: 500, createdAt: NOW - 1000, testMode: true };
+    expect(build(ctx, { ownGifts: [...ctx.donations.filter((d) => d.donorId === ctx.donor.id), newGift] }).rev).not.toBe(r0);
+  });
+
+  it("rev equals computeRev of newest log, narrativeAt and newest own gift", () => {
+    const newestLog = [...ctx.logs].sort((a, b) => b.loggedAt - a.loggedAt)[0]!;
+    const own = ctx.donations.filter((d) => d.donorId === ctx.donor.id).sort((a, b) => b.createdAt - a.createdAt)[0]!;
+    expect(build(ctx, { narrativeAt: 42 }).rev).toBe(
+      computeRev({ newestLogId: newestLog.id, narrativeAt: 42, newestGiftId: own.id }),
+    );
+    expect(build({ ...ctx, logs: [], donations: [] }).rev).toBe(
+      computeRev({ newestLogId: null, narrativeAt: null, newestGiftId: null }),
+    );
+  });
+
+  it("never leaks email or donorId in any v2 state", () => {
+    for (const id of ["donor_a01", "donor_a02", "donor_a03"]) {
+      const c = contextFor(id);
+      const s = JSON.stringify(build(c, { visitsInLast30Days: 3, narrativeAt: 5 }));
+      expect(s).not.toContain("@");
+      expect(s).not.toContain(EMAIL);
+      expect(s).not.toContain(id);
+    }
+  });
+
+  it("nextStep.text passes the guard for each kind (as a narrative with the view's facts)", () => {
+    const facts = narrativeFacts(ctx);
+    for (const kind of ["give_again", "give_monthly", "volunteer", "share"] as const) {
+      const out = { story: templateFallback(facts).story, nextStep: { kind, text: nextStepFor(kind, ctx.charity.name).text } };
+      expect(guard(out, facts)).toEqual({ ok: true });
+    }
+    const v = build(ctx);
+    expect(guard({ story: v.hero.story, nextStep: { kind: v.nextStep.kind, text: v.nextStep.text } }, facts)).toEqual({ ok: true });
   });
 });
