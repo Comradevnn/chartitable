@@ -43,6 +43,7 @@ interface NextFact {
 
 interface View {
   recognized: true;
+  firstName: string | null;
   story: string;
   since: SinceFact | null;
   next: NextFact | null;
@@ -65,7 +66,7 @@ function start(script: HTMLOrSVGScriptElement | null): void {
   const charityId = script ? script.getAttribute("data-charity") : null;
   if (charityId && fromUrl) remember(charityId, fromUrl);
   if (!script || !charityId || KNOWN.indexOf(charityId) === -1) return;
-  if (!document.querySelector("[data-impact-slot]")) return;
+  if (!document.querySelector("[data-impact-slot],[data-impact-region]")) return;
 
   rewriteDonate(charityId);
 
@@ -170,6 +171,8 @@ function parseView(data: unknown): View | false | null {
   if (!hero || typeof hero !== "object") return null;
   const story = (hero as Record<string, unknown>).story;
   if (typeof story !== "string") return null;
+  const rawName = (hero as Record<string, unknown>).firstName;
+  const firstName = typeof rawName === "string" && rawName.trim() ? rawName.trim() : null;
   if (!Array.isArray(body.records) || !Array.isArray(body.estimates) || !Array.isArray(body.photos)) return null;
 
   let since: SinceFact | null = null;
@@ -196,6 +199,7 @@ function parseView(data: unknown): View | false | null {
 
   return {
     recognized: true,
+    firstName,
     story,
     since,
     next,
@@ -247,13 +251,18 @@ function asPhotos(value: unknown[]): PhotoFact[] {
 }
 
 function paint(view: View): void {
+  const regionsFilled = paintRegions(view);
+  if (regionsFilled) document.documentElement.setAttribute("data-impact-active", "");
   const heroSlot = document.querySelector('[data-impact-slot="hero"]');
   const sinceSlot = document.querySelector('[data-impact-slot="since-last-visit"]');
   const nextSlot = document.querySelector('[data-impact-slot="next-step"]');
   const hero = buildHero(view);
   const since = view.since && (view.since.records.length || view.since.estimates.length) ? buildSince(view.since, view.photos) : null;
   const next = view.next ? buildNext(view.next) : null;
-  if (!hero && !since && !next) return;
+  if (!hero && !since && !next) {
+    if (regionsFilled) document.documentElement.setAttribute("data-impact-active", "");
+    return;
+  }
 
   requestAnimationFrame(() => {
     injectStyles();
@@ -273,8 +282,162 @@ function paint(view: View): void {
       mark(nextSlot, "A next step");
       filled = true;
     }
-    if (filled) document.documentElement.setAttribute("data-impact-active", "");
+    if (filled || regionsFilled) document.documentElement.setAttribute("data-impact-active", "");
   });
+}
+
+// Contract v2: host-authored regions. A region keeps the host's default markup for
+// strangers. For a recognized donor the layer swaps in the host's own
+// <template data-impact-for="<region>"> and fills it with facts via textContent only.
+// Estimates can only reach the page through data-ct-text="estimate", which the layer
+// always writes as "about N unit", so a template cannot drop the label.
+function paintRegions(view: View): boolean {
+  let any = false;
+  const regions = document.querySelectorAll("[data-impact-region]");
+  for (let i = 0; i < regions.length; i++) {
+    const region = regions.item(i);
+    if (!(region instanceof HTMLElement) || region.getAttribute("data-impact-state") === "ready") continue;
+    const name = region.getAttribute("data-impact-region");
+    if (!name) continue;
+    const requires = region.getAttribute("data-impact-requires");
+    if (requires && !hasFacts(view, requires)) continue;
+    const tpl = document.querySelector('template[data-impact-for="' + cssEscape(name) + '"]');
+    if (!(tpl instanceof HTMLTemplateElement)) continue;
+    const frag = tpl.content.cloneNode(true) as DocumentFragment;
+    fillNode(frag, view);
+    if (!frag.childNodes.length) continue;
+    region.replaceChildren(frag);
+    region.setAttribute("data-impact-state", "ready");
+    any = true;
+  }
+  return any;
+}
+
+function cssEscape(value: string): string {
+  return value.replace(/[^A-Za-z0-9_-]/g, "");
+}
+
+function scalar(view: View, key: string): string | null {
+  switch (key) {
+    case "firstName":
+      return view.firstName;
+    case "story":
+      return view.story || null;
+    case "nextText":
+      return view.next ? view.next.text : null;
+    case "sinceDate":
+      return view.since ? view.since.sinceDateLabel : null;
+    default:
+      return null;
+  }
+}
+
+function facts(view: View, key: string): Array<RecordFact | EstimateFact> {
+  switch (key) {
+    case "records":
+      return view.records;
+    case "estimates":
+      return view.estimates;
+    case "sinceRecords":
+      return view.since ? view.since.records : [];
+    case "sinceEstimates":
+      return view.since ? view.since.estimates : [];
+    default:
+      return [];
+  }
+}
+
+function hasFacts(view: View, key: string): boolean {
+  if (key === "next") return !!view.next;
+  if (key === "since") return !!view.since && (view.since.records.length > 0 || view.since.estimates.length > 0);
+  if (key === "photos") return view.photos.length > 0;
+  const known = facts(view, key);
+  if (known.length) return true;
+  return scalar(view, key) !== null;
+}
+
+function fillNode(root: ParentNode, view: View): void {
+  const guarded = root.querySelectorAll("[data-ct-if]");
+  for (let i = 0; i < guarded.length; i++) {
+    const el = guarded.item(i);
+    const key = el.getAttribute("data-ct-if") || "";
+    if (!hasFacts(view, key)) el.remove();
+  }
+  const repeaters = root.querySelectorAll("[data-ct-each]");
+  for (let i = 0; i < repeaters.length; i++) {
+    const proto = repeaters.item(i);
+    if (!(proto instanceof HTMLElement) || !proto.parentNode) continue;
+    const key = proto.getAttribute("data-ct-each") || "";
+    const items = facts(view, key);
+    const limitRaw = parseInt(proto.getAttribute("data-ct-limit") || "", 10);
+    const limit = limitRaw > 0 ? limitRaw : items.length;
+    for (let n = 0; n < items.length && n < limit; n++) {
+      const copy = proto.cloneNode(true) as HTMLElement;
+      copy.removeAttribute("data-ct-each");
+      copy.removeAttribute("data-ct-limit");
+      const fact = items[n];
+      if (fact) fillFact(copy, fact, view, key.indexOf("stimates") !== -1);
+      proto.parentNode.insertBefore(copy, proto);
+    }
+    proto.remove();
+  }
+  const texts = root.querySelectorAll("[data-ct-text]");
+  for (let i = 0; i < texts.length; i++) {
+    const el = texts.item(i);
+    const value = scalar(view, el.getAttribute("data-ct-text") || "");
+    if (value === null) el.remove();
+    else el.textContent = value;
+  }
+  const links = root.querySelectorAll("[data-ct-href]");
+  for (let i = 0; i < links.length; i++) {
+    const el = links.item(i);
+    const raw = el.getAttribute("data-ct-href") === "nextHref" && view.next ? view.next.href : null;
+    const href = raw ? safeUrl(raw) : null;
+    if (href && el instanceof HTMLAnchorElement) {
+      el.href = href;
+      if (/^https?:/i.test(href)) el.rel = "noopener";
+      el.removeAttribute("data-ct-href");
+    } else {
+      el.remove();
+    }
+  }
+}
+
+function fillFact(node: HTMLElement, fact: RecordFact | EstimateFact, view: View, isEstimate: boolean): void {
+  const texts = node.querySelectorAll("[data-ct-text]");
+  for (let i = 0; i < texts.length; i++) {
+    const el = texts.item(i);
+    const key = el.getAttribute("data-ct-text") || "";
+    let value: string | null = null;
+    if (isEstimate && "approxQuantity" in fact) {
+      if (key === "estimate") value = "about " + fact.approxQuantity + " " + unitFor(fact.approxQuantity, fact.unit);
+      else if (key === "unit") value = unitFor(fact.approxQuantity, fact.unit);
+    } else if (!isEstimate && "count" in fact) {
+      if (key === "date") value = fact.dateLabel;
+      else if (key === "count") value = String(fact.count);
+      else if (key === "unit") value = unitFor(fact.count, fact.unit);
+      else if (key === "record") value = fact.count + " " + unitFor(fact.count, fact.unit);
+      else if (key === "note") value = fact.note;
+    }
+    if (value === null || value === "") el.remove();
+    else {
+      el.textContent = value;
+      el.removeAttribute("data-ct-text");
+    }
+  }
+  const imgs = node.querySelectorAll("img[data-ct-photo]");
+  for (let i = 0; i < imgs.length; i++) {
+    const img = imgs.item(i);
+    const photo = !isEstimate && "logId" in fact ? view.photos.find((p) => p.logId === fact.logId) : undefined;
+    const src = photo ? safeUrl(photo.url) : null;
+    if (src && img instanceof HTMLImageElement) {
+      img.src = src;
+      img.alt = "note" in fact && fact.note ? fact.note : "";
+      img.removeAttribute("data-ct-photo");
+    } else {
+      img.remove();
+    }
+  }
 }
 
 function mark(slot: HTMLElement, label: string): void {
