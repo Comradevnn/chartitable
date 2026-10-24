@@ -83,3 +83,17 @@ Cartesia → dashboard Next/stretch items → site #2 visual polish → photos i
 
 ## Hackathon requirements to keep in mind
 Devpost needs: project image, public GitHub repo, demo (video recommended), team. Pitch is 3 min + 2 min Q&A. Be at the venue by Sun 8 AM. Details and sponsor-track rules: `PRIZE_RULES.md` (§12 is the official Devpost page and wins on conflicts).
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->
