@@ -29,6 +29,11 @@ export function donateHrefFor(donateUrl: string, charityId: string): string {
   return donateUrl + (donateUrl.indexOf("?") === -1 ? "?" : "&") + "charity=" + encodeURIComponent(charityId);
 }
 
+// Recognized donors only: the hosted page learns who is giving again from this one opaque token.
+export function donateHrefWithToken(href: string, token: string): string {
+  return href ? href + (href.indexOf("?") === -1 ? "?" : "&") + "ct=" + encodeURIComponent(token) : "";
+}
+
 // The only thing a stranger's page gets: hosted donate links.
 export function rewriteDonate(doc: Document, href: string): void {
   if (!href) return;

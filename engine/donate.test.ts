@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { redirectUrl, validateDonation, keepAllowlistedEmail } from "./donate";
+import { boundedToken, chooseDonor, DONATE_TOKEN_MAX, redirectUrl, validateDonation, keepAllowlistedEmail } from "./donate";
 
 const base = { charityId: "demo-pantry-a", amountCents: 2500 };
 
@@ -99,5 +99,27 @@ describe("redirectUrl", () => {
     expect(out).not.toContain("secret");
     expect(out).not.toContain(encodeURIComponent(v.value.email!));
     expect(out).not.toContain("Ana");
+  });
+});
+
+describe("chooseDonor", () => {
+  it("reuses the donor only when the token verified and the row exists", () => {
+    expect(chooseDonor({ tokenOk: true, donorExists: true })).toBe("existing");
+    expect(chooseDonor({ tokenOk: true, donorExists: false })).toBe("new");
+    expect(chooseDonor({ tokenOk: false, donorExists: true })).toBe("new");
+    expect(chooseDonor({ tokenOk: false, donorExists: false })).toBe("new");
+  });
+});
+
+describe("boundedToken", () => {
+  it("accepts a bounded non-empty string", () => {
+    expect(boundedToken("abc.def")).toBe("abc.def");
+    expect(boundedToken("  abc.def ")).toBe("abc.def");
+    expect(boundedToken("a".repeat(DONATE_TOKEN_MAX))).toHaveLength(DONATE_TOKEN_MAX);
+  });
+  it("rejects empty, oversized and non-string values", () => {
+    for (const bad of ["", "   ", "a".repeat(DONATE_TOKEN_MAX + 1), 5, null, undefined, {}]) {
+      expect(boundedToken(bad)).toBeNull();
+    }
   });
 });

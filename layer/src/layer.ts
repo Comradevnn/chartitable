@@ -3,7 +3,7 @@
 import SLOT_STYLES from "../../docs/design/ct-slots.css";
 import { startLive } from "./live";
 import { enhance, swap } from "./motion";
-import { announceReady, donateHrefFor, paintRegions, rewriteDonate, setHooks } from "./regions";
+import { announceReady, donateHrefFor, donateHrefWithToken, paintRegions, rewriteDonate, setHooks } from "./regions";
 import { safeUrl, unitFor } from "./safe";
 import { parseView, type EstimateFact, type NextFact, type PhotoFact, type RecordFact, type SinceFact, type View } from "./view";
 
@@ -60,6 +60,8 @@ function start(script: HTMLOrSVGScriptElement | null): void {
         return;
       }
       if (!view) return;
+      donateHref = donateHrefWithToken(donateHref, token);
+      rewriteDonate(document, donateHref);
       paint(view, charityId, token);
     })
     .catch(() => {
