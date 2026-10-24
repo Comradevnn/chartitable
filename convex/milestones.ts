@@ -10,6 +10,7 @@ import { buildMilestoneEmail, decideRecipient, estimateTotals, planMilestones } 
 import { DEFAULT_TOKEN_TTL_MS, signToken } from "../engine/token";
 import type { DonorContext } from "./context";
 import { internal, internalAction, internalMutation, internalQuery } from "./lib/builders";
+import type { QueryCtx } from "./lib/builders";
 import { demoInboxes, tokenSecret } from "./lib/env";
 import { vCharityId } from "./lib/validators";
 
@@ -22,19 +23,27 @@ const vStatus = v.union(
   v.literal("failed"),
 );
 
+/** Thresholds already fired for a donor+charity and the last real send. Shared with the ops dry run. */
+export async function loadFired(
+  ctx: QueryCtx,
+  donorId: string,
+  charityId: CharityId,
+): Promise<{ thresholdIds: string[]; lastSentAt: number | null }> {
+  const rows = await ctx.db
+    .query("milestoneEmails")
+    .withIndex("by_donor_charity", (q) => q.eq("donorId", donorId).eq("charityId", charityId))
+    .collect();
+  let lastSentAt: number | null = null;
+  for (const r of rows) {
+    if (r.status === "sent" && (lastSentAt === null || r.sentAt > lastSentAt)) lastSentAt = r.sentAt;
+  }
+  return { thresholdIds: rows.map((r) => r.thresholdId), lastSentAt };
+}
+
 export const firedFor = internalQuery({
   args: { donorId: v.string(), charityId: vCharityId },
-  handler: async (ctx, args): Promise<{ thresholdIds: string[]; lastSentAt: number | null }> => {
-    const rows = await ctx.db
-      .query("milestoneEmails")
-      .withIndex("by_donor_charity", (q) => q.eq("donorId", args.donorId).eq("charityId", args.charityId))
-      .collect();
-    let lastSentAt: number | null = null;
-    for (const r of rows) {
-      if (r.status === "sent" && (lastSentAt === null || r.sentAt > lastSentAt)) lastSentAt = r.sentAt;
-    }
-    return { thresholdIds: rows.map((r) => r.thresholdId), lastSentAt };
-  },
+  handler: (ctx, args): Promise<{ thresholdIds: string[]; lastSentAt: number | null }> =>
+    loadFired(ctx, args.donorId, args.charityId),
 });
 
 /** Inserts a row per hit unless one already exists. Returns the thresholdIds actually inserted. */
@@ -85,25 +94,31 @@ export const setStatus = internalMutation({
 });
 
 /** Distinct donors with at least one donation in the window, per charity. Email is internal-only. */
+export async function loadCandidates(
+  ctx: QueryCtx,
+  now: number,
+): Promise<{ donorId: string; charityId: CharityId; email: string | null }[]> {
+  const window = windowEnding(now);
+  const out: { donorId: string; charityId: CharityId; email: string | null }[] = [];
+  for (const charityId of CHARITY_IDS) {
+    const donations = await ctx.db
+      .query("donations")
+      .withIndex("by_charity_createdAt", (q) =>
+        q.eq("charityId", charityId).gte("createdAt", window.from).lte("createdAt", window.to),
+      )
+      .collect();
+    for (const donorId of new Set(donations.map((d) => d.donorId))) {
+      const donor = await ctx.db.query("donors").withIndex("by_key", (q) => q.eq("key", donorId)).unique();
+      out.push({ donorId, charityId, email: donor ? donor.email : null });
+    }
+  }
+  return out;
+}
+
 export const candidates = internalQuery({
   args: { now: v.number() },
-  handler: async (ctx, args): Promise<{ donorId: string; charityId: CharityId; email: string | null }[]> => {
-    const window = windowEnding(args.now);
-    const out: { donorId: string; charityId: CharityId; email: string | null }[] = [];
-    for (const charityId of CHARITY_IDS) {
-      const donations = await ctx.db
-        .query("donations")
-        .withIndex("by_charity_createdAt", (q) =>
-          q.eq("charityId", charityId).gte("createdAt", window.from).lte("createdAt", window.to),
-        )
-        .collect();
-      for (const donorId of new Set(donations.map((d) => d.donorId))) {
-        const donor = await ctx.db.query("donors").withIndex("by_key", (q) => q.eq("key", donorId)).unique();
-        out.push({ donorId, charityId, email: donor ? donor.email : null });
-      }
-    }
-    return out;
-  },
+  handler: (ctx, args): Promise<{ donorId: string; charityId: CharityId; email: string | null }[]> =>
+    loadCandidates(ctx, args.now),
 });
 
 export const check = internalAction({
@@ -111,13 +126,31 @@ export const check = internalAction({
   handler: async (ctx): Promise<{ checked: number; sent: number; skipped: number; failed: number }> => {
     const now = Date.now();
     const counts = { checked: 0, sent: 0, skipped: 0, failed: 0 };
+    // Best-effort run record for the staff health page (T23); never affects the check itself.
+    const record = async (configured: boolean, smokeSkipped: boolean) => {
+      try {
+        await ctx.runMutation(internal.ops.recordMilestoneRun, { at: now, configured, smokeSkipped, ...counts });
+      } catch {
+        // best effort
+      }
+    };
+    // Smoke-test rows (e2e script) must never trigger real milestone claims or emails.
+    const smokeActive: boolean = await ctx.runQuery(internal.ops.smokeActive, {});
+    if (smokeActive) {
+      await record(!!process.env.RESEND_API_KEY && demoInboxes().size > 0, true);
+      return counts;
+    }
     const cands: { donorId: string; charityId: CharityId; email: string | null }[] = await ctx.runQuery(
       internal.milestones.candidates,
       { now },
     );
     const allowlist = demoInboxes();
     // Not configured yet → do nothing (and mark nothing), so thresholds aren't burned before the demo.
-    if (!process.env.RESEND_API_KEY || allowlist.size === 0) return counts;
+    const configured = !!process.env.RESEND_API_KEY && allowlist.size > 0;
+    if (!configured) {
+      await record(false, false);
+      return counts;
+    }
 
     for (const c of cands) {
       counts.checked++;
@@ -237,6 +270,7 @@ export const check = internalAction({
         }
       }
     }
+    await record(true, false);
     return counts;
   },
 });

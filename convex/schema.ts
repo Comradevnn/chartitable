@@ -24,7 +24,10 @@ export default defineSchema({
     email: v.union(v.string(), v.null()), // demo inboxes only; never in URLs/APIs
     hideFromTopDonors: v.optional(v.boolean()), // "Don't list me publicly"
     thankedAt: v.optional(v.union(v.number(), v.null())), // dashboard thank-you queue
-  }).index("by_key", ["key"]),
+    smoke: v.optional(v.boolean()), // e2e smoke-test row; removed by seed:cleanSmoke
+  })
+    .index("by_key", ["key"])
+    .index("by_smoke", ["smoke"]),
 
   donations: defineTable({
     key: v.string(),
@@ -48,9 +51,11 @@ export default defineSchema({
     photoStorageId: v.union(v.id("_storage"), v.null()),
     photoPath: v.union(v.string(), v.null()), // seeded placeholder served statically
     loggedAt: v.number(),
+    smoke: v.optional(v.boolean()), // e2e smoke-test row; removed by seed:cleanSmoke
   })
     .index("by_key", ["key"])
-    .index("by_charity_loggedAt", ["charityId", "loggedAt"]),
+    .index("by_charity_loggedAt", ["charityId", "loggedAt"])
+    .index("by_smoke", ["smoke"]),
 
   allocations: defineTable({
     donorId: v.string(),
@@ -117,6 +122,18 @@ export default defineSchema({
   })
     .index("by_donor_charity", ["donorId", "charityId"])
     .index("by_donor_charity_threshold", ["donorId", "charityId", "thresholdId"]),
+
+  // Last few milestone-check runs, for the hidden staff health page (T23). Counts only.
+  opsRuns: defineTable({
+    kind: v.literal("milestones"),
+    at: v.number(),
+    configured: v.boolean(),
+    smokeSkipped: v.boolean(), // run was skipped because smoke-test data existed
+    checked: v.number(),
+    sent: v.number(),
+    skipped: v.number(),
+    failed: v.number(),
+  }).index("by_kind_at", ["kind", "at"]),
 
   // Dashboard (T19)
   expenses: defineTable({

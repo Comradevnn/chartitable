@@ -23,6 +23,7 @@ export const create = mutation({
     firstName: v.optional(v.string()),
     email: v.optional(v.string()),
     hideFromTopDonors: v.optional(v.boolean()),
+    smoke: v.optional(v.boolean()), // tags the donor row so seed:cleanSmoke can remove it
   },
   handler: async (
     ctx,
@@ -48,6 +49,7 @@ export const create = mutation({
       firstName: d.firstName,
       email: d.email,
       hideFromTopDonors: d.hideFromTopDonors,
+      ...(args.smoke ? { smoke: true } : {}),
     });
     await ctx.db.insert("donations", {
       key: randomKey("don_"),

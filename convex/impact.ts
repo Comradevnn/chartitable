@@ -36,10 +36,11 @@ export const log = mutation({
     count: v.number(),
     note: v.optional(v.string()),
     photoStorageId: v.optional(v.id("_storage")),
+    smoke: v.optional(v.boolean()), // tags the log so seed:cleanSmoke can remove it
   },
   handler: async (
     ctx,
-    { pin, charityId, kind, count, note, photoStorageId },
+    { pin, charityId, kind, count, note, photoStorageId, smoke },
   ): Promise<{ ok: true; logId: string; donorsCredited: number } | { ok: false; error: "kind" | "count" | "note" }> => {
     requireStaff(pin);
     const checked = validateImpactLog({ kind, count, note });
@@ -58,6 +59,7 @@ export const log = mutation({
       photoStorageId: photoStorageId ?? null,
       photoPath: null,
       loggedAt: now,
+      ...(smoke ? { smoke: true } : {}),
     });
 
     const window = windowEnding(now);

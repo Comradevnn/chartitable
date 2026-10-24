@@ -1,0 +1,12 @@
+.wrap { max-width: 560px; }
+.bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.bar button { width: auto; padding: 10px 16px; }
+button.secondary { background: #fff; color: var(--ink); border: 2px solid var(--line); }
+.auto { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+.auto input { width: 20px; height: 20px; }
+section.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; }
+section.card h2 { font-size: 1.05rem; margin: 0 0 8px; }
+section.card.warn { border-color: #b26a00; background: #fff3cd; }
+dl { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 4px 12px; }
+dt { color: var(--muted); }
+dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }

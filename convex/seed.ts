@@ -2,7 +2,9 @@ import { internalMutationGeneric } from "convex/server"; // can switch to ./_gen
 import type { GenericDataModel, GenericMutationCtx } from "convex/server";
 import { v } from "convex/values";
 import type { GenericId } from "convex/values";
+import { CHARITY_IDS } from "../engine/types";
 import { buildSeed, planUpserts } from "../seed/data";
+import { internal, internalMutation } from "./lib/builders";
 
 type Counts = { inserted: number; updated: number };
 
@@ -79,5 +81,93 @@ export const load = internalMutationGeneric({
         { receiptStorageId: null },
       ),
     };
+  },
+});
+
+/**
+ * Removes everything the e2e smoke script created: rows tagged `smoke: true` (donors, impact logs)
+ * plus their dependents. Rows without the tag are never touched. Idempotent; bounded per run, so
+ * run it again if counts come back at the batch size.
+ */
+export const cleanSmoke = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const batch = 500;
+    const counts = {
+      donors: 0,
+      donations: 0,
+      impactLogs: 0,
+      visits: 0,
+      narratives: 0,
+      narrativeCalls: 0,
+      milestoneEmails: 0,
+      allocations: 0,
+    };
+
+    const donors = await ctx.db.query("donors").withIndex("by_smoke", (q) => q.eq("smoke", true)).take(batch);
+    for (const donor of donors) {
+      const donations = await ctx.db.query("donations").withIndex("by_donor", (q) => q.eq("donorId", donor.key)).take(batch);
+      for (const row of donations) await ctx.db.delete(row._id);
+      counts.donations += donations.length;
+
+      for (const charityId of CHARITY_IDS) {
+        const visits = await ctx.db
+          .query("visits")
+          .withIndex("by_donor_charity_at", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of visits) await ctx.db.delete(row._id);
+        counts.visits += visits.length;
+
+        const narratives = await ctx.db
+          .query("narratives")
+          .withIndex("by_donor_charity_hash", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of narratives) await ctx.db.delete(row._id);
+        counts.narratives += narratives.length;
+
+        const calls = await ctx.db
+          .query("narrativeCalls")
+          .withIndex("by_donor_charity_at", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of calls) await ctx.db.delete(row._id);
+        counts.narrativeCalls += calls.length;
+
+        const emails = await ctx.db
+          .query("milestoneEmails")
+          .withIndex("by_donor_charity", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of emails) await ctx.db.delete(row._id);
+        counts.milestoneEmails += emails.length;
+
+        const allocations = await ctx.db
+          .query("allocations")
+          .withIndex("by_donor_charity", (q) => q.eq("donorId", donor.key).eq("charityId", charityId))
+          .take(batch);
+        for (const row of allocations) await ctx.db.delete(row._id);
+        counts.allocations += allocations.length;
+      }
+      await ctx.db.delete(donor._id);
+      counts.donors++;
+    }
+
+    const logs = await ctx.db.query("impactLogs").withIndex("by_smoke", (q) => q.eq("smoke", true)).take(batch);
+    for (const log of logs) {
+      const allocations = await ctx.db.query("allocations").withIndex("by_log", (q) => q.eq("logId", log.key)).take(batch);
+      for (const row of allocations) await ctx.db.delete(row._id);
+      counts.allocations += allocations.length;
+      if (log.photoStorageId) {
+        try {
+          await ctx.storage.delete(log.photoStorageId);
+        } catch {
+          // already gone; the log still gets removed
+        }
+      }
+      await ctx.db.delete(log._id);
+      counts.impactLogs++;
+    }
+
+    // Stored allocations were derived from the rows just removed; rebuild them for the real data.
+    for (const charityId of CHARITY_IDS) await ctx.scheduler.runAfter(0, internal.allocations.recompute, { charityId });
+    return counts;
   },
 });

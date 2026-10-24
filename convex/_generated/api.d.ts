@@ -23,6 +23,7 @@ import type * as lib_mappers from "../lib/mappers.js";
 import type * as lib_validators from "../lib/validators.js";
 import type * as milestones from "../milestones.js";
 import type * as narrative from "../narrative.js";
+import type * as ops from "../ops.js";
 import type * as seed from "../seed.js";
 import type * as tokens from "../tokens.js";
 import type * as visits from "../visits.js";
@@ -49,6 +50,7 @@ declare const fullApi: ApiFromModules<{
   "lib/validators": typeof lib_validators;
   milestones: typeof milestones;
   narrative: typeof narrative;
+  ops: typeof ops;
   seed: typeof seed;
   tokens: typeof tokens;
   visits: typeof visits;
