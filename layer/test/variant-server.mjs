@@ -3,14 +3,14 @@
 //   http://localhost:5592/cinderwell/?ct=fx.a.news     (states: first_impact news repeat just_gave; a = pantry A, b = pantry B)
 //   http://localhost:5592/brindlecote/?ct=fx.b.repeat
 //   any other ?ct= (e.g. fx.reset) answers recognized:false, so the layer forgets the token → stranger view
-// Ports: 5174 serves /layer.js (rebuilt from layer/src on every request, API = this harness),
+// Ports: 5174 serves /layer.js (a snapshot by default, see below; API = this harness),
 // 5198 is the fake API (/donor-view, /donor-pulse), 5592 serves demo-sites/hosts as static files.
 // Live updates: GET http://127.0.0.1:5198/__bump?ct=fx.a.first_impact&to=a.live makes that token
 // answer with the a.live fixture (an extra "80 meals" log → new rev) from then on, as if staff had just logged it.
 // Fixtures are generated from engine + fictional seed by layer/test/fixtures/make.ts on start.
 import { execFileSync } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, buildSync } from "esbuild";
@@ -61,24 +61,35 @@ createServer((req, res) => {
   json(res, 404, {});
 }).listen(5198, "127.0.0.1");
 
+// Default: serve a fixed snapshot (layer/dist/layer.variant.js, built on first start) so host work
+// isn't broken by layer edits in progress. CT_LAYER_LIVE=1 rebuilds from layer/src on every request;
+// CT_LAYER_REBUILD=1 refreshes the snapshot on start.
+const snapshot = join(root, "layer", "dist", "layer.variant.js");
+const buildLayer = () =>
+  build({
+    entryPoints: [join(root, "layer", "src", "layer.ts")],
+    bundle: true,
+    format: "iife",
+    target: "es2019",
+    write: false,
+    loader: { ".css": "text" },
+    define: { CT_API_BASE: '"http://127.0.0.1:5198"', CT_DONATE_URL: '"https://chartitable.vercel.app/staff/donate"' },
+    logLevel: "error",
+  }).then((out) => out.outputFiles[0].text);
+if (!process.env.CT_LAYER_LIVE && (process.env.CT_LAYER_REBUILD || !existsSync(snapshot))) {
+  writeFileSync(snapshot, await buildLayer());
+}
+console.log("layer:", process.env.CT_LAYER_LIVE ? "live rebuild per request" : "snapshot " + snapshot);
+
 createServer(async (req, res) => {
   if (!(req.url || "").startsWith("/layer.js")) {
     res.writeHead(404);
     return res.end();
   }
   try {
-    const out = await build({
-      entryPoints: [join(root, "layer", "src", "layer.ts")],
-      bundle: true,
-      format: "iife",
-      target: "es2019",
-      write: false,
-      loader: { ".css": "text" },
-      define: { CT_API_BASE: '"http://127.0.0.1:5198"', CT_DONATE_URL: '"https://chartitable.vercel.app/staff/donate"' },
-      logLevel: "error",
-    });
+    const text = process.env.CT_LAYER_LIVE ? await buildLayer() : readFileSync(snapshot, "utf8");
     res.writeHead(200, { ...CORS, "Content-Type": "text/javascript" });
-    res.end(out.outputFiles[0].text);
+    res.end(text);
   } catch (e) {
     res.writeHead(500, { "Content-Type": "text/plain" });
     res.end(String(e));
