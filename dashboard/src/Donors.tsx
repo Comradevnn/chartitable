@@ -3,20 +3,28 @@ import { getDonorDetail, getDonors, markThanked } from "./data";
 import type { DashDonor, DonorDetail, DonorStatus } from "./types";
 import { money, day, dayYear } from "./format";
 import { Empty } from "./components";
+import { askDonorView, peekDonorView } from "./donorIntent";
 
 // Plain, non-judging labels for the people behind the numbers (dignity rule). Enum values stay as in the data contract.
 const STATUS: Record<DonorStatus, string> = { new: "New", active: "Active", at_risk: "Quiet lately", lapsed: "Gave before" };
 type Sort = "totalGiven" | "lastGiftAt";
 type View = "all" | "needs";
 
+// Case- and accent-insensitive: "jose" finds "José".
+const fold = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+
 export function Donors() {
   const [rows, setRows] = useState<DashDonor[] | null>(null);
   const [sort, setSort] = useState<Sort>("totalGiven");
-  const [view, setView] = useState<View>("all");
+  // Arriving from the Overview's "See who needs a thank-you" starts on that filter.
+  const [view, setView] = useState<View>(() => peekDonorView() ?? "all");
+  const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [said, setSaid] = useState("");
   const detail = useRef<HTMLElement>(null);
   const opener = useRef<HTMLElement | null>(null);
+  const search = useRef<HTMLInputElement>(null);
+  useEffect(() => { askDonorView(null); }, []);
   useEffect(() => { getDonors().then(setRows); }, []);
   const [info, setInfo] = useState<DonorDetail | null>(null);
   useEffect(() => {
@@ -30,10 +38,25 @@ export function Donors() {
   if (rows.length === 0) return <Empty title="No donors yet">Gifts made through the donate page appear here with a thank-you flag.</Empty>;
 
   const needs = rows.filter((d) => d.thankedAt === null);
-  const shown = (view === "needs" ? needs : rows).slice().sort((a, b) => b[sort] - a[sort]);
-  const sel = rows.find((d) => d.id === open);
   // Two anonymous donors must stay distinguishable without revealing anything about them.
   const label = (d: DashDonor) => (d.displayName === "Anonymous" ? "Anonymous donor, first gave " + day(d.firstGiftAt) : d.displayName);
+  // Donor records carry no email, so name is the only searchable field. Anonymous donors match "anonymous".
+  const needle = fold(q.trim());
+  const shown = (view === "needs" ? needs : rows)
+    .filter((d) => !needle || fold(label(d)).includes(needle))
+    .sort((a, b) => b[sort] - a[sort]);
+  const sel = rows.find((d) => d.id === open);
+  const searching = needle !== "";
+
+  function clearSearch() {
+    setQ("");
+    search.current?.focus();
+  }
+  function resetAll() {
+    setQ("");
+    setView("all");
+    search.current?.focus();
+  }
 
   function close() {
     setOpen(null);
@@ -48,14 +71,41 @@ export function Donors() {
     <section aria-labelledby="h-donors" onKeyDown={(e) => { if (e.key === "Escape" && open) close(); }}>
       <h2 id="h-donors">Donors</h2>
       <p className="lede">For thanking people, not ranking them. “Anonymous” donors asked not to be listed.</p>
+      <div className="search" role="search">
+        <label htmlFor="donor-search" className="sr-only">Search donors by name</label>
+        <svg className="search-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M13 13l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+        <input
+          id="donor-search" ref={search} type="search" autoComplete="off" spellCheck={false}
+          placeholder="Search donors by name" value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Escape" && q) { e.preventDefault(); e.stopPropagation(); setQ(""); } }}
+        />
+        {q && (
+          <button type="button" className="search-clear" aria-label="Clear search" onClick={clearSearch}>
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </button>
+        )}
+      </div>
       <div className="toolbar" role="group" aria-label="Show and sort donors">
         <button className={view === "needs" ? "chip on" : "chip"} aria-pressed={view === "needs"} onClick={() => setView(view === "needs" ? "all" : "needs")}>Needs a thank-you ({needs.length})</button>
         <button className={sort === "totalGiven" ? "chip on" : "chip"} aria-pressed={sort === "totalGiven"} onClick={() => setSort("totalGiven")}>Total given</button>
         <button className={sort === "lastGiftAt" ? "chip on" : "chip"} aria-pressed={sort === "lastGiftAt"} onClick={() => setSort("lastGiftAt")}>Most recent</button>
       </div>
+      <p className="count muted" role="status" aria-live="polite">Showing {shown.length} of {rows.length} {rows.length === 1 ? "donor" : "donors"}</p>
       <p className="ok" role="status">{said}</p>
       {shown.length === 0 ? (
-        <Empty title="Everyone has been thanked">Nice work. New gifts will show up here until they are marked thanked.</Empty>
+        searching ? (
+          <div className="empty">
+            <h3>No donors match “{q.trim()}”</h3>
+            <p>{view === "needs" ? "Only donors who still need a thank-you are searched right now. Check the spelling, or search everyone." : "Check the spelling, or try just part of the name."}</p>
+            <div className="empty-actions">
+              <button className="mini" onClick={clearSearch}>Clear search</button>
+              {view === "needs" && <button className="mini" onClick={resetAll}>Show all donors</button>}
+            </div>
+          </div>
+        ) : (
+          <Empty title="Everyone has been thanked">Nice work. New gifts will show up here until they are marked thanked.</Empty>
+        )
       ) : (
         <div className="table-wrap">
           <table>
