@@ -49,7 +49,7 @@ Backend functions are live on `https://acoustic-donkey-399.convex.cloud` (the `/
 
 ## Gotchas
 - `npx convex run` runs the DEPLOYED code. A `npx convex dev` watcher has run since ~1 AM, so saves to `convex/`, `engine/`, `seed/` deploy to dev within seconds.
-- Claude budget: `NARRATIVE_MAX_PER_HOUR` default 60 calls/hour across everything (warm, post re-warm, probe). Two rehearsals + panel probing used ~45 in an hour. Don't rehearse heavily in the last hour before judging, or raise it (`npx convex env set NARRATIVE_MAX_PER_HOUR 120`).
+- Claude budget: `NARRATIVE_MAX_PER_HOUR` is **120** calls/hour on dev (raised from the default 60 on Sat 2:10 PM; it caps warm, post re-warm and the probe together). A demo post now costs about 5 calls; a full rehearsal about 10. Over the cap the page still works from the honest template.
 - Calibration: `engine/calibration.test.ts` pins Mira (donor_a01) at 22.9 → about 26.7 meals after "Served 80 meals" (shown rounded down: about 22 → about 26). A live donation on stage (step 1, $25) dilutes slightly (still about 26, still crosses 25).
 - Smoke rows (`smoke:true`, from `scripts/e2e-smoke.mjs`) make the milestone check skip; Reset removes them. Never run the smoke script during the demo.
 - Cursor/teammates edit this checkout: stage explicit paths only; never `git add -A`, stash, reset or checkout files.
