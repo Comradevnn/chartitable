@@ -48,6 +48,9 @@ const CHARITIES: Charity[] = [
 const DONOR_NAMES = [
   "Mira", "Jonas", "Priya", "Teo", "Lena", "Omar",
   "Nadia", "Caleb", "Sana", "Felix", "Ines", "Rhea",
+  // Demo personas (engine/demo.ts): a13 just gave at A, a14 lapsed at A, a15 lapsed at B,
+  // a16 is the dashboard "at risk" example (not a persona).
+  "Wren", "Hollis", "Juno", "Bram",
 ];
 
 // [donor index (1-based), charity, dollars, daysAgo]; hours offset derived from row index.
@@ -152,6 +155,24 @@ export function buildSeed(now: number): SeedData {
     createdAt: now - 30 * MIN,
     testMode: true,
   });
+  // Demo persona donors (one gift each). Wren's gift lands after every pantry-a log (newest is 2 h old).
+  // The long-ago gifts sit outside the 30-day allocation window, so they dilute nothing.
+  const personaGifts: [number, CharityId, number, number][] = [
+    [13, "demo-pantry-a", 10, 40 * MIN], // Wren: just gave
+    [14, "demo-pantry-a", 40, 120 * DAY], // Hollis: lapsed at A
+    [15, "demo-pantry-b", 25, 150 * DAY], // Juno: lapsed at B
+    [16, "demo-pantry-b", 30, 60 * DAY], // Bram: dashboard at-risk example
+  ];
+  for (const [d, charityId, dollars, ago] of personaGifts) {
+    donations.push({
+      id: `don_a${pad(donations.length + 1, 3)}`,
+      donorId: donorId(d),
+      charityId,
+      amountCents: dollars * 100,
+      createdAt: now - ago,
+      testMode: true,
+    });
+  }
 
   const impactLogs: SeedImpactLog[] = [];
   let seq = 0;

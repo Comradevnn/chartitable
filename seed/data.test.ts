@@ -22,11 +22,17 @@ describe("seed data", () => {
     // T21: names re-checked against real orgs (Sat Oct 24); the flagged ones must not come back.
     expect(seed.charities.map((c) => c.name)).toEqual(["Cinderwell Pantry", "Brindlecote Food Bank"]);
     for (const c of seed.charities) expect(c.name).not.toMatch(/Larkspur|Copperfield|Pellam|Tansy|Trestlebin/);
-    expect(seed.donors.length).toBe(12);
-    expect(seed.donations.length).toBe(25);
+    expect(seed.donors.length).toBe(16);
+    expect(seed.donations.length).toBe(29);
+    // Persona / at-risk donors whose only gift is long ago (outside the 30-day window).
+    const longAgo: Record<string, number> = { donor_a14: 120, donor_a15: 150, donor_a16: 60 };
     for (const d of seed.donations) {
       expect(d.createdAt).toBeLessThanOrEqual(NOW);
-      expect(d.createdAt).toBeGreaterThanOrEqual(NOW - 21 * DAY);
+      if (d.donorId in longAgo) {
+        expect(d.createdAt).toBe(NOW - longAgo[d.donorId]! * DAY);
+      } else {
+        expect(d.createdAt).toBeGreaterThanOrEqual(NOW - 21 * DAY);
+      }
       expect(d.amountCents).toBeGreaterThanOrEqual(1000);
       expect(d.amountCents).toBeLessThanOrEqual(10000);
       expect(Number.isInteger(d.amountCents)).toBe(true);
@@ -43,6 +49,16 @@ describe("seed data", () => {
   it("demo donor has a single $25 gift", () => {
     const gifts = seed.donations.filter((d) => d.donorId === "donor_a01");
     expect(gifts.map((g) => g.amountCents)).toEqual([2500]);
+  });
+
+  it("persona donors a13..a16 have exactly one gift each, at the intended charity", () => {
+    const one = (id: string) => seed.donations.filter((d) => d.donorId === id).map((d) => [d.charityId, d.amountCents]);
+    expect(one("donor_a13")).toEqual([["demo-pantry-a", 1000]]);
+    expect(one("donor_a14")).toEqual([["demo-pantry-a", 4000]]);
+    expect(one("donor_a15")).toEqual([["demo-pantry-b", 2500]]);
+    expect(one("donor_a16")).toEqual([["demo-pantry-b", 3000]]);
+    expect(seed.donations.find((d) => d.donorId === "donor_a13")!.createdAt).toBe(NOW - 40 * 60_000);
+    expect(seed.donors.slice(12).map((d) => d.firstName)).toEqual(["Wren", "Hollis", "Juno", "Bram"]);
   });
 
   it("references existing donors and charities; ids are unique", () => {

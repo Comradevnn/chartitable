@@ -156,13 +156,17 @@ describe("buildOverview (seed)", () => {
         photoUrlByLogId: {},
         now: NOW,
       });
-      const mine = seed.donations.filter((d) => d.charityId === charityId);
-      expect(o.totalRaised).toBe(mine.reduce((s, d) => s + d.amountCents, 0)); // all seed gifts are within 30 days
-      expect(o.prevPeriodRaised).toBe(0);
-      expect(o.donorCounts.total).toBe(new Set(mine.map((d) => d.donorId)).size);
-      expect(o.donorCounts.new).toBe(o.donorCounts.total); // seed gifts are all recent
+      // Persona/at-risk donors (a14..a16) gave long ago, outside the period; every other seed gift is within 30 days.
+      const all = seed.donations.filter((d) => d.charityId === charityId);
+      const mine = all.filter((d) => d.createdAt >= period.from && d.createdAt <= period.to);
+      const prev = all.filter((d) => d.createdAt >= prevPeriod.from && d.createdAt <= prevPeriod.to);
+      expect(o.totalRaised).toBe(mine.reduce((s, d) => s + d.amountCents, 0));
+      expect(o.prevPeriodRaised).toBe(prev.reduce((s, d) => s + d.amountCents, 0));
+      expect(o.donorCounts.total).toBe(new Set(all.map((d) => d.donorId)).size);
+      expect(o.donorCounts.new).toBe(new Set(mine.map((d) => d.donorId)).size); // in-period donors are all first-time
       expect(o.donorCounts.returning).toBe(0);
-      expect(o.donorCounts.lapsed).toBe(0);
+      // Hollis (A, 120 days) and Juno (B, 150 days) are the lapsed donors; Bram (B, 60 days) is at risk, not lapsed.
+      expect(o.donorCounts.lapsed).toBe(1);
       const meals = seed.impactLogs.filter((l) => l.charityId === charityId && l.kind === "meals");
       expect(o.mealsServed).toBe(meals.reduce((s, l) => s + l.count, 0));
       expect(o.expensesTotal).toBe(seed.expenses.filter((e) => e.charityId === charityId).reduce((s, e) => s + e.amountCents, 0));

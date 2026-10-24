@@ -148,6 +148,20 @@ export default defineSchema({
     failed: v.number(),
   }).index("by_kind_at", ["kind", "at"]),
 
+  // Demo control panel (T33): wrong-PIN attempts for demo:* (lockout window), no PIN values stored.
+  pinFailures: defineTable({
+    scope: v.literal("demo"),
+    at: v.number(),
+  }).index("by_scope_at", ["scope", "at"]),
+
+  // Demo preflight: last live Claude probe (cached PROBE_TTL_MS). Outcome only, no text.
+  demoProbes: defineTable({
+    at: v.number(),
+    source: v.union(v.literal("claude"), v.literal("template")),
+    outcome: v.string(), // runNarrative outcome: claude | rejected | error | capped | no_key
+    latencyMs: v.number(),
+  }).index("by_at", ["at"]),
+
   // Dashboard (T19)
   expenses: defineTable({
     key: v.string(),
