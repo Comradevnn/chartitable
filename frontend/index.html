@@ -388,7 +388,7 @@
   function setView(v, remember) {
     seg2.forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v));
     path.set(v === "donor" ? 2 : 1);
-    if (remember) try { sessionStorage.setItem("ct-demo-view", v); } catch (e) {}
+    if (remember) try { sessionStorage.setItem("chartitable:demo-view", v); } catch (e) {}
     if (v !== "donor") { Object.values(slots).forEach(s => { s.innerHTML = ""; s.removeAttribute("data-impact-state"); }); root.removeAttribute("data-impact-active"); return; }
     const d = DEMO.donorView, s = d.sinceLastVisit, m = d.estimates.find(e => e.kind === "meals");
     fill(slots.hero, `<div class="ct-hero"><div class="wrap"><p><strong>Welcome back, ${esc(d.hero.firstName)}.</strong> Your gifts put <span class="ct-estimate">${esc(estText(m))}</span> on neighbors' tables in the last 30 days. ${tip("How we got this", DEMO.charity.formula)}</p><a class="btn btn-brand sm" href="dashboard.html?ct=${esc(d.token)}">See your impact</a></div></div>`);
@@ -408,7 +408,7 @@
     const clean = () => history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "") + location.hash);
     if (p.get("ct") === DEMO.donorView.token) { v = "donor"; remember = true; p.delete("ct"); clean(); }
     else if (p.get("view") === "stranger") { remember = true; p.delete("view"); clean(); }
-    else { try { v = sessionStorage.getItem("ct-demo-view") || "stranger"; } catch (e) {} }
+    else { try { v = sessionStorage.getItem("chartitable:demo-view") || "stranger"; } catch (e) {} }
     if (CT.layerPresent()) document.querySelector(".demo").hidden = true; // the real layer owns the slots
     else setView(v, remember || v === "donor");
   })();

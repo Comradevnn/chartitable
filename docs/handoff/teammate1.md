@@ -7,7 +7,7 @@ Last updated: Sat Oct 24, ~2:00 AM PT. Update this file whenever you stop or swi
 - Demo sites T10/T11 (fictional pantries `demo-pantry-a`, `demo-pantry-b`) follow integration contract v1 in PROGRESS.md. Visual directions and homepage order are in `docs/demo-site-reference.md`.
 
 ## Already pushed
-- `/frontend/index.html`, `dashboard.html`, `admin.html` (static, no backend calls yet, "Second Helping"). Decide whether it becomes the base of `/dashboard` or stays as the donor-facing/demo pages. Check the name against a live search (D5).
+- `/frontend/index.html`, `dashboard.html`, `admin.html` (static, no backend calls yet; the demo charity is the fictional "Tansy Street Pantry", defined only in `frontend/demo-data.js`, pending the user's confirmation and a live-name check per D5). Decide whether it becomes the base of `/dashboard` or stays as the donor-facing/demo pages. Check the name against a live search (D5).
 
 ## State of `frontend/` (uncommitted on `dashboard`)
 Plain HTML/CSS/JS, no build step, works by double-clicking (file://). Fictional pantry; the name is the demo charity "Tansy Street Pantry", kept separate from the product name Chartitable.

@@ -173,6 +173,8 @@
 
   const app = document.getElementById("app");
   const params = new URLSearchParams(location.search);
+  const ctToken = params.get("ct"); // read once, then strip the opaque token from the URL (contract v1); keeps other params + hash
+  if (ctToken !== null) { params.delete("ct"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash); }
   setCharityName(DEMO.charity.name);
   // title and meta description come from DEMO.charity.name too (static HTML holds only generic fallbacks)
   document.title = `My Impact · ${DEMO.charity.name}`;
@@ -263,7 +265,7 @@
   // DEMO DATA (fictional) — swap for Convex query
   async function getDonorView() {
     await new Promise(r => setTimeout(r, 350)); // stands in for network latency
-    const st = params.get("state"), token = params.get("ct");
+    const st = params.get("state"), token = ctToken;
     if (st === "error") throw new Error("demo error");
     if (st === "unrecognized") return { recognized: false };
     const view = id => { const v = DEMO.donorViews[id]; return v && { id, recognized: true, displayName: v.shortName, lastVisitAt: v.lastVisitAt, hero: v.hero, nextStep: v.nextStep, photos: v.photos }; };
