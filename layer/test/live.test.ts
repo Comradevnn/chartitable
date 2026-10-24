@@ -230,7 +230,8 @@ describe("repaint", () => {
     // Same rev again: nothing at all.
     await vi.advanceTimersByTimeAsync(6100);
     expect(peeks()).toBe(1);
-    // A later rev with the same records: repainted without duplicates and nothing re-flagged.
+    // A later rev with the same records (e.g. Claude's story landed): repainted without duplicates; the
+    // arrived record keeps its "Just logged" flag as "seen", so it does not animate again.
     routes.pulse = { rev: "r3" };
     routes.view = apiBody({
       rev: "r3",
@@ -242,7 +243,9 @@ describe("repaint", () => {
     await vi.advanceTimersByTimeAsync(6100);
     expect(peeks()).toBe(2);
     expect(document.querySelectorAll("[data-impact-region=hero] [data-ct-id]").length).toBe(2);
-    expect(document.querySelectorAll("[data-ct-new]").length).toBe(0);
+    expect(document.querySelectorAll("[data-ct-new]").length).toBe(1);
+    expect(document.querySelector('[data-ct-id="b"]')?.getAttribute("data-ct-new")).toBe("seen");
+    expect(document.querySelectorAll('[data-ct-new=""]').length).toBe(0);
   });
 
   it("a region that was default and now matches is painted for the first time", async () => {

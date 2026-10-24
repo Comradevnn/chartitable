@@ -38,6 +38,7 @@ export function startLive(o: LiveOptions): (() => void) | null {
 
   const variants = { ...o.variants };
   let current = o.view;
+  const arrived: string[] = [];
   let lastRev: string | null = o.view.rev;
   let stopped = false;
   let busy = false;
@@ -101,13 +102,14 @@ export function startLive(o: LiveOptions): (() => void) | null {
     }
     current = next;
     const result = paintRegions(doc, next, o.donateHref, { offscreen, ageMs: performance.now() });
-    // Repainted regions are rebuilt from scratch, so nothing is ever duplicated, and an identical
-    // later view flags nothing.
+    // Repainted regions are rebuilt from scratch, so nothing is ever duplicated. Records that arrived
+    // during this page view keep data-ct-new on later repaints (a story upgrade must not wipe the
+    // "Just logged" tag); only this repaint's arrivals get "" and therefore the arrival animation.
+    for (const r of added) arrived.push(r.logId);
     for (const region of result.painted) {
       for (const el of Array.from(region.querySelectorAll("[data-ct-id]"))) {
-        if (added.some((r) => r.logId === el.getAttribute("data-ct-id"))) {
-          el.setAttribute("data-ct-new", "");
-        }
+        const id = el.getAttribute("data-ct-id") || "";
+        if (arrived.indexOf(id) >= 0) el.setAttribute("data-ct-new", added.some((r) => r.logId === id) ? "" : "seen");
       }
     }
     enhance(result.painted.filter((r) => result.fresh.indexOf(r) < 0), "update");

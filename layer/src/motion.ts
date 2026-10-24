@@ -89,7 +89,7 @@ export function enhance(roots: Element[], mode: "first" | "update"): void {
   for (const root of roots) {
     // Live arrival (the live module marks new record items data-ct-new): soft insert animation, and
     // the ring on a host's .ct-new-tag, in CSS.
-    for (const el of Array.from(root.querySelectorAll("[data-ct-new]"))) el.classList.add("ct-arrive");
+    for (const el of Array.from(root.querySelectorAll('[data-ct-new=""]'))) el.classList.add("ct-arrive");
     for (const el of Array.from(root.querySelectorAll("[data-ct-animate]"))) {
       const kind = el.getAttribute("data-ct-animate");
       if (kind === "count") countUp(el, mode, watch);
@@ -108,7 +108,7 @@ function countUp(el: Element, mode: string, watch: (el: Element, run: () => void
   const item = el.closest('[data-ct-kind="record"]');
   // Records only. Estimates never count up: counting implies precision.
   if (!item || el.closest('[data-ct-kind="estimate"],.ct-estimate,[data-ct-animate="draw"]')) return;
-  if (mode === "update" && !item.hasAttribute("data-ct-new")) return;
+  if (mode === "update" && item.getAttribute("data-ct-new") !== "") return;
   const text = el.textContent || "";
   const m = /\d[\d,]*/.exec(text);
   const target = m ? parseInt(m[0].replace(/,/g, ""), 10) : 0;
