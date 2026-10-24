@@ -41,7 +41,7 @@ export function donorDetail(id: string): DonorDetail | null {
   })).reverse();
   const pool = donors.reduce((s, x) => s + x.totalGiven, 0);
   const shareMeals = Math.round((d.totalGiven / pool) * mealsServed);
-  const first = d.displayName === "Anonymous" ? "friend" : d.displayName.split(" ")[0];
+  const first = d.hideFromTopDonors || d.displayName === "Anonymous" ? "friend" : d.displayName.split(" ")[0];
   return {
     gifts,
     preview: {

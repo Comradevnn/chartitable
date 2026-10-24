@@ -30,6 +30,24 @@
         ],
         "createdAt": "2026-10-24T17:59:58.594Z",
         "reason": "False positive: detector reads all roles as 16px because it cannot resolve the font shorthand with var()/clamp(); rendered sizes measured in browser are h1 52px, h2 32/22px, body 17px (steps >=1.25x)."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "landing/index.html"
+        ],
+        "createdAt": "2026-10-24T21:56:38.083Z",
+        "reason": "False positive: .tag/.sec inset comes from var()/calc padding (about 54px at 1440, 34px at 390; sections 100px+); confirmed in rendered tiles Oct 24"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "landing/index.html"
+        ],
+        "createdAt": "2026-10-24T21:56:38.417Z",
+        "reason": "False positive: 1.0 leading only on all-caps Barlow Condensed display type (no descenders); no line collisions in rendered tiles Oct 24"
       }
     ]
   }

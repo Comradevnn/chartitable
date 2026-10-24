@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chartitable: your donors' impact, on your own website</title>
+<meta name="description" content="Chartitable shows a returning donor what their gift did, on a small food pantry's own website. One script tag. Every estimate says it is one.">
+<meta name="theme-color" content="#2b343a">
+<meta property="og:title" content="Chartitable: your donors' impact, on your own website">
+<meta property="og:description" content="A returning donor sees the pantry's page rearranged around what their gift did. Records and estimates never look alike.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232b343a'/%3E%3Cpath d='M6 6h14l6 6v14H6z' fill='%23f4f6f5'/%3E%3Ccircle cx='11' cy='11' r='2.2' fill='%232b343a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<script src="main.js" defer></script>
+</head>
+<body id="top">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top">Chartitable</a>
+    <nav aria-label="Sections">
+      <ul class="nav">
+        <li><a class="cut" href="#how">How it works</a></li>
+        <li><a class="cut" href="#honesty">Honesty</a></li>
+        <li><a class="cut" href="#dashboard">Dashboard</a></li>
+        <li><a class="cut" href="#install">Install</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- 1. Hero -->
+<section class="hero" aria-labelledby="h-hero">
+  <div class="wrap hero-grid">
+    <div class="tag cut hero-tag">
+      <i class="hole" aria-hidden="true"></i>
+      <h1 id="h-hero"><span>Your donors'</span> <span>impact, on your</span> <span class="inv">own website.</span></h1>
+      <p class="sub">For small food pantries without fundraising staff. A donor who returns from an email link sees your page rearranged around what their gift did.</p>
+      <div class="acts">
+        <a class="go" href="#live">See it live<span><svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M12 4v14M5 11l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></span></a>
+        <a class="taped" href="#install"><i class="tape" aria-hidden="true"></i><b>Install in one line</b><span>One script tag</span></a>
+      </div>
+      <ul class="legend" aria-label="Key to the stickers">
+        <li><i class="dot" aria-hidden="true"></i><b>Logged record</b> counted by your pantry</li>
+        <li><i class="ring" aria-hidden="true"></i><b>Estimate</b> always says "about"</li>
+      </ul>
+    </div>
+
+    <div class="hero-items">
+      <figure class="item hi-s">
+        <div class="frame crop-s">
+          <img src="img/cinderwell-stranger.png" width="1280" height="800" alt="Cinderwell Community Pantry home page as a first-time visitor sees it, cropped to its left side: the founder quote &quot;We started with one folding table and a promise that nobody in Fennick Hollow would go to bed hungry&quot;, a welcome line and a Donate Today button." decoding="async">
+        </div>
+        <span class="lip" aria-hidden="true"></span>
+        <figcaption class="lab cut">Stranger<small>The pantry's own site</small></figcaption>
+      </figure>
+      <figure class="item hi-d">
+        <div class="frame crop-d">
+          <img src="img/cinderwell-donor.png" width="1280" height="1280" alt="The same Cinderwell page for a returning donor named Mira, cropped to its left side: the headline &quot;New from Cinderwell Pantry since your last visit&quot;, &quot;You gave $25 on Thu, Oct 15&quot;, Share the update and Give again buttons, a logged tile of 150 pounds of produce, the edge of the next logged tile, and a dashed box reading &quot;Your share, an estimate: about 22 meals, about 32 pounds of produce&quot;." decoding="async" fetchpriority="high">
+          <span class="stk s-rec"><i class="dot" aria-hidden="true"></i>150 lb, logged</span>
+          <span class="stk s-est">about 22 meals<span class="vh">, an estimate</span></span>
+        </div>
+        <span class="lip" aria-hidden="true"></span>
+        <figcaption class="lab inv cut">Returning donor<small>From an email link</small></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+<nav class="rail rail-steps" aria-label="How it works, in three steps">
+  <div class="wrap">
+    <ul>
+      <li><a class="cut" href="#how">1 &middot; Add one script tag</a></li>
+      <li><a class="cut" href="#how">2 &middot; Post a one-line update</a></li>
+      <li><a class="cut" href="#how">3 &middot; Donors see what changed</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- 2. The idea in one picture -->
+<section class="sec idea" aria-labelledby="h-idea">
+  <div class="wrap">
+    <div class="idea-intro">
+      <div class="head">
+        <h2 id="h-idea" class="label-h cut"><i class="hole" aria-hidden="true"></i>A shop remembers your coffee beans. Your pantry page can remember a gift.</h2>
+        <span class="price cut">2 views &middot; 1 address</span>
+      </div>
+      <p class="lede">Online shops greet you with what you bought last time. Chartitable gives a small pantry the same memory for its donors. Same address, same page. Only the sections that matter are redrawn around the person who gave.</p>
+    </div>
+
+    <div class="idea-grid">
+      <figure class="item pic-a">
+        <div class="frame crop-s">
+          <img src="img/cinderwell-stranger.png" width="1280" height="800" alt="Cinderwell Community Pantry home page as a first-time visitor sees it, cropped to its left side: the founder quote &quot;We started with one folding table and a promise that nobody in Fennick Hollow would go to bed hungry&quot;, a welcome line and a Donate Today button." loading="lazy" decoding="async">
+        </div>
+        <span class="lip" aria-hidden="true"></span>
+        <figcaption class="lab cut">Stranger<small>The pantry's own site, unchanged.</small></figcaption>
+      </figure>
+
+      <figure class="item pic-b">
+        <div class="frame sq">
+          <img src="img/cinderwell-donor.png" width="1280" height="1280" alt="The same Cinderwell page for a returning donor named Mira. A top bar says &quot;Hi, Mira&quot; with a link to see her thank-you. The headline reads &quot;New from Cinderwell Pantry since your last visit&quot;, with &quot;You gave $25 on Thu, Oct 15&quot; and Share the update and Give again buttons. Below are three logged tiles: 150 pounds of produce, 70 meals and 90 meals. A dashed box reads &quot;Your share, an estimate: about 22 meals, about 32 pounds of produce&quot; and says gifts are pooled, so it is a proportional estimate, not a count." loading="lazy" decoding="async">
+          <span class="stk s-rec"><i class="dot" aria-hidden="true"></i>150 lb, logged</span>
+          <span class="stk s-est">about 22 meals<span class="vh">, an estimate</span></span>
+        </div>
+        <span class="lip" aria-hidden="true"></span>
+        <figcaption class="lab inv cut">Returning donor<small>Opened from the link in their email.</small></figcaption>
+      </figure>
+
+      <div class="pins">
+        <ul>
+          <li class="note cut"><svg class="ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg><p><b>Rearranged around the donor.</b> A new headline, their $25 gift and one next step. No banner stuck on top.</p></li>
+          <li class="note cut"><i class="dot" aria-hidden="true"></i><p><b>Logged records.</b> Three tiles from the pantry's own log, each with its date.</p></li>
+          <li class="note cut"><i class="ring" aria-hidden="true"></i><p><b>A labeled estimate.</b> It says "about" and explains it is a share, not a count.</p></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="rail" aria-hidden="true"></div>
+
+<!-- 3. Live demo -->
+<section id="live" class="sec dark live" aria-labelledby="h-live">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-live" class="inv-h">Open the two demo pantries</h2>
+      <span class="price cut">2 pantries</span>
+    </div>
+    <p class="lede">Both run the same one-line embed and keep their own layout, colors and voice. Open one as yourself and you see the plain site, like any first-time visitor.</p>
+
+    <div class="live-grid">
+      <article class="tag cut live-a">
+        <i class="hole" aria-hidden="true"></i>
+        <h3>Cinderwell Community Pantry</h3>
+        <p>A community pantry. The pantry wrote its own donor version of each section, with a different version for different kinds of visit.</p>
+        <a class="btn inv cut" href="/sites/cinderwell/">Open Cinderwell<svg class="ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></a>
+        <code class="path">/sites/cinderwell/</code>
+      </article>
+      <article class="tag cut live-b">
+        <i class="hole" aria-hidden="true"></i>
+        <h3>Brindlecote Food Bank</h3>
+        <p>A regional food bank with a different layout and look, running the same embed.</p>
+        <a class="btn inv cut" href="/sites/brindlecote/">Open Brindlecote<svg class="ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></a>
+        <code class="path">/sites/brindlecote/</code>
+      </article>
+    </div>
+
+    <p class="presenter"><i class="tape" aria-hidden="true"></i>To see the donor view, open a donor from the presenter panel at <code>/staff/demo</code>.</p>
+  </div>
+</section>
+<div class="rail" aria-hidden="true"></div>
+
+<!-- 4. How it works -->
+<section id="how" class="sec how" aria-labelledby="h-how">
+  <div class="wrap">
+    <h2 id="h-how" class="label-h cut"><i class="hole" aria-hidden="true"></i>Three small steps. No new website.</h2>
+
+    <div class="how-grid">
+      <ol class="steps">
+        <li>
+          <h3><span>Add one line, mark your regions</span><span class="price cut">1 script tag</span></h3>
+          <p>Paste the script tag into your page. Then mark the sections a donor's version can replace. Everything else on your page is never touched.</p>
+        </li>
+        <li>
+          <h3><span>Post a one-line update</span><span class="price cut">1 line</span></h3>
+          <p>Staff write what happened, in a sentence. A photo is optional. That line becomes a logged record.</p>
+        </li>
+        <li>
+          <h3><span>Returning donors see what changed</span><span class="price cut">0 donor logins</span></h3>
+          <p>A donor who opens the link in their email sees your page redrawn around their gift. Anyone else sees your page exactly as it was.</p>
+        </li>
+      </ol>
+
+      <div class="codes">
+        <div class="code" id="install">
+          <div class="code-bar">
+            <span class="code-title">Add to your page</span>
+            <button type="button" class="copy cut" id="copy">Copy</button>
+          </div>
+          <pre tabindex="0" aria-label="Embed snippet, one line. Scroll sideways to read all of it."><code id="embed">&lt;script <b>src="https://chartitable.vercel.app/layer.js"</b> <b>data-charity="demo-pantry-a"</b> defer&gt;&lt;/script&gt;</code></pre>
+          <span class="stub cut" id="stub" role="status" aria-live="polite"></span>
+        </div>
+        <div class="code">
+          <div class="code-bar"><span class="code-title">Mark a region</span></div>
+          <pre tabindex="0" aria-label="Region example, three lines. Scroll sideways to read all of it."><code>&lt;!-- strangers see this, unchanged --&gt;
+&lt;section <b>data-impact-region="hero"</b>&gt;…your normal hero…&lt;/section&gt;
+&lt;template <b>data-impact-for="hero"</b>&gt;…the donor version…&lt;/template&gt;</code></pre>
+        </div>
+        <p class="fine">The charity id above belongs to the Cinderwell demo. Your own pantry gets its own.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="rail" aria-hidden="true"></div>
+
+<!-- 5. Honesty -->
+<section id="honesty" class="sec dark honesty" aria-labelledby="h-honesty">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-honesty" class="inv-h">A record is a record. An estimate says it is one.</h2>
+      <span class="price cut" id="honesty-price">0 invented numbers shown</span>
+    </div>
+    <p class="lede">Gifts are pooled, so each donor is credited a proportional share. Every computed number says "about" and wears the ring. The dot and the ring differ in shape, so you can tell them apart without color.</p>
+
+    <div class="pair">
+      <div class="rec cut">
+        <i class="dot" aria-hidden="true"></i>
+        <div><p class="big">Logged: 80 meals served, Oct 20</p><p class="small">Counted by the pantry. A record.</p></div>
+      </div>
+      <div class="est">
+        <i class="ring" aria-hidden="true"></i>
+        <div><p class="big">About 16 meals: your share of pooled gifts, an estimate</p><p class="small">Worked out, not counted. Never shown as a record.</p></div>
+      </div>
+    </div>
+    <p class="fine eg">These two lines are this section's own example. They are not read off the screenshots above.</p>
+
+    <h3 class="sub-h">The fact-check guard</h3>
+    <ol class="flow">
+      <li class="cut">Claude writes the sentence only from the facts your pantry logged.</li>
+      <li class="cut">A fixed-rule check compares every number in it with the log.</li>
+      <li class="cut">Any number that is not in the log: the sentence is rejected and a plain template sentence is used instead.</li>
+    </ol>
+
+    <div class="guard" id="guard" data-guard="on">
+      <button type="button" class="switch cut" id="guard-toggle" aria-pressed="true" hidden>
+        <span class="sw" aria-hidden="true"></span>Fact-check guard <span class="st" aria-hidden="true">On</span>
+      </button>
+
+      <div class="draft cut">
+        <div class="draft-body">
+          <p class="sentence">Your gift fed 120 families!</p>
+          <span class="stamp">Rejected: not in the log</span>
+        </div>
+        <span class="edge">Claude's draft</span>
+      </div>
+
+      <svg class="ico down" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M12 3v16M5 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>
+
+      <div class="shown cut" aria-live="polite">
+        <p class="sentence v-on"><i class="dot" aria-hidden="true"></i>Thank you for your gift. The pantry served 80 meals on Oct 20.</p>
+        <p class="sentence v-off"><i class="dot bad" aria-hidden="true"></i>Your gift fed 120 families!</p>
+        <p class="small v-on">The plain template sentence, built only from the log.</p>
+        <p class="small v-off">With no check, the invented number reaches the donor. This switch exists only on this page.</p>
+        <span class="edge">What the donor reads</span>
+      </div>
+      <p class="fine">Example sentences. The 120 is made up on purpose; it is not in the log.</p>
+    </div>
+
+    <p class="thin cut"><b>If the data is thin, we say less.</b> Nothing logged yet means one short line with no numbers, such as "Thank you for your gift." A shorter page, not a smoother claim.</p>
+  </div>
+</section>
+<div class="rail" aria-hidden="true"></div>
+
+<!-- 6. Dashboard -->
+<section id="dashboard" class="sec dash" aria-labelledby="h-dash">
+  <div class="wrap dash-grid">
+    <div class="dash-copy tag cut">
+      <i class="hole" aria-hidden="true"></i>
+      <div class="head">
+        <h2 id="h-dash">What staff see</h2>
+        <span class="price cut">4 questions</span>
+      </div>
+      <p>Who gave. What was spent. What it did. Who needs a thank-you. Names are never ranked or labeled; the page says "Quiet lately", not "At risk".</p>
+      <a class="btn inv cut" href="/dashboard/">Open the dashboard<svg class="ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></a>
+      <p class="small">Demo data. Every name and number is fictional.</p>
+    </div>
+    <figure class="item dash-pic">
+      <div class="frame">
+        <img src="img/dashboard-overview.png" width="1280" height="800" alt="The Chartitable staff dashboard overview with demo data: gifts received, what was spent, what it did, and donors who need a thank-you." loading="lazy" decoding="async">
+      </div>
+      <span class="lip" aria-hidden="true"></span>
+      <figcaption class="lab cut">Staff dashboard<small>Overview, with sample data</small></figcaption>
+    </figure>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot dark">
+  <div class="wrap foot-in">
+    <p class="foot-main cut">Every pantry, donor, name and number here is fictional sample data. Payments are in test mode.</p>
+    <p>Source on GitHub · README</p>
+    <p>Built at Cal Hacks 13.0 by a team of two.</p>
+  </div>
+</footer>
+
+</body>
+</html>

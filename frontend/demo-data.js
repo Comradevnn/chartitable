@@ -9,8 +9,8 @@ window.DEMO_DATA = (function () {
   const ts = s => Date.parse(s + "T12:00:00Z");
   const G = (d, cents, label) => ({ at: ts(d), amountCents: cents, label });
   return {
-    charity: { id: "demo-pantry-a", name: "Tansy Street Pantry", staffName: "Jordan", staffRole: "pantry coordinator",
-      address: "212 Tansy Street, side door", phone: "(555) 555-0142",
+    charity: { id: "demo-pantry-a", name: "Sorrel Street Pantry", staffName: "Jordan", staffRole: "pantry coordinator",
+      address: "212 Sorrel Street, side door", phone: "(555) 555-0142",
       hours: [{ days: "Tuesday", time: "4–7 pm" }, { days: "Saturday", time: "9 am–noon" }],
       whatToBring: ["A bag or box, if you have one.", "No ID or proof of income needed."],
       windowDays: WINDOW_DAYS, milestones: [25, 50, 100, 250],
