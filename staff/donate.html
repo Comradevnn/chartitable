@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Donate (test mode)</title>
+  <link rel="stylesheet" href="donate.css">
+</head>
+<body>
+  <div class="banner" role="status">TEST MODE &mdash; no real payment</div>
+  <main class="wrap">
+    <h1 id="title">Give to a neighborhood pantry</h1>
+    <p id="notice" class="notice" hidden></p>
+
+    <form id="donate-form" method="post" action="#" novalidate hidden>
+      <fieldset class="amounts">
+        <legend>Amount</legend>
+        <div class="presets">
+          <label class="chip"><input type="radio" name="amount" value="10"><span>$10</span></label>
+          <label class="chip"><input type="radio" name="amount" value="25" checked><span>$25</span></label>
+          <label class="chip"><input type="radio" name="amount" value="50"><span>$50</span></label>
+          <label class="chip"><input type="radio" name="amount" value="custom"><span>Other</span></label>
+        </div>
+        <div class="field" id="custom-field" hidden>
+          <label for="custom">Custom amount (whole dollars, 1&ndash;500)</label>
+          <input id="custom" name="custom" type="text" inputmode="numeric" autocomplete="off" maxlength="3">
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="firstName">First name <span class="opt">(optional)</span></label>
+        <input id="firstName" name="firstName" type="text" autocomplete="given-name" maxlength="40">
+      </div>
+
+      <div class="field">
+        <label for="email">Email <span class="opt">(optional)</span></label>
+        <input id="email" name="email" type="email" autocomplete="off" placeholder="Demo inboxes only" maxlength="254">
+      </div>
+
+      <label class="check"><input type="checkbox" id="hide" name="hide"> <span>Don't list me publicly</span></label>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <button type="submit" id="submit">Give $25 (test)</button>
+      <p class="fine">Demo only. No payment details are collected and no money moves.</p>
+    </form>
+  </main>
+  <script src="config.js"></script>
+  <script src="donate.js"></script>
+</body>
+</html>
