@@ -1,6 +1,8 @@
 // Chartitable embed (T8). One classic script tag. Empty slots stay empty
 // unless this browser is holding a donor token for this charity.
 import SLOT_STYLES from "../../docs/design/ct-slots.css";
+import { startLive } from "./live";
+import { enhance, swap } from "./motion";
 import { announceReady, donateHrefFor, paintRegions, rewriteDonate, setHooks } from "./regions";
 import { safeUrl, unitFor } from "./safe";
 import { parseView, type EstimateFact, type NextFact, type PhotoFact, type RecordFact, type SinceFact, type View } from "./view";
@@ -16,6 +18,7 @@ const TIMEOUT_MS = 4000;
 const memory = new Map<string, string>();
 let donateHref = "";
 let announced = false;
+let liveStarted = false;
 
 if (API_BASE || DONATE_URL) {
   const scriptAtLoad = document.currentScript;
@@ -57,7 +60,7 @@ function start(script: HTMLOrSVGScriptElement | null): void {
         return;
       }
       if (!view) return;
-      paint(view);
+      paint(view, charityId, token);
     })
     .catch(() => {
       /* Network, timeout, or bad JSON: leave the page alone. */
@@ -117,24 +120,33 @@ function forget(charityId: string): void {
   }
 }
 
-function paint(view: View): void {
-  const regions = paintRegions(document, view, donateHref);
+function paint(view: View, charityId: string, token: string): void {
   const heroSlot = document.querySelector('[data-impact-slot="hero"]');
   const sinceSlot = document.querySelector('[data-impact-slot="since-last-visit"]');
   const nextSlot = document.querySelector('[data-impact-slot="next-step"]');
   const hero = buildHero(view);
   const since = view.since && (view.since.records.length || view.since.estimates.length) ? buildSince(view.since, view.photos) : null;
   const next = view.next ? buildNext(view.next) : null;
-  const finish = (slotsFilled: boolean): void => {
-    if (!slotsFilled && !regions.count) return;
+  const finish = (variants: Record<string, string>): void => {
     setHooks(document, view);
     if (announced) return;
     announced = true;
-    announceReady(document, view, regions.variants);
+    announceReady(document, view, variants);
   };
-  // Regions are already in the DOM: set the hooks in this same task, so host CSS re-composes the
-  // page with no frame gap (and in a background tab, where rAF never runs).
-  if (regions.count) finish(false);
+  // Regions are in the DOM in this same task (no View Transition) or in the transition's callback, and
+  // the hooks follow in the same step, so host CSS re-composes with no frame gap and in background tabs.
+  if (document.querySelector("[data-impact-region]")) {
+    swap(document, () => {
+      const regions = paintRegions(document, view, donateHref);
+      if (!regions.count) return;
+      finish(regions.variants);
+      enhance(regions.painted, "first");
+      if (!liveStarted) {
+        liveStarted = true;
+        startLive({ view, api: API_BASE, charity: charityId, token: () => token, forget: () => forget(charityId), donateHref, variants: regions.variants });
+      }
+    });
+  }
   // No v1 slots on the page: skip the slot styles, which would also match v2 items' ct-* classes.
   if ((!hero && !since && !next) || (!heroSlot && !sinceSlot && !nextSlot)) return;
 
@@ -156,7 +168,7 @@ function paint(view: View): void {
       mark(nextSlot, "A next step");
       filled = true;
     }
-    finish(filled);
+    if (filled) finish({});
   });
 }
 

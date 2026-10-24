@@ -83,7 +83,10 @@ export function fillNode(root: ParentNode, view: View, donateHref: string): void
 
 function fillItem(node: HTMLElement, fact: Item, kind: Kind, view: View): void {
   node.setAttribute("data-ct-kind", kind);
-  if (kind === "record") node.classList.add("ct-record");
+  if (kind === "record") {
+    node.classList.add("ct-record");
+    if ("logId" in fact) node.setAttribute("data-ct-id", fact.logId);
+  }
   if (kind === "estimate") node.classList.add("ct-estimate");
   for (const el of Array.from(node.querySelectorAll("[data-ct-text]"))) {
     const key = el.getAttribute("data-ct-text") || "";

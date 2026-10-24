@@ -1,0 +1,22 @@
+@media (prefers-reduced-motion:no-preference){
+@keyframes ct-fade{from{opacity:.3}}
+@keyframes ct-rise{from{opacity:0;transform:translateY(8px)}}
+@keyframes ct-in{from{opacity:0}}
+@keyframes ct-draw{from{opacity:.6;transform:scaleX(0)}to{opacity:0}}
+@keyframes ct-arr{from{opacity:0;transform:translateY(-8px)}}
+@keyframes ct-ring{from{opacity:.5}to{opacity:0;transform:scale(1.35)}}
+html[data-ct-fade] [data-impact-state=ready]{animation:ct-fade .42s cubic-bezier(.2,.7,.2,1)}
+::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.42s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+:where(.ct-count,.ct-arrive .ct-new-tag,[data-ct-animate=draw]:is(.ct-pre,.ct-in)){position:relative}
+.ct-count>.ct-count-real{opacity:0}
+.ct-count>.ct-count-ov{position:absolute;white-space:nowrap}
+[data-ct-animate=draw]:is(.ct-pre,.ct-in)::after,.ct-arrive .ct-new-tag::after{content:"";position:absolute;inset:-2px;border:2px dashed;border-radius:inherit;pointer-events:none;opacity:0}
+[data-ct-animate=draw]:is(.ct-pre,.ct-in)::after{inset:0;border-width:1.5px;transform-origin:left}
+[data-ct-animate=draw].ct-pre>*{opacity:0}
+[data-ct-animate=draw].ct-in::after{animation:ct-draw .5s ease-out forwards}
+[data-ct-animate=draw].ct-in>*{animation:ct-in .3s ease-out .2s backwards}
+[data-ct-animate=reveal].ct-pre{opacity:0;transform:translateY(8px)}
+[data-ct-animate=reveal].ct-in{animation:ct-rise .38s ease-out backwards}
+.ct-arrive{animation:ct-arr .45s cubic-bezier(.2,.7,.2,1) backwards}
+.ct-arrive .ct-new-tag::after{border-style:solid;animation:ct-ring 1.2s ease-out .45s 2 backwards}
+}
