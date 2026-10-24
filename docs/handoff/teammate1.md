@@ -6,6 +6,9 @@ Last updated: Sat Oct 24, ~12:50 AM PT. Update this file whenever you stop or sw
 - Not started on the dashboard yet. Spec is in `docs/DASHBOARD_SPEC.md`; your one starting prompt is `docs/TEAMMATE_DASHBOARD_PROMPT.md`.
 - Demo sites T10/T11 (fictional pantries `demo-pantry-a`, `demo-pantry-b`) follow integration contract v1 in PROGRESS.md. Visual directions and homepage order are in `docs/demo-site-reference.md`.
 
+## Already pushed
+- `/frontend/index.html`, `dashboard.html`, `admin.html` (static, no backend calls yet, "Second Helping"). Decide whether it becomes the base of `/dashboard` or stays as the donor-facing/demo pages. Check the name against a live search (D5).
+
 ## Next, in order
 1. Clone, create branch `dashboard`, read CLAUDE.md, PROGRESS.md, the dashboard spec, `docs/demo-site-reference.md`.
 2. `npx impeccable install` then `/impeccable init`.

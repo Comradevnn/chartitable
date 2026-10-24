@@ -14,9 +14,8 @@
 | Who | Role | Owns |
 |---|---|---|
 | Revnn (lead) | Architecture, most code, via Claude Code + Cursor/Grok | `/convex`, `/engine`, `/layer`, `/staff`, `/seed` |
-| Teammate 1 (on site) | Figma designs → demo charity websites, Figma tracks | `/demo-sites` |
+| Teammate 1 (on site) | Figma designs → demo charity websites, Figma tracks | `/demo-sites`, `/frontend` |
 | Teammate 2 (arrives Sat afternoon) | QA run-throughs, Devpost, video, pitch (see T13–T15) | `/docs` |
-| Nael (naelqdl) | Static frontend pages: landing, dashboard, admin (fictional sample data, no backend calls) | `/frontend` |
 
 **Tool split:** Claude Code (Opus orchestrator + Sonnet/Haiku subagents) and Cursor/Grok both write code. **Never edit a file owned by an in-progress task from the other tool.** Note the tool in the Owner column, e.g. `Revnn/CC` or `Revnn/Cursor`.
 
@@ -47,7 +46,7 @@
 /demo-sites/one  Fictional pantry site #1 (Teammate 1)
 /demo-sites/two  Fictional pantry site #2, different look (Teammate 1)
 /seed            Fictional donors, donations, a week of pantry logs, placeholder photos, loader
-/frontend        Static HTML/CSS/inline-JS pages: index (landing), dashboard, admin; fictional sample data, no backend calls (Nael)
+/frontend        Static HTML/CSS/inline-JS pages: index (landing), dashboard, admin; fictional sample data, no backend calls (Lane B)
 /docs            Pitch script, Devpost draft, Q&A prep
 .env.example     ANTHROPIC_API_KEY, RESEND_API_KEY, TOKEN_SECRET, CONVEX_URL, DEMO_INBOXES
 ```
@@ -97,7 +96,7 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | T15 | Pitch script (3 min) + Q&A prep (honesty rule, failure modes) | Teammate 2 + Revnn | todo | `/docs` | Rehearsed twice, timed |
 | T16 | Cursor + Grok Bot paper trail (screenshots, Cursor commits, Grok Bot notes in `/docs/cursor-grok-log.md`); project description states how both were used (MLH SpaceXSI track) | Revnn | todo | `/docs/cursor-grok-log.md` | Log has entries before Sun 5:30 AM |
 | T17 | Make GitHub repo **public** (required by Devpost): run secret/PII scan over tree + history, add README stating each sponsor tool's role, then `gh repo edit Comradevnn/chartitable --visibility public --accept-visibility-change-consequences` | Revnn (lead approves) | todo | repo | Public by Sun 8:30 AM; scan clean; README present |
-| T18 | Dashboard: Figma design (M1–M3) then `/dashboard` build on mock data per `docs/DASHBOARD_SPEC.md`; one-prompt handoff in `docs/TEAMMATE_DASHBOARD_PROMPT.md` | Teammate 1 | todo | `/dashboard`, `docs/DASHBOARD_SPEC.md` | Figma by Sat 1 PM; 3 screens on mock data by Sat 7 PM; labels for records vs estimates verified |
+| T18 | Dashboard (first-pass static pages already in `/frontend`: `index.html`, `dashboard.html`, `admin.html`, pushed by `naelqdl`; decide to keep or move into `/dashboard`): Figma design (M1–M3) then `/dashboard` build on mock data per `docs/DASHBOARD_SPEC.md`; one-prompt handoff in `docs/TEAMMATE_DASHBOARD_PROMPT.md` | Teammate 1 | todo | `/dashboard`, `docs/DASHBOARD_SPEC.md` | Figma by Sat 1 PM; 3 screens on mock data by Sat 7 PM; labels for records vs estimates verified |
 | T19 | Dashboard backend: `expenses` table, `donors.hideFromTopDonors`/`thankedAt`, queries `dashboard:overview/donors/expenses`, `addExpense`; swap the mock adapter | Revnn/CC | todo | `/convex/dashboard.ts`, `/convex/schema.ts` | Matches the data contract in the spec; Vitest on status/cost-per-meal rules |
 
 ## Definition of done (demo)
@@ -162,3 +161,4 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Sat 12:35 AM PT] Claude (main chat): Lead decided on a charity dashboard (D12). Wrote `docs/DASHBOARD_SPEC.md` (MVP M1–M3, Next, idea pool, privacy rules, mock data contract) and `docs/TEAMMATE_DASHBOARD_PROMPT.md` (one prompt: Figma first, then `/dashboard` with Impeccable, branch `dashboard`). Added T18 (Teammate 1) and T19 (backend, Revnn). Open: teammate needs a repo invite (private repo); Figma track pick; staff login = PIN stub proposed.
 - [Sat 1:05 AM PT] [ALL] Claude (main chat): Added `docs/PRODUCT_SPEC.md` (Lane A spec: flow, rules, API, failure modes, tests; OPEN items marked) and a Read map in CLAUDE.md saying which files each role reads or skips. Log lines are now tagged by lane.
 - [Sat 12:13 AM PT] [ALL] Nael/CC: Added `/frontend` (index, dashboard, admin static pages; fictional data, no backend calls) in 92a7ba8, merged to main e37e7bf; `/frontend` owned by Nael (naelqdl).
+- [Sat 1:30 AM PT] [ALL] Claude (main chat): `naelqdl` pushed `/frontend` (landing, donor dashboard "My Impact", staff donors page) under the name "Second Helping". Assigned to Lane B in CLAUDE.md. TODO before it counts for T18: check the name is not a real org, check estimates are labeled, confirm it follows contract v1 (it has no fetch/Convex calls yet). Not yet reviewed.

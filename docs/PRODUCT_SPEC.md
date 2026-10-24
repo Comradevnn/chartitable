@@ -64,6 +64,7 @@ Test mode only. Returns a signed token; the page redirects with only `?ct=`. Ema
 | Email send fails | Retry once; log; never block donation |
 
 ## 9. Contract with Lane B (shared surface)
+Lane B's static pages live in `/frontend` (not Lane A's). Lane A wires them to the API only after Lane B stabilizes the markup; until then they use mock data.
 Integration contract v1 in `PROGRESS.md` and the dashboard data contract in `docs/DASHBOARD_SPEC.md`. Lane B never edits Lane A files; changes go through PROGRESS.md Blockers.
 
 ## 10. Test plan (maps to demo-done checks in PROGRESS.md)
