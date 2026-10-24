@@ -44,3 +44,6 @@ Start Claude Code here with Opus 5.5; read CLAUDE.md, PROGRESS.md (Lane A parts)
 - Confirm the defaults chosen in `docs/PRODUCT_SPEC.md` (end of file): 30-day window, PIN auth, 60/hour cap, 60 s regeneration interval, build-time API origin for `layer.js`.
 - Returning donors via the donate page get a new donor id (no lookup by email, on purpose: an email lookup would let anyone view another donor's impact). OK for the demo?
 - Dashboard login: PIN is wired; magic link not built.
+
+## Vercel owner-commit rule
+Vercel Hobby blocks deployments for commits not authored by you (e.g., `naelqdl`). After the teammate pushes to `main`, push an owner-authored commit (`git commit --allow-empty -m "Redeploy" && git push`) to ship it. `scripts/build-site.mjs` publishes `/layer.js`, `/staff`, `/sites/<test host>`, and `/app` (teammate's `/frontend`). Your git identity (repo and global) is the GitHub noreply address.

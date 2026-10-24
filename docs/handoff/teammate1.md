@@ -50,3 +50,9 @@ git fetch && git checkout dashboard && git pull --rebase origin main
 ## Open questions
 - Which Figma track to target (criteria unseen).
 - Own neutral dashboard chrome vs the charity's palette.
+
+## Vercel deploys (read this if your push shows "Blocked")
+The Vercel project belongs to Revnn's Hobby account. Hobby blocks any deployment whose commit author isn't the owner, so **your commits show "Blocked" in Vercel; that is expected, not a bug in your code.** Your pages are published at https://chartitable.vercel.app/app/ (built from `/frontend`).
+- To get your latest work live: push to `main` (or tell Revnn), and Revnn pushes any commit authored by Revnn on top (even `git commit --allow-empty -m "Redeploy"`). The deploy builds the whole tree, including your files.
+- To preview your own work before that: open `frontend/index.html` locally, or `python3 -m http.server 5180 --directory frontend`.
+- Alternative: import the repo into **your own** Vercel account with Root Directory `frontend` (your commits are yours there). Needs collaborator access to the private repo.
