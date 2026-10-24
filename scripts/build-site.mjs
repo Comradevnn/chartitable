@@ -7,7 +7,7 @@
 // Only these folders are published. Docs, source, .env and the backend are never copied.
 // Test hosts reference http://localhost:5174/layer.js for local dev; the copy is rewritten to /layer.js.
 import { execSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,11 +43,25 @@ if (existsSync(hosts)) {
   for (const name of readdirSync(hosts)) {
     const dir = join(hosts, name);
     if (!statSync(dir).isDirectory()) continue;
-    // dereference: each host symlinks preview.js etc. to ../_preview; copied links break on Vercel.
-    cpSync(dir, join(out, "sites", name), { recursive: true, dereference: true });
+    cpSync(dir, join(out, "sites", name), { recursive: true });
     siteNames.push(name);
   }
 }
+
+// Each host symlinks preview.js etc. to ../_preview. cpSync keeps them as links to this machine,
+// which 404 on Vercel (console errors on every host page), so replace each link with the real file.
+function materializeLinks(dir) {
+  for (const entry of readdirSync(dir)) {
+    const p = join(dir, entry);
+    const st = lstatSync(p);
+    if (st.isSymbolicLink()) {
+      const target = realpathSync(p);
+      rmSync(p);
+      cpSync(target, p, { recursive: true });
+    } else if (st.isDirectory()) materializeLinks(p);
+  }
+}
+if (existsSync(join(out, "sites"))) materializeLinks(join(out, "sites"));
 
 // Point copied HTML at the deployed layer instead of the local dev server.
 function rewrite(dir) {
