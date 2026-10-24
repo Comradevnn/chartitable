@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Donate | Brindlecote Food Bank</title>
+<meta name="description" content="Make a gift to Brindlecote Food Bank. Give once or monthly.">
+<meta name="theme-color" content="#12263f">
+<link rel="icon" href="img/logo-mark.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/commissioner-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="utility">
+  <div class="wrap utility-inner">
+    <p class="utility-phone">Food helpline: <a class="utility-link" href="tel:+15550100143">(555) 010-0143</a></p>
+    <ul class="utility-list">
+      <li><a class="utility-link" href="get-help.html">Find Food</a></li>
+      <li><a class="utility-link" href="index.html#volunteer">Volunteer</a></li>
+      <li><a class="utility-link" href="about.html#contact">Contact</a></li>
+      <li><a class="utility-link" href="about.html#careers">Careers</a></li>
+    </ul>
+  </div>
+</div>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html" aria-label="Brindlecote Food Bank, home">
+      <img class="brand-mark" src="img/logo-mark.svg" alt="" width="46" height="46">
+      <span class="brand-text">Brindlecote<small>Food Bank</small></span>
+    </a>
+    <nav class="nav" id="primary-nav" aria-label="Main">
+      <ul class="nav-list">
+        <li><a class="nav-link" href="get-help.html">Get Help</a></li>
+        <li><a class="nav-link" data-impact-donate href="donate.html" aria-current="page">Give Help</a></li>
+        <li><a class="nav-link" href="index.html#volunteer">Volunteer</a></li>
+        <li><a class="nav-link" href="index.html#impact">Our Work</a></li>
+        <li><a class="nav-link" href="index.html#news">News</a></li>
+        <li><a class="nav-link" href="about.html">About</a></li>
+        <li class="nav-extra"><a class="nav-link" href="donate.html?monthly">Give Monthly</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-outline btn-header header-monthly" href="donate.html?monthly">Give Monthly</a>
+      <a class="btn btn-primary btn-header" data-impact-donate href="donate.html">Donate</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"><span class="menu-toggle-bars" aria-hidden="true"></span><span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="wrap"><section data-impact-slot="hero"></section></div>
+
+  <div class="page-banner dark">
+    <div class="wrap page-banner-inner">
+      <p class="crumbs"><a href="index.html">Home</a> / Donate</p>
+      <h1 class="page-title">Make a gift</h1>
+      <p class="page-lede">Your gift helps us supply food to pantries and meal sites across Tarnwick County.</p>
+    </div>
+  </div>
+  <div class="wrap"><section data-impact-slot="since-last-visit"></section></div>
+
+  <section class="section" aria-labelledby="give-h">
+    <div class="wrap give-grid">
+      <form class="give-card" id="give-form" novalidate>
+        <h2 class="give-title" id="give-h">Your gift</h2>
+        <div class="freq" role="group" aria-label="Gift frequency">
+          <button class="freq-btn" type="button" id="freq-once" aria-pressed="true">One-time</button>
+          <button class="freq-btn" type="button" id="freq-monthly" aria-pressed="false">Monthly</button>
+        </div>
+        <fieldset class="fieldset">
+          <legend class="legend">Choose an amount</legend>
+          <div class="amounts">
+            <label class="amount"><input type="radio" name="amount" value="25"><span>$25</span></label>
+            <label class="amount"><input type="radio" name="amount" value="50" checked><span>$50</span></label>
+            <label class="amount"><input type="radio" name="amount" value="100"><span>$100</span></label>
+            <label class="amount"><input type="radio" name="amount" value="250"><span>$250</span></label>
+            <label class="amount"><input type="radio" name="amount" value="other"><span>Other</span></label>
+          </div>
+          <div class="other-amount field" id="other-wrap" hidden>
+            <label class="field-label" for="other-amt">Other amount</label>
+            <div class="money"><span class="money-sign" aria-hidden="true">$</span><input class="input" id="other-amt" name="other" type="text" inputmode="decimal" autocomplete="off"></div>
+          </div>
+        </fieldset>
+        <div class="form-grid">
+          <div class="field"><label class="field-label" for="fn">First name</label><input class="input" id="fn" name="first" type="text" autocomplete="given-name"></div>
+          <div class="field"><label class="field-label" for="ln">Last name</label><input class="input" id="ln" name="last" type="text" autocomplete="family-name"></div>
+          <div class="field span-2"><label class="field-label" for="em">Email address</label><input class="input" id="em" name="email" type="email" autocomplete="email"></div>
+        </div>
+        <label class="check"><input type="checkbox" name="cover"><span>Add a little extra so more of my gift reaches the food</span></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="give-submit">Give $50 one time</button>
+      </form>
+      <aside aria-label="About your gift">
+        <div class="aside-block">
+          <h2 class="aside-title">Where your gift goes</h2>
+          <p>In FY2025, 88 cents of every dollar we spent went to food and programs. Gifts help us:</p>
+          <ul class="aside-list">
+            <li>Buy and haul produce from regional farms</li>
+            <li>Stock the shelves at our partner pantries</li>
+            <li>Run mobile pantry stops in neighborhoods without a nearby store</li>
+          </ul>
+        </div>
+        <div class="aside-block">
+          <h2 class="aside-title">Other ways to give</h2>
+          <ul class="aside-list">
+            <li>By mail: Brindlecote Food Bank, 418 Millrace Road, Tarnwick</li>
+            <li>Workplace giving and matching gifts</li>
+            <li>Gifts of stock or from a donor-advised fund</li>
+            <li>Food donations: Monday to Friday, 8:00 am to 4:00 pm at the warehouse</li>
+          </ul>
+        </div>
+        <div class="aside-block">
+          <h2 class="aside-title">Questions about giving</h2>
+          <p>Call us at <a class="prose-link" href="tel:+15550100143">(555) 010-0143</a> or write to <a class="prose-link" href="mailto:hello@brindlecote.example">hello@brindlecote.example</a>.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="wrap"><section data-impact-slot="next-step"></section></div>
+</main>
+<section class="newsletter" aria-labelledby="news-h">
+  <div class="wrap newsletter-inner">
+    <div>
+      <h2 class="sec-title" id="news-h">Get our newsletter</h2>
+      <p class="sec-sub">Pantry hours, volunteer openings, and what is happening at the warehouse. One email a month.</p>
+    </div>
+    <form class="newsletter-form" id="newsletter" novalidate>
+      <div class="field">
+        <label class="field-label" for="nl-email">Email address</label>
+        <input class="input" id="nl-email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <button class="btn btn-primary" type="submit" style="align-self:flex-end">Subscribe</button>
+      <p class="form-status" id="nl-status" role="status" style="flex-basis:100%"></p>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer dark">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="footer-brand" href="index.html" aria-label="Brindlecote Food Bank, home">
+        <img class="brand-mark" src="img/logo-mark.svg" alt="" width="46" height="46">
+        <span class="brand-text">Brindlecote<small>Food Bank</small></span>
+      </a>
+      <address class="footer-address">418 Millrace Road<br>Tarnwick<br><a class="footer-link" href="tel:+15550100143">(555) 010-0143</a></address>
+      <h2 class="footer-title">Warehouse hours</h2>
+      <ul class="hours">
+        <li><span>Mon to Fri</span><span>8:00 am to 4:30 pm</span></li>
+        <li><span>Saturday</span><span>9:00 am to 1:00 pm</span></li>
+        <li><span>Sunday</span><span>Closed</span></li>
+      </ul>
+    </div>
+    <nav aria-label="Get involved">
+      <h2 class="footer-title">Get involved</h2>
+      <ul class="footer-list">
+        <li><a class="footer-link" data-impact-donate href="donate.html">Donate</a></li>
+        <li><a class="footer-link" href="donate.html?monthly">Give monthly</a></li>
+        <li><a class="footer-link" href="index.html#volunteer">Volunteer</a></li>
+        <li><a class="footer-link" href="index.html#events">Events</a></li>
+        <li><a class="footer-link" href="get-help.html">Find food</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="About us">
+      <h2 class="footer-title">About us</h2>
+      <ul class="footer-list">
+        <li><a class="footer-link" href="about.html">Our mission</a></li>
+        <li><a class="footer-link" href="about.html#leadership">Leadership</a></li>
+        <li><a class="footer-link" href="about.html#financials">Financials</a></li>
+        <li><a class="footer-link" href="about.html#careers">Careers</a></li>
+        <li><a class="footer-link" href="index.html#news">News</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2 class="footer-title">Contact</h2>
+      <p style="margin:0 0 4px">Questions about donations, volunteering, or getting food? Call or write to us.</p>
+      <a class="footer-link" href="mailto:hello@brindlecote.example">hello@brindlecote.example</a>
+      <h2 class="footer-title" style="margin-top:14px">Follow us</h2>
+      <ul class="social">
+        <li><a class="social-link" href="https://www.example.org/brindlecote-food-bank" rel="noopener" aria-label="Brindlecote Food Bank on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z"/></svg></a></li>
+        <li><a class="social-link" href="https://www.example.org/brindlecote-food-bank" rel="noopener" aria-label="Brindlecote Food Bank on Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm5 2.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.2 6.3a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/></svg></a></li>
+        <li><a class="social-link" href="https://www.example.org/brindlecote-food-bank" rel="noopener" aria-label="Brindlecote Food Bank on YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2C2 8.8 2 12 2 12s0 3.2.4 4.8a2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-4.8.4-4.8s0-3.2-.4-4.8zM10 15V9l5.2 3z"/></svg></a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-base">
+    <div class="wrap footer-base-inner">
+      <p>Brindlecote Food Bank is a registered nonprofit organization. Gifts are tax-deductible to the extent allowed by law.</p>
+      <p>&copy; 2026 Brindlecote Food Bank. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+<script src="http://localhost:5174/layer.js" data-charity="demo-pantry-b" defer></script>
+<script src="site.js" defer></script>
+<script src="preview.js" defer></script>
+</body>
+</html>

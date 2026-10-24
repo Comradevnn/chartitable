@@ -1,3 +1,27 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "italic-serif-display",
+        "value": "*",
+        "files": [
+          "design-samples/cinderwell-bulletin/index.html"
+        ],
+        "createdAt": "2026-10-24T10:34:41.504Z",
+        "reason": "Claude: Bulletin Board sample's concept per design-samples/PROMPTS.md pins Besley italic accent (em in h1); user has not confirmed"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "demo-sites/hosts/brindlecote/styles.css"
+        ],
+        "createdAt": "2026-10-24T10:55:11.519Z",
+        "reason": "Claude: flagged lines are a segmented-control divider (.freq-btn + .freq-btn border-left) and a checkmark glyph (.check-list li::before), not card side-accents; user has not confirmed"
+      }
+    ]
+  }
 }

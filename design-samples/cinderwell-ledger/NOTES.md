@@ -1,0 +1,9 @@
+# Cinderwell, "Open Ledger" (sample B)
+
+- Concept: quiet editorial. One ink (#211b17), one signal (#a8381a, used for underlines, hover and the $35 total), hairline rules, Besley headlines, tabular figures. No cards, no shadows, no photos, no eyebrows.
+- Recomposed: the $35 breakdown is the hero object (large heading, full ledger table, signal-colored total, basis note beside it). Hours are a plain two-column strip next to the intro. Bag illustration and tape/board decoration removed. The inline size-override `<style>` block in the old head is gone.
+- Donor slip (tinted full-bleed band, content on the host column): "What the pantry logged" (solid rules) and "About your share, an estimate" (dashed rules). Labels are CSS `::before` text on the first record and first estimate, so they work with the real layer markup. The host does not set weight on `.ct-record`/`.ct-estimate`; the layer's solid vs italic treatment stays. The "about 3 lb" produce weight uses the same italic/dashed estimate language.
+- Critique items fixed: `.ct-next-link` set explicitly (paper on ink, 15.8:1, 48px tall); slots aligned to the content column; `.ct-figure` zeroed and hidden (no donor photo); greeting styled as a Besley display heading; `.ct-note` is block; all headings have line-height >= 1.2; tap targets >= 44px; no hero photo on mobile.
+- Changes to links: "Find food" points to `#hours-title` (the sample folder has no visit page). Integration contract is unchanged (empty slots, `data-impact-donate`, `:empty{display:none}`, `--ct-*`).
+- Files: `layer-slots.css` is a copy of `docs/design/ct-slots.css`; preview and sample JSON are copies from `_preview/`; fonts copied from `warm-pantry/fonts/`.
+- Verified in the browser pane at 1280, 768 and 390, plain and `?preview=1`: no horizontal overflow, slots fill and stay empty correctly, no sub-44px controls on the plain page, `.ct-next-link` computed contrast checked. Not run: keyboard walkthrough or a forced-colors check.

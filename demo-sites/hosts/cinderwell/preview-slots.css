@@ -1,0 +1,140 @@
+/* Chartitable returning-donor slots (T22, D15). Zero-specificity :where() selectors, ct-* classes only.
+   Site CSS always wins. Colors/fonts/radius only from --ct-* with fallbacks. No images, fonts, animation or requests.
+   Records (logged facts) = tinted block with a solid dot, upright text. Estimates = dashed outline, italic, muted. Never the same look. */
+
+:where([data-impact-slot][data-impact-state="ready"]) {
+  box-sizing: border-box;
+  max-width: 44rem;
+  margin: 1.5rem auto;
+  padding: 1.25rem 1.25rem 1.1rem;
+  color: var(--ct-fg, #222);
+  background: var(--ct-bg, #fff);
+  font-family: var(--ct-font, system-ui, sans-serif);
+  font-size: 1rem;
+  line-height: 1.55;
+  border: 1px solid color-mix(in srgb, var(--ct-fg, #222) 16%, transparent);
+  border-radius: var(--ct-radius, 4px);
+}
+
+:where([data-impact-slot][data-impact-state="ready"] *) { box-sizing: border-box; }
+
+:where([data-impact-slot] .ct-greeting) {
+  margin: 0 0 0.35rem;
+  color: var(--ct-accent, #1f4e8c);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:where([data-impact-slot] .ct-story) {
+  margin: 0 0 1rem;
+  font-size: 1.1875rem;
+  line-height: 1.45;
+  max-width: 38rem;
+}
+
+:where([data-impact-slot] h2, [data-impact-slot] h3, [data-impact-slot] .ct-since-heading) {
+  margin: 1rem 0 0.4rem;
+  color: var(--ct-muted, #3f3f3f);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+:where([data-impact-slot] .ct-since-heading:first-child) { margin-top: 0; }
+
+:where([data-impact-slot] .ct-facts) {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* Record: a fact the pantry logged. Solid, confident. */
+:where([data-impact-slot] .ct-record) {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--ct-radius, 4px);
+  background: color-mix(in srgb, var(--ct-accent, #1f4e8c) 8%, var(--ct-bg, #fff));
+  font-weight: 600;
+}
+:where([data-impact-slot] .ct-record)::before {
+  content: "";
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.5rem;
+  vertical-align: 0.05em;
+  border-radius: 50%;
+  background: var(--ct-accent, #1f4e8c);
+}
+:where([data-impact-slot] .ct-record .ct-note, [data-impact-slot] .ct-note) {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ct-muted, #3f3f3f);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+/* Estimate: a proportional guess. Dashed, italic, no fill; the word "about" comes from the layer text. */
+:where([data-impact-slot] .ct-estimate) {
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--ct-muted, #3f3f3f) 70%, transparent);
+  border-radius: var(--ct-radius, 4px);
+  background: transparent;
+  color: var(--ct-muted, #3f3f3f);
+  font-style: italic;
+  font-weight: 400;
+}
+
+:where([data-impact-slot] .ct-figure) { margin: 0.75rem 0 0; }
+:where([data-impact-slot] .ct-photo) {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  max-height: 18rem;
+  object-fit: cover;
+  border-radius: var(--ct-radius, 4px);
+}
+
+:where([data-impact-slot="hero"] p:not([class]), [data-impact-slot] .ct-disclaimer) {
+  margin: 0.5rem 0 0;
+  color: var(--ct-muted, #3f3f3f);
+  font-size: 0.875rem;
+}
+
+:where([data-impact-slot="next-step"][data-impact-state="ready"]) {
+  border-top-color: var(--ct-accent, #1f4e8c);
+  background: color-mix(in srgb, var(--ct-accent, #1f4e8c) 6%, var(--ct-bg, #fff));
+}
+:where([data-impact-slot] .ct-next) { margin: 0 0 0.6rem; font-size: 1.0625rem; max-width: 38rem; }
+:where([data-impact-slot] .ct-next-link) {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  background: var(--ct-accent, #1f4e8c);
+  color: var(--ct-bg, #fff);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--ct-radius, 4px);
+}
+:where([data-impact-slot] .ct-next-link:hover) { text-decoration: underline; }
+:where([data-impact-slot] .ct-next-link:focus-visible) {
+  outline: 3px solid var(--ct-fg, #222);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  :where([data-impact-slot][data-impact-state="ready"]) { margin: 1rem 0.75rem; padding: 1rem; }
+  :where([data-impact-slot] .ct-story) { font-size: 1.0625rem; }
+  :where([data-impact-slot] .ct-next-link) { display: block; text-align: center; }
+}
+
+@media (forced-colors: active) {
+  :where([data-impact-slot] .ct-record)::before { background: CanvasText; }
+  :where([data-impact-slot] .ct-estimate) { border: 1px dashed CanvasText; }
+}
