@@ -20,6 +20,8 @@ export interface Donor {
   id: string; // opaque, e.g. "donor_7f3a"; never derived from name/email
   firstName: string | null; // display only
   email: string | null; // demo inboxes only (D4); never in URLs or API responses
+  hideFromTopDonors?: boolean; // "Don't list me publicly" (dashboard top-donor lists)
+  thankedAt?: number | null; // staff marked as thanked (dashboard)
 }
 
 export interface Donation {
@@ -149,3 +151,73 @@ export type DonorView =
       estimates: EstimateFact[]; // render as .ct-estimate with visible "about"/"estimate"
       photos: { logId: string; url: string }[];
     };
+
+// ---- Expenses (T19 dashboard) ----
+
+export const EXPENSE_CATEGORIES = ["food", "transport", "facility", "supplies", "staff", "other"] as const;
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+
+export interface Expense {
+  id: string;
+  charityId: CharityId;
+  date: number; // ms epoch of the expense
+  amountCents: number; // positive integer
+  category: ExpenseCategory;
+  note: string | null;
+  receiptStorageId: string | null;
+  createdAt: number;
+}
+
+// ---- Dashboard data contract (docs/DASHBOARD_SPEC.md; Lane B builds against these) ----
+
+export type Money = number; // integer cents
+
+export interface DashOverview {
+  period: { from: number; to: number; label: string };
+  totalRaised: Money;
+  prevPeriodRaised: Money;
+  donorCounts: { total: number; new: number; returning: number; lapsed: number };
+  mealsServed: number; // record: sum of impactLogs with kind "meals" in the period
+  expensesTotal: Money;
+  costPerMeal: { value: Money | null; isEstimate: true; formula: string }; // null if meals = 0
+  recentUpdates: {
+    id: string;
+    kind: string;
+    count: number;
+    unit: string;
+    note?: string;
+    photoUrl?: string;
+    loggedAt: number;
+  }[];
+}
+
+export type DonorStatus = "new" | "active" | "at_risk" | "lapsed";
+
+export interface DashDonor {
+  id: string;
+  displayName: string | "Anonymous";
+  hideFromTopDonors: boolean;
+  totalGiven: Money;
+  giftCount: number;
+  firstGiftAt: number;
+  lastGiftAt: number;
+  status: DonorStatus;
+  thankedAt: number | null;
+}
+
+export interface DashExpense {
+  id: string;
+  date: number;
+  amount: Money;
+  category: ExpenseCategory;
+  note?: string;
+  receiptPhotoUrl?: string;
+}
+
+// ---- Milestones (T9) ----
+
+export interface MilestoneHit {
+  kind: ImpactKind;
+  threshold: number;
+  thresholdId: string; // e.g. "meals:25"; stored so each fires once per donor+charity
+}

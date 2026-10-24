@@ -22,6 +22,8 @@ export default defineSchema({
     key: v.string(),
     firstName: v.union(v.string(), v.null()),
     email: v.union(v.string(), v.null()), // demo inboxes only; never in URLs/APIs
+    hideFromTopDonors: v.optional(v.boolean()), // "Don't list me publicly"
+    thankedAt: v.optional(v.union(v.number(), v.null())), // dashboard thank-you queue
   }).index("by_key", ["key"]),
 
   donations: defineTable({
@@ -76,13 +78,64 @@ export default defineSchema({
     factsHash: v.string(),
     json: v.string(),
     source: v.union(v.literal("claude"), v.literal("template")),
+    guardReasons: v.array(v.string()), // why Claude output was rejected (no PII); [] if accepted
     createdAt: v.number(),
-  }).index("by_donor_charity_hash", ["donorId", "charityId", "factsHash"]),
+  })
+    .index("by_donor_charity_hash", ["donorId", "charityId", "factsHash"])
+    .index("by_donor_charity_createdAt", ["donorId", "charityId", "createdAt"]),
 
+  // One row per Claude call attempt, for the call caps (§4). Ids and outcomes only — no text.
+  narrativeCalls: defineTable({
+    donorId: v.string(),
+    charityId,
+    at: v.number(),
+    outcome: v.union(
+      v.literal("claude"), // accepted by the guard
+      v.literal("rejected"), // guard rejected → template
+      v.literal("error"), // API error / timeout / refusal → template
+    ),
+    latencyMs: v.number(),
+  })
+    .index("by_at", ["at"])
+    .index("by_donor_charity_at", ["donorId", "charityId", "at"]),
+
+  // One row per (donor, charity, thresholdId) once it fires; status records what happened.
   milestoneEmails: defineTable({
     donorId: v.string(),
     charityId,
-    threshold: v.string(),
-    sentAt: v.number(),
-  }).index("by_donor_charity", ["donorId", "charityId"]),
+    kind: impactKind,
+    threshold: v.number(),
+    thresholdId: v.string(), // e.g. "meals:25"
+    status: v.union(
+      v.literal("sent"),
+      v.literal("skipped_not_allowlisted"),
+      v.literal("skipped_no_email"),
+      v.literal("skipped_rate_limited"), // another email went out within 7 days
+      v.literal("failed"),
+    ),
+    sentAt: v.number(), // attempt time
+  })
+    .index("by_donor_charity", ["donorId", "charityId"])
+    .index("by_donor_charity_threshold", ["donorId", "charityId", "thresholdId"]),
+
+  // Dashboard (T19)
+  expenses: defineTable({
+    key: v.string(),
+    charityId,
+    date: v.number(),
+    amountCents: v.number(),
+    category: v.union(
+      v.literal("food"),
+      v.literal("transport"),
+      v.literal("facility"),
+      v.literal("supplies"),
+      v.literal("staff"),
+      v.literal("other"),
+    ),
+    note: v.union(v.string(), v.null()),
+    receiptStorageId: v.union(v.id("_storage"), v.null()),
+    createdAt: v.number(),
+  })
+    .index("by_key", ["key"])
+    .index("by_charity_date", ["charityId", "date"]),
 });
