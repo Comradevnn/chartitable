@@ -29,7 +29,7 @@ Donations are pooled, so we cannot claim a specific dollar bought a specific thi
 - **Two people, two lanes.** The lead built the product side (engine, Convex backend, layer, donate and staff pages, deploys). The teammate owns the dashboard and the design work (Figma first, then implementation, with Impeccable for design quality). Process, ownership and handoffs are in [CLAUDE.md](CLAUDE.md), [PROGRESS.md](PROGRESS.md) and `docs/handoff/`.
 - **Claude Code** did most of the product engineering: an Opus orchestrator planning and reviewing, Sonnet subagents writing scoped code, and Haiku subagents doing read-only research, audits and secret scans. Every change goes through a gate (read the diff, run tests, contract and secret checks) and the whole thing is tracked in PROGRESS.md.
 - **Cursor** is where rapid website prototyping happens. Cursor (Grok 4.7 and Composer models) built the first `layer.js`, the staff update page and the four fictional test-host sites, using Impeccable for design guidance. The test hosts are fixtures for testing the layer, not the polished demo. Later layer work (regions, live updates, motion) came back through Claude Code. Cursor activity and screenshots are logged in `docs/cursor-grok-log.md` and `docs/cursor-shots/`.
-- **Grok Bot** has so far been used only to create the project's presentation slides. It was not used for planning or for code.
+- **Grok Bot** has so far been used only to create the project's presentation slides ([deck](docs/presentation/Chartitable.pptx), pitch plan in [docs/PITCH.md](docs/PITCH.md)). It was not used for planning or for code.
 - **Figma** holds the donor-slot and dashboard designs.
 - All implementation was done during the hackathon; no code was reused from earlier projects.
 
