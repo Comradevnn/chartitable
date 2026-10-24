@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trestlebin Regional Food Bank</title>
+  <meta name="description" content="Fictional regional food bank. Dock tallies for October 2026, where a gift goes, and how to give or volunteer.">
+  <style>
+    body, p, li, td, th, dd, dt, figcaption, label, button, a, input, address, span, small { font-size: 1.0625rem; }
+    h2, strong { font-size: 2rem; }
+    h1 { font-size: 3.5rem; }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="wordmark" href="index.html">Trestlebin Regional Food Bank</a>
+      <nav aria-label="Primary">
+        <ul class="nav-list">
+          <li><a href="network.html">Partner pantries</a></li>
+          <li><a href="#volunteer">Volunteer</a></li>
+          <li><a class="button button-ghost" href="#monthly">Donate monthly</a></li>
+          <li><a class="button" data-impact-donate href="#donate">Donate</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <section data-impact-slot="hero"></section>
+  <main id="main">
+    <div class="wrap dock">
+      <div>
+        <h1>The dock is open on weekdays.</h1>
+        <p class="lede">Trestlebin receives food for partner pantries in the county. A gift joins the pool. We publish what the warehouse actually moved, and we mark anything we had to round.</p>
+        <div class="actions">
+          <a class="button" data-impact-donate href="#donate">Donate</a>
+          <a class="button button-ghost" href="network.html">Find a pantry</a>
+        </div>
+      </div>
+      <aside class="tally" aria-labelledby="dock-title">
+        <h2 id="dock-title">Counted at the dock</h2>
+        <dl>
+          <div><dt>Pounds received</dt><dd>18,420</dd></div>
+          <div><dt>Partner pickups</dt><dd>64</dd></div>
+          <div><dt>Volunteer shifts</dt><dd>91</dd></div>
+        </dl>
+        <p class="source">Oct 1–21, 2026. Warehouse tally sheet, not a projection.</p>
+      </aside>
+    </div>
+
+    <section class="section" aria-labelledby="stats-title">
+      <div class="wrap">
+        <h2 id="stats-title">What the sheet says</h2>
+        <div class="stats">
+          <article>
+            <strong>18,420</strong>
+            <span>pounds received</span>
+            <small>Oct 1–21, 2026. Scale tickets at the dock.</small>
+          </article>
+          <article>
+            <strong>22</strong>
+            <span>partner pantries</span>
+            <small>Roster updated Oct 1, 2026. Listed on the network page.</small>
+          </article>
+          <article>
+            <strong>about 14¢</strong>
+            <span>to move one pound</span>
+            <small>Estimate. Warehouse cost for October 2026 divided by pounds received. Not a promise about your gift.</small>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section data-impact-slot="since-last-visit"></section>
+
+    <section class="section" id="gift" aria-labelledby="gift-title">
+      <div class="wrap">
+        <h2 id="gift-title">Where a gift goes</h2>
+        <p>Board budget for the year that started July 1, 2026, adopted June 12, 2026. These shares describe the budget, not one donation.</p>
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <ul class="splits">
+          <li><span>81%</span><span>Food purchase</span></li>
+          <li><span>11%</span><span>Warehouse and cold storage</span></li>
+          <li><span>8%</span><span>Delivery to partner pantries</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="donate" aria-labelledby="donate-title">
+      <div class="wrap two">
+        <div>
+          <h2 id="donate-title">Give once</h2>
+          <p>The donate button will go to a test-mode page when the Chartitable layer is running. This page does not collect a card number.</p>
+          <p><a class="button" data-impact-donate href="#donate">Donate</a></p>
+        </div>
+        <div id="monthly">
+          <h2>Give monthly</h2>
+          <p>Monthly giving is not turned on for this test site. A monthly plan would use the same test-mode page, and it is not charging anyone today.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="volunteer" aria-labelledby="shift-title">
+      <div class="wrap">
+        <h2 id="shift-title">Shifts on the floor</h2>
+        <ul>
+          <li>Weekday mornings, 8–11 am, sorting on the dock.</li>
+          <li>Thursday afternoons, riding along on a partner delivery.</li>
+        </ul>
+        <p>Come if you can. The route still goes out if you can't. Call (555) 010-2202.</p>
+      </div>
+    </section>
+
+    <section data-impact-slot="next-step"></section>
+
+    <section class="section" aria-labelledby="note-title">
+      <div class="wrap">
+        <h2 id="note-title">Dock notices</h2>
+        <p>Leave an email for the weekday receiving hours. This test site cannot send mail.</p>
+        <form class="desk-form" data-desk-form action="#" method="post" novalidate>
+          <label for="desk-email">Email</label>
+          <input id="desk-email" name="email" type="email" autocomplete="email" required>
+          <button class="button" type="submit">Leave it with the desk</button>
+          <p class="form-status" data-form-status role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Trestlebin Regional Food Bank · 400 Hopper Avenue, Trestlebin · (555) 010-2202</p>
+      <p>Fictional demonstration site. Not a real charity, and not a place to send money or show up for food.</p>
+    </div>
+  </footer>
+  <script src="http://localhost:5174/layer.js" data-charity="demo-pantry-b" defer></script>
+  <script src="preview.js?v=2" defer></script>
+  <script src="site.js" defer></script>
+</body>
+</html>
