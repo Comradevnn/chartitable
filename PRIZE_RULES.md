@@ -120,3 +120,13 @@ Official. Where this conflicts with §7 (website FAQ) or §11, **this section wi
 - **SpaceXSI "Make it Legendary":** $400 + keyboard. Page text: theme is **real space data** ("public datasets, decades of missions"); eligibility is **built with Cursor**; Grok Bot is a planning/collaboration bonus; everyone who submits is entered in the Owala raffle. **No Grok API requirement on the Devpost page** (the website row differs). Chartitable has no space data, so this track is a long shot; the raffle and MLH A-Team track are the realistic upside.
 - **MLH Commit Fellowship category** appears on the page: opt in at submission and fill the supplemental form (a "working prototype with a team, a real problem worth solving" fits Chartitable).
 - Page still has no explicit field list; fields appear when a project is started.
+
+---
+
+## 13. Meta track and Meta model API (Haiku pass, Sat Oct 24 ~2 AM PT; VERIFIED = page opened)
+- **Track:** "Meta/Facebook: Bringing People Closer Together with AI". $0 cash; prize is an invitation to a Round 2 hackathon at Meta's Menlo Park campus (travel and accommodations provided, subject to eligibility and Meta's Round 2 Official Rules) plus a swag bag. VERIFIED.
+- **Judging (Hive page, paraphrased):** how meaningfully the project strengthens human connection; how essential and well-integrated the AI is; originality; strength of the working demo. **No Meta model/API/SDK is required.** It is a theme. VERIFIED.
+- **Unknown:** Meta Round 2 Official Rules (age, student status, location); no rules link on either site.
+- **Participation rules (Devpost):** 18+, college students only, team of 2–4 (Hive FAQ says 1–4). Pitch 3 min + 2 min Q&A.
+- **Meta's developer API:** the Llama API was replaced by "Meta Model API" (api.meta.ai/v1; OpenAI- and Anthropic-SDK compatible; JSON-schema structured output). Models are the Muse family (muse-spark-1.3 etc.), not Llama. Pay-as-you-go (~$1.25/M input, $4.25/M output for muse-spark-1.3); no free tier or hackathon credits found. **"Contributor" pricing is cheaper but prompts/outputs may be used to train Meta models: never use it with donor data.** The consumer "Meta AI" assistant is not a developer backend. VERIFIED except retirement date of Llama API (secondary source).
+- **Multi-vendor:** no Cal Hacks text bars using another LLM alongside Claude for the Anthropic track (not stated either way).
