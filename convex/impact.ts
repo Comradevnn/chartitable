@@ -83,6 +83,8 @@ export const log = mutation({
     const donorsCredited = new Set(allocate(donations, [newLog], window).map((a) => a.donorId)).size;
 
     await ctx.scheduler.runAfter(0, internal.allocations.recompute, { charityId });
+    // Don't wait up to 5 min for the cron: a staff update is what crosses milestones (§16 demo step 2→3).
+    await ctx.scheduler.runAfter(0, internal.milestones.check, {});
     return { ok: true, logId: key, donorsCredited };
   },
 });
