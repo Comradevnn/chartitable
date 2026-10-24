@@ -35,7 +35,7 @@ Donations are pooled, so we cannot claim a specific dollar bought a specific thi
 
 ## Status (what works today, what doesn't)
 **Works, tested, and live on the dev deployment:**
-- Allocation engine, guarded Claude narrative with template fallback, signed tokens, `/donor-view` API (first view template, later views Claude), visits and "since last visit", test-mode donate page, staff update page with photos, milestone emails with an allowlist, and a health page. 270+ unit tests; `scripts/e2e-smoke.mjs` runs the donation → staff update → donor view path against the live backend.
+- Allocation engine, guarded Claude narrative with template fallback, signed tokens, `/donor-view` API (first view template, later views Claude), visits and "since last visit", test-mode donate page, staff update page with photos, milestone emails with an allowlist, and a health page. 435 unit tests; `scripts/e2e-smoke.mjs` runs the donation → staff update → donor view path against the live backend.
 - `layer.js` (about 8 KB gzipped) with conditional regions, several layouts per donor state, live polling and motion, running on the Vercel-hosted fictional charity sites.
 
 **In progress or not done:**
