@@ -8,7 +8,7 @@
 - **Community:** small food pantries/food banks without fundraising staff, and their donors.
 - **Tracks:** Anthropic "Claude for Public Benefit" (primary) · Figma · Convex · SpaceXSI (built with Cursor) · stretch: Cartesia
 - **Current phase:** build — plan approved Fri 10:40 PM; C1 lane running
-- **Last updated:** Fri Oct 23, 10:50 PM PT
+- **Last updated:** Fri Oct 23, 10:58 PM PT
 
 ## Team & ownership
 | Who | Role | Owns |
@@ -80,9 +80,9 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 | T2 | Convex schema: charities, donors, donations, impactLogs (+photo storage id), allocations, visits, narratives | Revnn/CC (Sonnet) | doing | `/convex/schema.ts`, `/convex/seed.ts` | Schema deploys; seed loads into it |
 | T3 | Hosted test-mode donate page + `createDonation` mutation; redirects back with `?ct=` | Revnn/CC | todo | `/staff/donate*`, `/convex/donations.ts` | $25 test donation appears in DB; redirect carries only token |
 | T4 | Staff impact update page (text + count + unit + optional photo) | Revnn/Cursor (proposed) | todo | `/staff/update*`, `/convex/impact.ts` | "Served 80 meals" stored with photo; allocations recompute |
-| T5 | Allocation engine (proportional, time-windowed) | Revnn/CC (Sonnet) | doing | `/engine/allocate.ts` + tests | Vitest: shares sum ≤ 100%, zero-donation window, late donor, rounding labeled |
+| T5 | Allocation engine (proportional, time-windowed) | Revnn/CC (Sonnet) | done | `/engine/allocate.ts` + tests | Vitest: shares sum ≤ 100%, zero-donation window, late donor, rounding labeled |
 | T6 | Claude narrative + next-step (facts in → JSON out) + fact-check guard (D8) | Revnn/CC | todo | `/engine/facts.ts`, `/engine/guard.ts`, `/engine/prompt.ts`, `/convex/narrative.ts` | Guard tests: invented number/name rejected → template fallback; estimates labeled |
-| T7 | Signed donor tokens (HMAC) + visits table for "since last visit" | Revnn/CC (Sonnet: pure part) | doing (T7a pure) | `/engine/token.ts`, `/convex/tokens.ts`, `/convex/http.ts` | Tampered/expired token rejected; no PII in URL |
+| T7 | Signed donor tokens (HMAC) + visits table for "since last visit" | Revnn/CC (Sonnet: pure part) | T7a pure done; T7b (convex/tokens.ts, http.ts, visits) todo | `/engine/token.ts`, `/convex/tokens.ts`, `/convex/http.ts` | Tampered/expired token rejected; no PII in URL |
 | T8 | `layer.js` embed: read token, fetch donor view, fill slots, rewrite donate link | Revnn/Cursor (proposed) | todo | `/layer` | Works on 2 demo sites; unknown visitor sees normal site; no console errors |
 | T9 | Milestone check (scheduled) + "See where your donation has gone" email via Resend | Revnn/CC | todo | `/convex/milestones.ts`, `/convex/email.ts` | Email arrives at team inbox; link opens site with personalized view |
 | T10 | Demo charity site #1 (fictional food pantry) from Figma | Teammate 1 | todo | `/demo-sites/one` | Includes contract v1 slots + donate button; looks complete with slots empty |
@@ -133,3 +133,6 @@ Status: `todo` · `doing` · `review` · `done` · `blocked`
 - [Fri 10:35 PM PT] Claude Code (Opus orchestrator): D2 Convex, D3 Convex+Vercel, D4 Resend, D7 renamed to Chartitable. Proposed D8–D10, repo structure, hour plan. **Locked integration contract v1** (charity ids, donate button, state hooks, token param, theming vars) — Teammate 1 can build now. Next: lead approves plan → T1 scaffold.
 - [Fri 10:43 PM PT] Claude Code (Opus orchestrator): T1 done. Root package with npm workspaces `engine`, `layer`; `convex/` lives at root (Convex CLI convention, root has the `convex` dep), not a workspace. Vitest at root (`engine/**`, `seed/**` tests), `npm run build` → `layer/dist/layer.js` (IIFE), `npm run dev:layer` serves :5174. TS 7, Vitest 5, esbuild 0.28, convex 1.48. Lead still needs to run `npx convex dev` once to link a deployment.
 - [Fri 10:48 PM PT] Claude Code (Opus orchestrator): Wrote `/engine/types.ts` (shared contract: Charity, Donor, Donation, ImpactLog, Allocation, DonorFacts, NarrativeOutput/Result, TokenPayload, DonorView draft). Lanes import, never edit. Convex tables reference engine string ids (not `v.id`). Token API is async (Web Crypto) so it runs in Convex's default runtime. Launching C1 lane: T2+T12, T5, T7a (Sonnet) + H1 (Haiku). Subagents report their handoff line; orchestrator appends it (avoids concurrent edits to this file).
+- [Fri 10:47 PM PT] Sonnet/T7a: Added /engine/token.ts (async HMAC-SHA256 signToken/verifyToken via Web Crypto, DEFAULT_TOKEN_TTL_MS 30d) + token.test.ts; 8 tests green. Check order: structure → signature → expiry. T7b can import directly.
+- [Fri 10:50 PM PT] Sonnet/T5: /engine/allocate.ts + allocate.test.ts (allocate, roundEstimate); 11 tests green. Rule: a donation is eligible for a log if same charity and window.from <= createdAt <= loggedAt; share = donor cents / eligible cents; roundEstimate floors (<1 → 0, <100 → integer, >=100 → multiple of 5).
+- [Fri 10:58 PM PT] Claude Code (Opus orchestrator): Gated T5 + T7a (re-ran tests, read code, Haiku H2/H3 scan: PASS; the only "@" is a negative test that rejects a token carrying an email). Committed. Saved H1 Convex cheat sheet to `convex/CONVEX_NOTES.md` — later Convex lanes read it first. Waiting on T2+T12.
