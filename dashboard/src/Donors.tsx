@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { getDonorDetail, getDonors, markThanked } from "./data";
+import { describeError, getDonorDetail, getDonors, markThanked, useDataMode } from "./data";
 import type { DashDonor, DonorDetail, DonorStatus } from "./types";
-import { money, day, dayYear } from "./format";
-import { Empty } from "./components";
+import { money, day, dayYear, donorLabel, isAnonymous } from "./format";
+import { Busy, Empty, Skel } from "./components";
 import { askDonorView, peekDonorView } from "./donorIntent";
 
 // Plain, non-judging labels for the people behind the numbers (dignity rule). Enum values stay as in the data contract.
@@ -13,7 +13,29 @@ type View = "all" | "needs";
 // Case- and accent-insensitive: "jose" finds "José".
 const fold = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
+/** Same columns and row height as the loaded table, so the list lands without a jump. */
+function DonorsSkeleton() {
+  return (
+    <section aria-labelledby="h-donors">
+      <h2 id="h-donors">Donors</h2>
+      <Busy label="Loading donors…">
+        <div className="skel-col">
+          <Skel w="min(26rem, 100%)" h="44px" />
+          <Skel w="22rem" h="44px" />
+          <div className="table-wrap skel-table">
+            {[0, 1, 2, 3, 4].map((i) => <div className="skel-row" key={i}><Skel w="40%" h="1.1rem" /><Skel w="12%" h="1.1rem" /><Skel w="18%" h="1.1rem" /></div>)}
+          </div>
+        </div>
+      </Busy>
+    </section>
+  );
+}
+
 export function Donors() {
+  const mode = useDataMode();
+  const live = mode === "live";
+  const [thanking, setThanking] = useState<string | null>(null);
+  const [thankErr, setThankErr] = useState<{ id: string; msg: string } | null>(null);
   const [rows, setRows] = useState<DashDonor[] | null>(null);
   const [sort, setSort] = useState<Sort>("totalGiven");
   // Arriving from the Overview's "See who needs a thank-you" starts on that filter.
@@ -34,12 +56,17 @@ export function Donors() {
     getDonorDetail(open).then((d) => { if (live) setInfo(d); });
     return () => { live = false; };
   }, [open]);
-  if (!rows) return <p className="loading">Loading…</p>;
-  if (rows.length === 0) return <Empty title="No donors yet">Gifts made through the donate page appear here with a thank-you flag.</Empty>;
+  if (!rows) return <DonorsSkeleton />;
+  if (rows.length === 0) return (
+    <section aria-labelledby="h-donors">
+      <h2 id="h-donors">Donors</h2>
+      <Empty title="No donors yet">Gifts made through the donate page appear here with a thank-you flag.</Empty>
+    </section>
+  );
 
   const needs = rows.filter((d) => d.thankedAt === null);
-  // Two anonymous donors must stay distinguishable without revealing anything about them.
-  const label = (d: DashDonor) => (d.displayName === "Anonymous" ? "Anonymous donor, first gave " + day(d.firstGiftAt) : d.displayName);
+  // Donors who asked not to be listed never show a name (donorLabel); two of them stay distinguishable by first-gift date only.
+  const label = donorLabel;
   // Donor records carry no email, so name is the only searchable field. Anonymous donors match "anonymous".
   const needle = fold(q.trim());
   const shown = (view === "needs" ? needs : rows)
@@ -63,8 +90,18 @@ export function Donors() {
     opener.current?.focus();
   }
   async function thank(d: DashDonor) {
-    setRows(await markThanked(d.id));
-    setSaid(`Marked ${d.displayName === "Anonymous" ? "the anonymous donor" : d.displayName} as thanked.`);
+    if (thanking) return;
+    setThanking(d.id);
+    setThankErr(null);
+    setSaid("");
+    try {
+      setRows(await markThanked(d.id));
+      setSaid(`Marked ${isAnonymous(d) ? "the anonymous donor" : d.displayName} as thanked.`);
+    } catch (e) {
+      setThankErr({ id: d.id, msg: "Couldn't mark as thanked. " + describeError(e) });
+    } finally {
+      setThanking(null);
+    }
   }
 
   return (
@@ -109,6 +146,7 @@ export function Donors() {
       ) : (
         <div className="table-wrap">
           <table>
+            <caption className="tbl-cap"><span className="tag tag-rec">Record</span> Gifts and dates are recorded. Status is worked out from the last gift date.</caption>
             <thead><tr><th scope="col">Donor</th><th scope="col" className="num">Total given</th><th scope="col" className="num hide-sm">Gifts</th><th scope="col" className="hide-sm">Last gift</th><th scope="col">Status</th><th scope="col">Thanked</th></tr></thead>
             <tbody>
               {shown.map((d) => (
@@ -118,7 +156,10 @@ export function Donors() {
                   <td className="num hide-sm">{d.giftCount}</td>
                   <td className="hide-sm">{day(d.lastGiftAt)}</td>
                   <td><span className={"status s-" + d.status}>{STATUS[d.status]}</span></td>
-                  <td>{d.thankedAt ? "Yes, " + day(d.thankedAt) : <button className="mini" onClick={() => thank(d)} aria-label={"Mark " + label(d) + " as thanked"}>Mark thanked</button>}</td>
+                  <td>
+                    {d.thankedAt ? "Yes, " + day(d.thankedAt) : <button className="mini" disabled={thanking !== null} onClick={() => thank(d)} aria-label={"Mark " + label(d) + " as thanked"}>{thanking === d.id ? "Saving…" : "Mark thanked"}</button>}
+                    {thankErr?.id === d.id && <span className="field-err row-err" role="alert">{thankErr.msg}</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -131,10 +172,15 @@ export function Donors() {
             <h3>{label(sel)}</h3>
             <button className="chip" onClick={close}>Close</button>
           </div>
-          <p>
-            <span className="rec">{sel.giftCount} {sel.giftCount === 1 ? "gift" : "gifts"}, {money(sel.totalGiven)} total</span>
-            {sel.giftCount === 1 ? ` on ${day(sel.firstGiftAt)}.` : `, first on ${day(sel.firstGiftAt)}, latest on ${day(sel.lastGiftAt)}.`}
-          </p>
+          <dl className="facts-list">
+            <div><dt>Total given <span className="tag tag-rec">Record</span></dt><dd className="rec">{money(sel.totalGiven)}</dd></div>
+            <div><dt>Gifts <span className="tag tag-rec">Record</span></dt><dd className="rec">{sel.giftCount}</dd></div>
+            <div><dt>First gift</dt><dd>{dayYear(sel.firstGiftAt)}</dd></div>
+            <div><dt>Latest gift</dt><dd>{dayYear(sel.lastGiftAt)}</dd></div>
+            <div><dt>Status</dt><dd><span className={"status s-" + sel.status}>{STATUS[sel.status]}</span></dd></div>
+            <div><dt>Thanked</dt><dd>{sel.thankedAt ? "Yes, " + dayYear(sel.thankedAt) : "Not yet"}</dd></div>
+          </dl>
+          {live && <p className="muted gift-note">Gift history isn't available yet.</p>}
           {info && (
             <>
               <h4>Gift history</h4>

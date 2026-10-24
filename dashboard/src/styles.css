@@ -41,7 +41,8 @@ button, input, select { font: inherit; color: inherit; }
 .tag-est { background: var(--accent-tint); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--estimate-line); }
 .why { background: none; border: 0; padding: .4rem 2px; text-decoration: underline dotted; text-underline-offset: 4px; cursor: pointer; font-size: .85rem; font-weight: 600; min-height: 44px; }
 .formula[hidden] { display: none; }
-.formula { display: block; margin-top: .4rem; padding: .6rem .8rem; background: var(--ink); color: #fff; border-radius: 8px; font-size: .85rem; max-width: 22rem; font-style: normal; font-weight: 500; }
+.est-wrap { position: relative; display: inline-block; }
+.formula { position: absolute; z-index: 5; left: 0; top: 100%; margin-top: .15rem; width: max-content; max-width: min(22rem, 80vw); padding: .6rem .8rem; background: var(--ink); color: #fff; border-radius: 8px; font-size: .85rem; line-height: 1.4; font-style: normal; font-weight: 500; letter-spacing: 0; box-shadow: 0 6px 16px rgba(20, 35, 26, .22); }
 
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .9rem; }
 .tile { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.1rem; }
@@ -181,3 +182,32 @@ input { caret-color: var(--brand); }
 @media (max-width: 640px) {
   .search { max-width: none; }
 }
+
+/* Data-source badge in the header: text carries the meaning, the dot is decoration. */
+.mode { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; font-size: .8rem; font-weight: 700; padding: .2rem .7rem; border-radius: 999px; border: 1.5px solid var(--rule); background: var(--bg); }
+.mode-dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; }
+.mode-live { color: var(--brand-strong); border-color: var(--brand); background: var(--brand-tint); }
+.mode-live .mode-dot { background: var(--brand); }
+.mode-demo, .mode-fallback { color: var(--accent-ink); border-color: var(--estimate-line); background: var(--accent-tint); }
+.mode-demo .mode-dot, .mode-fallback .mode-dot { border: 2px solid var(--estimate-line); }
+.mode-why { font-weight: 600; }
+.mode-fallback { order: 5; flex-basis: 100%; border-radius: var(--radius); padding: .45rem .8rem; font-size: .875rem; }
+
+/* Loading skeletons: calm blocks sized like the real content */
+.skel { display: block; border-radius: 6px; background: linear-gradient(90deg, #ebebe2 25%, #f4f3ec 50%, #ebebe2 75%); background-size: 200% 100%; animation: skel 1.6s ease-in-out infinite; }
+@keyframes skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.skel-col { display: grid; gap: .7rem; align-content: start; }
+.skel-table { padding: .4rem .9rem; }
+.skel-row { display: flex; gap: 1.5rem; align-items: center; min-height: 52px; border-bottom: 1px solid var(--rule); }
+.skel-row:last-child { border-bottom: 0; }
+.updates-skel { margin-top: 2rem; }
+
+/* Tables and records */
+.tbl-cap { text-align: left; padding: .6rem .9rem; font-size: .85rem; color: var(--ink-soft); border-bottom: 1px solid var(--rule); white-space: normal; }
+.facts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: .9rem 1.5rem; margin: 0 0 .5rem; }
+.facts-list dt { font-size: .8rem; font-weight: 700; color: var(--ink-soft); }
+.facts-list dd { margin: .1rem 0 0; font-variant-numeric: tabular-nums; }
+.gift-note { margin: .25rem 0 .5rem; }
+.row-err { display: block; margin-top: .35rem; max-width: 16rem; white-space: normal; }
+.addform .err { margin: 0; }
+button:disabled { opacity: .6; cursor: progress; }
