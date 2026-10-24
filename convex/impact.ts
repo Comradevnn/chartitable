@@ -38,10 +38,12 @@ export type LogImpactResult =
 /**
  * The body of `log` without the PIN check, shared with the PIN-gated demo panel (convex/demo.ts).
  * `holdMilestoneCheck` skips only the immediate milestone-check schedule (the 5-minute cron still runs).
+ * `skipVisitorWarm` skips the recent-visitor narrative warm (the demo panel re-warms its personas itself,
+ * so both would spend Claude calls on the same donors).
  */
 export async function logImpact(
   ctx: MutationCtx,
-  { charityId, kind, count, note, photoStorageId, smoke, requestId, holdMilestoneCheck }: {
+  { charityId, kind, count, note, photoStorageId, smoke, requestId, holdMilestoneCheck, skipVisitorWarm }: {
     charityId: CharityId;
     kind: string;
     count: number;
@@ -50,6 +52,7 @@ export async function logImpact(
     smoke?: boolean;
     requestId?: string;
     holdMilestoneCheck?: boolean;
+    skipVisitorWarm?: boolean;
   },
 ): Promise<LogImpactResult> {
   const checked = validateImpactLog({ kind, count, note });
@@ -113,7 +116,7 @@ export async function logImpact(
   // Warm narratives for a few recent visitors, so a live-refresh peek finds Claude's text ready.
   // Skipped for smoke-test logs. Bounded: look at <= 25 credited donors, schedule <= 5. The call caps
   // in narrative.ts still apply.
-  if (!smoke) {
+  if (!smoke && !skipVisitorWarm) {
     try {
       const since = now - 30 * 86_400_000;
       const credited = [...new Set(allocate(donations, [newLog], window).map((a) => a.donorId))].slice(0, 25);

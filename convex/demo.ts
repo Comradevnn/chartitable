@@ -314,7 +314,7 @@ export const postPreset = internalMutation({
     requestId: v.optional(v.string()),
     holdMilestoneCheck: v.optional(v.boolean()),
   },
-  handler: async (ctx, args): Promise<LogImpactResult> => logImpact(ctx, args),
+  handler: async (ctx, args): Promise<LogImpactResult> => logImpact(ctx, { ...args, skipVisitorWarm: true }),
 });
 
 export const post = action({
