@@ -7,8 +7,8 @@ Always, every session, every lane: this file → your handoff file in `docs/hand
 
 | Role | Also read | Do not read (unless a blocker points there) |
 |---|---|---|
-| Lane A (Revnn, Opus orchestrator and its Sonnet/Haiku subagents) | `docs/PRODUCT_SPEC.md`, `engine/types.ts`, `PROMPTS.md` (the task you're delegating), `convex/CONVEX_NOTES.md` when touching Convex | `docs/DASHBOARD_SPEC.md` (except its data contract when working on T19), `docs/handoff/teammate1.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md` |
-| Lane B (Teammate 1 and its agents) | `docs/DASHBOARD_SPEC.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md`, `docs/demo-site-reference.md`, the contract in `PROGRESS.md` | `docs/PRODUCT_SPEC.md`, `PROMPTS.md`, `engine/`, `convex/`, `docs/handoff/revnn.md` |
+| Lane A (Revnn, Opus orchestrator and its Sonnet/Haiku subagents) | `docs/PRODUCT_SPEC.md`, `engine/types.ts`, `PROMPTS.md` (the task you're delegating), `convex/CONVEX_NOTES.md` when touching Convex; `/frontend` only when wiring pages to the API (T7b/T8/T19) | `docs/DASHBOARD_SPEC.md` (except its data contract when working on T19), `docs/handoff/teammate1.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md`, `/frontend` styling |
+| Lane B (Teammate 1 and its agents) | `docs/DASHBOARD_SPEC.md`, `docs/TEAMMATE_DASHBOARD_PROMPT.md`, `docs/demo-site-reference.md`, the contract in `PROGRESS.md` | `docs/PRODUCT_SPEC.md`, `PROMPTS.md`, `engine/`, `convex/`, `docs/handoff/revnn.md`. Static HTML in `/frontend` is read as a UI reference only |
 | Teammate 2 (QA, Devpost, video, pitch) | `README.md`, `PRIZE_RULES.md` §12, the demo-done checklist and T13–T15 rows in `PROGRESS.md`, both handoff docs, `docs/PRODUCT_SPEC.md` §10 | Source code, `PROMPTS.md` |
 | Haiku research agent | Only the files named in its prompt; shared research (`docs/research/README.md` index) | Everything else; it never edits |
 | Sonnet coding agent | `PROGRESS.md` task row, the files it may edit, and the excerpt of the spec/contract pasted into its prompt | Other lanes, other tasks, the full spec unless the prompt says so |
@@ -22,7 +22,7 @@ Orchestrators should paste the relevant spec excerpt into a Sonnet prompt instea
 | | Lane A: Product (Revnn) | Lane B: Dashboard (Teammate 1) |
 |---|---|---|
 | Scope | Engine, Convex backend, `layer.js`, donate/staff pages, narrative + guard, tokens, email, seed, deploys | Charity dashboard: Figma design first, then implementation on mock data |
-| Owns | `/convex`, `/engine`, `/layer`, `/staff`, `/seed` | `/dashboard`, `/demo-sites`, `docs/DASHBOARD_SPEC.md` |
+| Owns | `/convex`, `/engine`, `/layer`, `/staff`, `/seed` | `/frontend` (first-pass pages, GitHub user `naelqdl`), `/dashboard`, `/demo-sites`, `docs/DASHBOARD_SPEC.md` |
 | Tasks | T1–T9, T12, T16, T17, T19 | T10, T11, T18 |
 | Branch | `main` | `dashboard` (merged to `main` by Revnn) |
 | Spec | `docs/PRODUCT_SPEC.md` | `docs/DASHBOARD_SPEC.md` |
