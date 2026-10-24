@@ -1,0 +1,279 @@
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("fonts/barlow-condensed-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("fonts/barlow-condensed-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("fonts/barlow-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("fonts/barlow-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --pine: #1c4a34;
+  --ink: #17241c;
+  --muted: #3d5346;
+  --paper: #f4efe4;
+  --sheet: #fffaf2;
+  --line: #e2d3b8;
+  --gold: #c4840a;
+  --gold-deep: #8a5a08;
+  --ct-accent: #1c4a34;
+  --ct-fg: #17241c;
+  --ct-bg: #fffaf2;
+  --ct-muted: #3d5346;
+  --ct-font: "Barlow", "Avenir Next", "Segoe UI", sans-serif;
+  --ct-radius: 0;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ct-font);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+::selection { background: var(--pine); color: #fffaf2; }
+
+:focus-visible {
+  outline: 3px solid var(--gold-deep);
+  outline-offset: 2px;
+}
+
+h1, h2, h3 {
+  font-family: "Barlow Condensed", "Avenir Next Condensed", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-wrap: balance;
+  text-transform: uppercase;
+  margin: 0 0 0.55rem;
+}
+
+h1 { font-size: clamp(3.2rem, 6vw, 4.8rem); }
+h2 { font-size: 2.15rem; }
+h3 { font-size: 1.7rem; }
+
+p, li { max-width: 68ch; }
+
+a { color: var(--pine); text-underline-offset: 0.15em; }
+
+.skip {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  background: var(--sheet);
+  padding: 0.5rem 0.75rem;
+  z-index: 6;
+}
+.skip:focus { top: 0.5rem; }
+
+.util {
+  background: var(--pine);
+  color: #fffaf2;
+  font-size: 0.98rem;
+}
+.util .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  padding: 0.35rem 0;
+}
+.util a { color: #fffaf2; }
+
+.wrap {
+  width: min(1100px, calc(100% - 1.5rem));
+  margin-inline: auto;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  padding: 0.7rem 0 0.4rem;
+}
+
+.wordmark {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
+  font-size: 2.15rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 0.9;
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.7rem;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.4rem;
+}
+
+.nav-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.appeal {
+  background: var(--gold);
+  color: #1a1408;
+  padding: 0.7rem 0;
+}
+.appeal p { margin: 0; max-width: none; font-weight: 600; }
+.appeal a { color: #1a1408; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.45rem 0.85rem;
+  background: var(--pine);
+  color: #fffaf2;
+  text-decoration: none;
+  font-weight: 700;
+  border: 2px solid var(--pine);
+}
+
+.button-gold {
+  background: var(--gold);
+  border-color: var(--gold-deep);
+  color: #1a1408;
+}
+
+.hero-block { padding: 1.2rem 0 0.4rem; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.7fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.calendar { width: 100%; border-collapse: collapse; background: var(--sheet); table-layout: fixed; }
+.calendar caption {
+  text-align: left;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.calendar th, .calendar td {
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  padding: 0.3rem;
+  height: 3.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.calendar th { height: auto; background: var(--pine); color: #fffaf2; font-weight: 600; }
+.marked { background: #f3dd9a; }
+
+.news { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.news article {
+  background: var(--sheet);
+  border: 1px solid var(--line);
+  padding: 0.9rem;
+}
+.news time { color: var(--muted); display: block; margin-bottom: 0.3rem; }
+
+.side { background: var(--pine); color: #fffaf2; padding: 0.9rem; }
+.side h2, .side p, .side li { color: #fffaf2; }
+.side a { color: #fffaf2; }
+
+.section { padding: 1.6rem 0 0.2rem; }
+
+.desk-form { display: grid; gap: 0.45rem; max-width: 26rem; }
+.desk-form input {
+  min-height: 48px;
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+  border: 2px solid var(--pine);
+  background: var(--sheet);
+  caret-color: var(--pine);
+}
+.form-status { min-height: 1.3em; color: var(--muted); }
+
+footer {
+  margin-top: 2rem;
+  background: var(--ink);
+  color: #f4efe4;
+  padding: 1.2rem 0 1.8rem;
+}
+footer a { color: #fff; }
+footer p { margin: 0.25rem 0; }
+
+[data-impact-slot]:empty { display: none; }
+
+[data-impact-state="ready"] {
+  background: var(--sheet);
+  border: 3px solid var(--gold);
+  padding: 0.9rem 1rem;
+  margin: 0.8rem 0;
+}
+
+.ct-greeting, .ct-since-heading {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+}
+.ct-facts { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.ct-record, .ct-estimate { border-top: 1px solid var(--line); padding: 0.3rem 0; max-width: none; }
+.ct-estimate { font-weight: 700; }
+.ct-note { color: var(--muted); font-weight: 400; }
+.ct-photo { width: min(100%, 260px); display: block; margin-top: 0.5rem; }
+.ct-next-link { display: inline-flex; min-height: 44px; align-items: center; font-weight: 700; }
+.ct-preview-banner { margin: 0; background: var(--ink); color: #fffaf2; padding: 0.45rem 0.8rem; }
+
+html[data-impact-active] h1 { font-size: clamp(2.7rem, 5vw, 3.6rem); }
+
+@media (max-width: 768px) {
+  .layout, .news, .header-row { grid-template-columns: 1fr; }
+  .header-row { align-items: start; flex-direction: column; }
+  .button { width: 100%; }
+  .calendar td, .calendar th { font-size: 0.85rem; height: 2.6rem; }
+}
+
+@media (max-width: 390px) {
+  .wrap { width: min(1100px, calc(100% - 1rem)); }
+}
