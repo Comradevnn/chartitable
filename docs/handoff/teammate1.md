@@ -1,12 +1,13 @@
 # Handoff: Teammate 1 (Lane B: dashboard + demo sites)
 
 Last updated: Sat Oct 24, evening PT (dashboard v2) (Teammate 1's Claude Code session, Opus orchestrator; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
+> Dashboard launch steps: [docs/handoff/dashboard-launch.md](dashboard-launch.md)
 
 ## Status (Sat): TEAMMATE_NEXT_PROMPT items done and merged or committed: ct-slots.css fitted and bundled into layer.js, Figma at link in docs/DASHBOARD_SPEC.md, dashboard MVP + donor detail, T21 /frontend rename (649bbe4), dashboard adapter (d0ef8a2). Waiting on Revnn: T22 DEV ?ct= link, dashboard:donorDetail / removeExpense / restoreExpense (T19), deploy of /dashboard
 
 **`docs/handoff/teammate1-session-handoff.md` is the older (Sat morning) session handoff: good background for T22 and the dashboard MVP, but this file is the current one. Read the "Dashboard v2" section right below first.**
 
-## Dashboard v2 (Sat evening, branch `dashboard`, commits a162011..860b107, NOT pushed or deployed)
+## Dashboard v2 (Sat evening, branch `dashboard`, commits a162011..860b107, pushed and merged to main (0a62e9b), not yet deployed by Vercel (D16))
 Checked in demo mode (1280 and 390) plus build, root tests, both tsc projects and the detector. **Not verified live**: the new features need Lane A's functions (Blockers row "Lane B dashboard v2" in PROGRESS.md), and the lead has not yet signed in with the real PIN to check the existing live features and receipt upload.
 
 **New controls and where they live**
