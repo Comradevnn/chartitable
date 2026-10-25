@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { liveConfigured, loggedIn, login, logout, useDataMode } from "./data";
+import { liveConfigured, loggedIn, login, logout, refresh, useDataMode, useRefreshTick } from "./data";
 import { charityName } from "./mock/data";
 import { Overview } from "./Overview";
 import { Donors } from "./Donors";
@@ -46,20 +46,32 @@ function ModeBadge() {
     <p className={"mode mode-" + mode} role="status">
       <span className="mode-dot" aria-hidden="true" />
       <span className="mode-name">{mode === "live" ? "Live data · Convex" : "Demo data"}</span>
-      {mode === "fallback" && <span className="mode-why">Live data couldn't load, showing sample data.</span>}
+      {mode === "fallback" && <span className="mode-why">Live data couldn't load, showing sample data. Changes can't be saved until it loads. Refresh to try again.</span>}
     </p>
   );
+}
+
+/** Re-checks the backend, then every screen re-reads. In fallback mode this is how staff try live data again. */
+function RefreshButton() {
+  const [busy, setBusy] = useState(false);
+  async function go() {
+    if (busy) return;
+    setBusy(true);
+    try { await refresh(); } finally { setBusy(false); }
+  }
+  return <button type="button" className="mini refresh" onClick={go} disabled={busy} aria-busy={busy}>{busy ? "Refreshing…" : "Refresh"}</button>;
 }
 
 export function App() {
   const [ok, setOk] = useState(loggedIn());
   const [tab, setTab] = useState<Tab>("overview");
   const mode = useDataMode();
+  const tick = useRefreshTick();
   const main = useRef<HTMLElement>(null);
   // After sign-in, land focus on the content. Tab changes leave focus on the nav button so keyboard users keep their place.
   useEffect(() => { if (ok) main.current?.focus(); }, [ok]);
   if (!ok) return <Gate onIn={() => setOk(true)} />;
-  // `key={mode}`: if live data stops loading mid-session, each screen remounts and re-reads, so nothing mixes live and sample numbers.
+  // `key={mode + tick}`: if live data stops loading mid-session, each screen remounts and re-reads, so nothing mixes live and sample numbers.
   return (
     <>
       <header className="top">
@@ -67,14 +79,14 @@ export function App() {
         <nav aria-label="Dashboard sections">
           {TABS.map(([k, v]) => <button key={k} className={tab === k ? "navbtn on" : "navbtn"} aria-current={tab === k ? "page" : undefined} onClick={() => setTab(k)}>{v}</button>)}
         </nav>
-        <ModeBadge />
+        <div className={"modebar" + (mode === "fallback" ? " modebar-fallback" : "")}><ModeBadge /><RefreshButton /></div>
         <button className="link" onClick={() => { logout(); setOk(false); }}>Sign out</button>
       </header>
       <main className="page" ref={main} tabIndex={-1} aria-label={TABS.find(([k]) => k === tab)![1]}>
         <p className="legend"><span className="tag tag-rec">Record</span> counted or logged · <span className="tag tag-est">Estimate</span> computed, always marked “about”. {mode === "live" ? "Figures are read live for a fictional sample pantry." : "Fictional demo data."}</p>
-        {tab === "overview" && <Overview key={mode} onSeeDonors={() => setTab("donors")} />}
-        {tab === "donors" && <Donors key={mode} />}
-        {tab === "expenses" && <Expenses key={mode} />}
+        {tab === "overview" && <Overview key={mode + ":" + tick} onSeeDonors={() => setTab("donors")} />}
+        {tab === "donors" && <Donors key={mode + ":" + tick} />}
+        {tab === "expenses" && <Expenses key={mode + ":" + tick} />}
       </main>
     </>
   );
