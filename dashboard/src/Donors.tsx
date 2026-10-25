@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { describeError, getDonorDetail, getDonors, markThanked, useDataMode } from "./data";
+import { describeError, getDonorDetail, getDonors, markThanked, useDataMode, writeBlockedReason } from "./data";
 import type { DashDonor, DonorDetail, DonorStatus } from "./types";
 import { money, day, dayYear, donorLabel, isAnonymous } from "./format";
 import { Busy, Empty, Skel } from "./components";
 import { askDonorView, peekDonorView } from "./donorIntent";
+import { ThankEveryoneDialog, ThankYouDialog, useSendBlocked } from "./ThankYouDialog";
 
 // Plain, non-judging labels for the people behind the numbers (dignity rule). Enum values stay as in the data contract.
 const STATUS: Record<DonorStatus, string> = { new: "New", active: "Active", at_risk: "Quiet lately", lapsed: "Gave before" };
@@ -32,8 +33,12 @@ function DonorsSkeleton() {
 }
 
 export function Donors() {
-  const mode = useDataMode();
-  const live = mode === "live";
+  useDataMode(); // re-render if the data mode changes
+  const blocked = writeBlockedReason(); // fallback: every write is off, with this reason shown
+  const sendBlocked = useSendBlocked(); // fallback, or the email functions aren't deployed
+  const [mailing, setMailing] = useState<{ id: string; name: string } | null>(null);
+  const [bulk, setBulk] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
   const [thanking, setThanking] = useState<string | null>(null);
   const [thankErr, setThankErr] = useState<{ id: string; msg: string } | null>(null);
   const [rows, setRows] = useState<DashDonor[] | null>(null);
@@ -48,14 +53,18 @@ export function Donors() {
   const search = useRef<HTMLInputElement>(null);
   useEffect(() => { askDonorView(null); }, []);
   useEffect(() => { getDonors().then(setRows); }, []);
-  const [info, setInfo] = useState<DonorDetail | null>(null);
+  // Gift history + preview: loading, loaded, or a plain-language failure. Never invented content.
+  type Info = { s: "loading" } | { s: "error"; msg: string } | { s: "ok"; d: DonorDetail };
+  const [info, setInfo] = useState<Info>({ s: "loading" });
+  const [infoTry, setInfoTry] = useState(0);
   useEffect(() => {
-    if (!open) { setInfo(null); return; }
-    detail.current?.focus();
-    let live = true;
-    getDonorDetail(open).then((d) => { if (live) setInfo(d); });
-    return () => { live = false; };
-  }, [open]);
+    if (!open) return;
+    setInfo({ s: "loading" });
+    let alive = true;
+    getDonorDetail(open).then((d) => { if (alive) setInfo({ s: "ok", d }); }, (e) => { if (alive) setInfo({ s: "error", msg: describeError(e) }); });
+    return () => { alive = false; };
+  }, [open, infoTry]);
+  useEffect(() => { if (open) detail.current?.focus(); }, [open]);
   if (!rows) return <DonorsSkeleton />;
   if (rows.length === 0) return (
     <section aria-labelledby="h-donors">
@@ -90,7 +99,7 @@ export function Donors() {
     opener.current?.focus();
   }
   async function thank(d: DashDonor) {
-    if (thanking) return;
+    if (thanking || blocked) return;
     setThanking(d.id);
     setThankErr(null);
     setSaid("");
@@ -105,8 +114,9 @@ export function Donors() {
   }
 
   return (
+    <>
     <section aria-labelledby="h-donors" onKeyDown={(e) => { if (e.key === "Escape" && open) close(); }}>
-      <h2 id="h-donors">Donors</h2>
+      <h2 id="h-donors" ref={heading} tabIndex={-1}>Donors</h2>
       <p className="lede">For thanking people, not ranking them. “Anonymous” donors asked not to be listed.</p>
       <div className="search" role="search">
         <label htmlFor="donor-search" className="sr-only">Search donors by name</label>
@@ -127,6 +137,11 @@ export function Donors() {
         <button className={view === "needs" ? "chip on" : "chip"} aria-pressed={view === "needs"} onClick={() => setView(view === "needs" ? "all" : "needs")}>Needs a thank-you ({needs.length})</button>
         <button className={sort === "totalGiven" ? "chip on" : "chip"} aria-pressed={sort === "totalGiven"} onClick={() => setSort("totalGiven")}>Total given</button>
         <button className={sort === "lastGiftAt" ? "chip on" : "chip"} aria-pressed={sort === "lastGiftAt"} onClick={() => setSort("lastGiftAt")}>Most recent</button>
+      </div>
+      <div className="bulk">
+        <button type="button" className="mini" disabled={needs.length === 0 || !!sendBlocked} aria-describedby={sendBlocked ? "send-why" : undefined} onClick={(e) => { opener.current = e.currentTarget; setBulk(true); }}>Thank everyone who needs it ({needs.length})</button>
+        {sendBlocked && <p className="muted blocked-why" id="send-why">Emails are off: {sendBlocked}</p>}
+        {blocked && <p className="muted blocked-why" id="mark-why">Marking donors as thanked is off: {blocked}</p>}
       </div>
       <p className="count muted" role="status" aria-live="polite">Showing {shown.length} of {rows.length} {rows.length === 1 ? "donor" : "donors"}</p>
       <p className="ok" role="status">{said}</p>
@@ -157,7 +172,12 @@ export function Donors() {
                   <td className="hide-sm">{day(d.lastGiftAt)}</td>
                   <td><span className={"status s-" + d.status}>{STATUS[d.status]}</span></td>
                   <td>
-                    {d.thankedAt ? "Yes, " + day(d.thankedAt) : <button className="mini" disabled={thanking !== null} onClick={() => thank(d)} aria-label={"Mark " + label(d) + " as thanked"}>{thanking === d.id ? "Saving…" : "Mark thanked"}</button>}
+                    {d.thankedAt ? "Yes, " + day(d.thankedAt) : (
+                      <span className="row-actions">
+                        <button className="mini" disabled={!!sendBlocked} aria-describedby={sendBlocked ? "send-why" : undefined} onClick={(e) => { opener.current = e.currentTarget; setMailing({ id: d.id, name: label(d) }); }} aria-label={"Send a thank-you email to " + label(d)}>Send thank-you</button>
+                        <button className="mini" disabled={thanking !== null || !!blocked} aria-describedby={blocked ? "mark-why" : undefined} onClick={() => thank(d)} aria-label={"Mark " + label(d) + " as thanked (no email)"}>{thanking === d.id ? "Saving…" : "Mark thanked"}</button>
+                      </span>
+                    )}
                     {thankErr?.id === d.id && <span className="field-err row-err" role="alert">{thankErr.msg}</span>}
                   </td>
                 </tr>
@@ -180,20 +200,32 @@ export function Donors() {
             <div><dt>Status</dt><dd><span className={"status s-" + sel.status}>{STATUS[sel.status]}</span></dd></div>
             <div><dt>Thanked</dt><dd>{sel.thankedAt ? "Yes, " + dayYear(sel.thankedAt) : "Not yet"}</dd></div>
           </dl>
-          {live && <p className="muted gift-note">Gift history isn't available yet.</p>}
-          {info && (
+          {info.s === "loading" && (
+            <Busy label="Loading gift history…"><div className="skel-col gift-skel"><Skel w="30%" /><Skel h="1.1rem" /><Skel h="1.1rem" /><Skel w="45%" /><Skel h="5rem" /></div></Busy>
+          )}
+          {info.s === "error" && (
+            <div className="detail-err" role="alert">
+              <p>Couldn't load this donor's detail: {info.msg}</p>
+              <button type="button" className="mini" onClick={() => setInfoTry(infoTry + 1)}>Try again</button>
+            </div>
+          )}
+          {info.s === "ok" && (
             <>
               <h4>Gift history</h4>
-              <ul className="gifts">
-                {info.gifts.map((g, i) => <li key={i}><span className="rec">{money(g.amountCents)}</span> <time>{dayYear(g.at)}</time> <span className="muted">{g.label}</span></li>)}
-              </ul>
+              {info.d.gifts.length === 0 ? <p className="muted">No gifts are recorded for this donor yet.</p> : (
+                <ul className="gifts">
+                  {info.d.gifts.map((g, i) => <li key={i}><span className="rec">{money(g.amountCents)}</span> <time>{dayYear(g.at)}</time> <span className="muted">{g.label}</span></li>)}
+                </ul>
+              )}
               <h4>What this donor sees on the charity's site</h4>
               <div className="preview">
-                <p className="p-story">{info.preview.story}</p>
-                <ul className="p-facts">
-                  {info.preview.records.map((r, i) => <li key={i} className="p-rec">{r.text} · {r.dateLabel}</li>)}
-                  {info.preview.estimates.map((e, i) => <li key={i} className="p-est">{e.text}</li>)}
-                </ul>
+                <p className="p-story">{info.d.preview.story}</p>
+                {info.d.preview.records.length + info.d.preview.estimates.length === 0 ? <p className="muted">Nothing beyond the message above yet.</p> : (
+                  <ul className="p-facts">
+                    {info.d.preview.records.map((r, i) => <li key={i} className="p-rec">{r.text} · {r.dateLabel}</li>)}
+                    {info.d.preview.estimates.map((e, i) => <li key={i} className="p-est">{e.text}</li>)}
+                  </ul>
+                )}
               </div>
             </>
           )}
@@ -201,5 +233,20 @@ export function Donors() {
         </aside>
       )}
     </section>
+    {mailing && (
+      <ThankYouDialog
+        donorId={mailing.id} name={mailing.name}
+        onSent={(next) => { setRows(next); setSaid(`Sent a thank-you to ${mailing.name}.`); }}
+        onClose={() => setMailing(null)} fallbackFocus={() => heading.current?.focus()}
+      />
+    )}
+    {bulk && (
+      <ThankEveryoneDialog
+        people={needs.map((d) => ({ id: d.id, name: label(d) }))}
+        onDone={(next) => { setRows(next); setSaid("Thank-you emails finished. See the results list for each donor."); }}
+        onClose={() => setBulk(false)} fallbackFocus={() => heading.current?.focus()}
+      />
+    )}
+    </>
   );
 }

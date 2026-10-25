@@ -358,7 +358,7 @@ export async function previewThankYou(id: string): Promise<ThankYouPreview> {
   const body = [
     `Dear ${first},`,
     `Thank you for your ${d.giftCount === 1 ? "gift" : d.giftCount + " gifts"} to ${name}: ${money(d.totalGiven)} in all.`,
-    impact ? `Gifts are pooled, so what yours made possible is an estimate: ${impact}.` : "Gifts are pooled, so we can only share estimates of what each one made possible.",
+    impact ? `Gifts are pooled, so we can only estimate your share: ${impact}.` : "Gifts are pooled, so we can only share estimates of what each one made possible.",
     `With thanks,\nThe ${name} team`,
   ].join("\n\n");
   return delay({ subject: `Thank you from ${name}`, body, canSend: true, reason: null });
