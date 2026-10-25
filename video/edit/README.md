@@ -17,3 +17,6 @@ cd edit && ../../.venv/bin/python edit.py [picks.json]   # writes sec/*.mp4 and 
 
 ## Balanced version and cut points
 `ranges.py` recomputes each section's cut range from where the speech really ends (energy-based), so no word is clipped; the first edit cut Huey's live-update line 0.45 s early ("progress"). `picks_balanced.json` splits the demo between both speakers. `cuts_balanced.json` removes a filler "uh" (found as an untranscribed 0.3 s voiced burst). Render: `RNGFILE=ranges_fixed.json CUTS=cuts_balanced.json SECDIR=sec_bal OUTNAME=demo-section-balanced ../../.venv/bin/python edit.py picks_balanced.json`, then `TAG=-bal SECDIR=sec_bal ./finish.sh`.
+
+## Final
+`PLACEFILE=place_final.json` forces the first section's facecam to the bottom-right corner over the full-size demo (no shrunk layout). Render: `PLACEFILE=place_final.json RNGFILE=ranges_fixed.json CUTS=cuts_balanced.json SECDIR=sec_final OUTNAME=demo-section-final ../../.venv/bin/python edit.py picks_balanced.json`, then `TAG=-final SECDIR=sec_final ./finish.sh`.

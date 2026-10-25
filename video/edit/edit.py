@@ -51,6 +51,8 @@ for sec,(v0,v1) in SCENE.items():
     for size in (320,260,210):
         cand=place.best_spot(frames,pip=size)
         if cand['busy']<=0.03: spot=dict(cand,size=size,mode='pip'); break
+    FORCE=json.load(open(os.environ['PLACEFILE'])) if os.environ.get('PLACEFILE') else {}
+    if sec in FORCE: spot=dict(FORCE[sec],busy=0.0,mode='pip')
     if spot is None:
         spot={'mode':'side','size':360,'x':1500,'y':650,'busy':place.best_spot(frames,pip=210)['busy'],'canvas':place.edge_color(DEMO,v0)}
     vis=v1-v0; T=Dn+TAIL; f=max(1.0,min(MAXSPEED,vis/T))
