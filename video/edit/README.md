@@ -11,3 +11,6 @@ cd edit && ../../.venv/bin/python edit.py [picks.json]   # writes sec/*.mp4 and 
 ./finish.sh                                               # joins the slide parts, loudness pass, writes the deliverables
 ```
 `picks.json` example: `{"d1": "nat", "dash": "huey"}`. `place.py` also reports the best facecam spot for any slide image: `python place.py image slide3.png`.
+
+## Flow-first picks
+`score.py` re-scores both takes per section on stumbles (repeats, mid-phrase hesitations, unclear words), pace and smoothness, not on script adherence, and writes `picks_flow.json`. Render it with `SECDIR=sec_flow OUTNAME=demo-section-flow ../../.venv/bin/python edit.py picks_flow.json` then `TAG=-flow SECDIR=sec_flow ./finish.sh`. Note: the transcriber can invent repeats at its 30 s chunk boundaries (0, 30, 60 s); verify a flagged stumble by re-transcribing a short slice before cutting it.

@@ -5,7 +5,9 @@ import subprocess, json, re, sys, os
 import numpy as np
 F='../node_modules/ffmpeg-static/ffmpeg'
 D='/Users/hueylee/Documents/Demo'
-OUT=f'{D}/edited'; os.makedirs(OUT,exist_ok=True); os.makedirs('sec',exist_ok=True)
+SECDIR=os.environ.get('SECDIR','sec'); OUTNAME=os.environ.get('OUTNAME','demo-section-edited')
+OUT=f'{D}/edited'; os.makedirs(OUT,exist_ok=True); os.makedirs(SECDIR,exist_ok=True)
+CUTS=json.load(open(os.environ['CUTS'])) if os.environ.get('CUTS') else {}
 SRC={'huey':f'{D}/Huey record.mp4','nat':f'{D}/Natanael record.mp4'}
 DEMO=f'{D}/demo.mp4'
 GAIN={'huey':2.0,'nat':0.0}  # dB, brings both voices to a similar level
@@ -29,12 +31,19 @@ def keeps(who,a,b):
         if e-s>GAP:
             pieces.append((cur,s+KEEP)); cur=e-KEEP
     pieces.append((cur,b))
+    for cs,ce in CUTS.get(who,{}).get(SECNOW,[]):
+        nxt=[]
+        for x,y in pieces:
+            if ce<=x or cs>=y: nxt.append((x,y)); continue
+            if cs-x>0.03: nxt.append((x,cs))
+            if y-ce>0.03: nxt.append((ce,y))
+        pieces=nxt
     return [(x,y) for x,y in pieces if y-x>0.05]
 sys.path.insert(0,'.')
 import place
 report=[]; names=[]
 for sec,(v0,v1) in SCENE.items():
-    who=PICKS[sec]; a,b=RNG[who][sec]; ks=keeps(who,a,b); Dn=sum(y-x for x,y in ks)
+    SECNOW=sec; who=PICKS[sec]; a,b=RNG[who][sec]; ks=keeps(who,a,b); Dn=sum(y-x for x,y in ks)
     frames=place.frames_from_video(DEMO,v0,v1)
     spot=None
     for size in (320,260,210):
@@ -61,10 +70,10 @@ for sec,(v0,v1) in SCENE.items():
         fc.append(f"color=c={spot['canvas']}:s=1920x1080:r=30,format=yuv420p[cv];[cv][bgs]overlay=0:0:shortest=1[bg]")
     fc.append(f"[bg][face]overlay={spot['x']}:{spot['y']}:shortest=0:eof_action=pass[v]")
     fc.append(f"[fac]volume={GAIN[who]}dB,alimiter=limit=0.89,apad=whole_dur={T:.3f},aformat=channel_layouts=stereo,aresample=48000[a]")
-    out=f'sec/{sec}.mp4'
+    out=f'{SECDIR}/{sec}.mp4'
     run('-i',SRC[who],'-i',DEMO,'-loop','1','-framerate','30','-i','mask.png','-loop','1','-framerate','30','-i','ring.png','-filter_complex',';'.join(fc),'-map','[v]','-map','[a]','-t',f'{T:.3f}','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-r','30','-c:a','aac','-b:a','192k',out)
     names.append(out); report.append((sec,who,round(Dn,1),round(vis,1),round(f,2),round(hold,2),spot,len(ks)))
     print(f"{sec:5} {who:5} speech {Dn:5.1f}s  scene {vis:5.1f}s  speed {f:4.2f}x  {spot['mode']} {spot['size']}px @({spot['x']},{spot['y']}) busy {spot['busy']}  cuts {len(ks)-1}")
 open('list.txt','w').write('\n'.join(f"file '{os.path.abspath(n)}'" for n in names))
-run('-f','concat','-safe','0','-i','list.txt','-c','copy','-movflags','+faststart',f'{OUT}/demo-section-edited.mp4')
+run('-f','concat','-safe','0','-i','list.txt','-c','copy','-movflags','+faststart',f'{OUT}/{OUTNAME}.mp4')
 print('total',sum(r[2]+TAIL for r in report))
