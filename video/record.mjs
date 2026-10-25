@@ -2,6 +2,7 @@
 // Usage: node record.mjs <scene>   scenes: d1 d2a d2b d2c
 import { chromium } from 'playwright';
 import { renameSync, mkdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,14 @@ const CURSOR_JS = `(() => {
   if (document.documentElement) mk(); document.addEventListener('DOMContentLoaded', mk);
 })();`;
 
+function demoInbox() {
+  // First address in DEMO_INBOXES, read in memory only; never printed. Falls back to a placeholder (still masked).
+  try {
+    const out = spawnSync('npx', ['convex', 'env', 'get', 'DEMO_INBOXES'], { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 60000 }).stdout || '';
+    const first = out.split(',')[0].trim();
+    return first.includes('@') ? first : 'mira@example.org';
+  } catch { return 'mira@example.org'; }
+}
 async function newScene(name) {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: join(HERE, 'clips', '_raw'), size: { width: W, height: H } }, reducedMotion: 'no-preference' });
@@ -72,7 +81,11 @@ if (scene === 'd1') {
   await page.waitForSelector('#donate-form:not([hidden])', { timeout: 20000 }); await sleep(800);
   await clickEl(page, page.locator('label.chip:has(input[value="25"])'));
   await sleep(400); await clickEl(page, page.locator('#firstName'));
-  await page.keyboard.type('Sam', { delay: 140 }); await sleep(700);
+  await page.keyboard.type('Mira', { delay: 140 }); await sleep(500);
+  // The email is typed for real (the demo inbox) but shown as dots, so no address appears in the video.
+  await page.addStyleTag({ content: '#email{-webkit-text-security:disc}' });
+  await clickEl(page, page.locator('#email'));
+  await page.keyboard.type(demoInbox(), { delay: 70 }); await sleep(700);
   await clickEl(page, page.locator('#submit'));
   await page.waitForURL(/\/sites\/cinderwell\//, { timeout: 30000 });
   await waitActive(page); await sleep(3200);

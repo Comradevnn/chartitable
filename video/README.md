@@ -25,7 +25,7 @@ python3 -I pptx2html.py x slides && node shot-slides.mjs "$PWD/slides"
 # 2. reset the demo to its start state, then record the live scenes (needs the Convex dev login or STAFF_PIN)
 (cd .. && npm run demo:reset)
 node record.mjs d1 && node record.mjs d2a && node record.mjs d2b && node record.mjs d2c && node record.mjs d3
-node fetch-view.mjs && node cards.mjs && node anim.mjs
+node fetch-view.mjs && node cards.mjs && node slide-extra.mjs && node anim.mjs
 # 3. assemble
 node build.mjs
 (cd .. && npm run demo:reset)   # leave the demo clean

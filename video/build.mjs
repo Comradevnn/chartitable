@@ -14,7 +14,7 @@ const cfg = JSON.parse(readFileSync(join(HERE, 'script.json'), 'utf8'));
 const OUT = process.env.CT_OUT || join(HERE, 'out'); const WORK = join(HERE, 'work');
 const HEAD_TRIM = { d2a: 1.2, d2b: 2.2, d2c: 1.5, d1: 0, t1: 0, d3: 5.8 };
 const SPEED = { d1: 1.5 };
-const CLIP_MAX = { d2a: 7.5, d2c: 8 };   // seconds of un-personalized load to cut
+const CLIP_MAX = { d2a: 11, d2c: 8 };   // seconds of un-personalized load to cut
 const LEAD_IN = 0.3, TAIL = { slide: 0.55, card: 0.45, clip: 0.2 };
 for (const d of [OUT, WORK, join(WORK, 'seg'), join(WORK, 'aud'), join(WORK, 'ov')]) mkdirSync(d, { recursive: true });
 const ff = (...a) => execFileSync(FF, ['-hide_banner', '-loglevel', 'error', '-y', ...a], { stdio: ['ignore', 'inherit', 'inherit'] });

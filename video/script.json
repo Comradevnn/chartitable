@@ -17,79 +17,85 @@
       "id": "s01",
       "speaker": "A",
       "visual": "slide:1",
-      "text": "Hi, we're the Chartitable team. This is Chartitable, as in chart-it-able. If your donation does good, you should be able to chart it."
+      "text": "Hi, we're the Chartitable team. This is Chartitable. Not charitable, chart-it-able. If your donation does good, you should be able to chart it. Not with an actual chart. We checked, nobody wants a chart. It's a pun. We're very proud of it."
+    },
+    {
+      "id": "s01b",
+      "speaker": "A",
+      "visual": "slide:1b",
+      "text": "Here's me giving to a small food pantry the normal way. Day one, I give twenty five dollars and feel great. A month later I go back, and it's the exact same page. Same photo, same Donate Now button."
     },
     {
       "id": "s02",
       "speaker": "A",
       "visual": "slide:2",
-      "text": "I give twenty five dollars to a small food pantry and feel great. A month later: same photo, same Donate Now button. Where did my money go? Did it buy a pizza for the intern? Black hole."
+      "text": "So where did my money go? Did it help? Did it buy a pizza for the intern? I'll never know. Black hole."
     },
     {
       "id": "s03",
       "speaker": "B",
       "visual": "slide:3",
-      "text": "It's not just me. Less than half of donors ever give again, forty three percent. Small pantries have no fundraising staff to write back, so donors quietly leave."
+      "text": "It's not just me. Charities struggle with donor retention: less than half of donors ever give again, forty three percent. In a single year, billions in giving were lost to donors who left or gave less. Small pantries have no fundraising staff to write back, so the bucket leaks."
     },
     {
       "id": "s04",
       "speaker": "B",
       "visual": "slide:4",
-      "text": "Chartitable is donor retention in one platform. Donors see their impact on the charity's own website. Charities get a dashboard showing who to thank and who's gone quiet. Claude writes the stories."
+      "text": "Chartitable closes the loop. It's donor retention in one platform, with two sides. Donors see what their giving did, on the charity's own website. Charities get a dashboard showing who to thank and who has gone quiet. Claude writes the stories."
     },
     {
       "id": "s05",
       "speaker": "A",
       "visual": "slide:5",
-      "text": "Okay. Same donation, now with Chartitable."
+      "text": "Now, let's see what happens with Chartitable."
     },
     {
       "id": "d1",
       "speaker": "A",
       "visual": "clip:d1",
-      "text": "A stranger sees the normal site. I give twenty five dollars, and the site knows I just gave."
+      "text": "Same pantry. First I'm a stranger, so it's just their normal site. Now I give twenty five dollars, and add my email. When I land back on the site, it thanks me by name."
     },
     {
       "id": "t1",
       "speaker": "A",
       "visual": "clip:t1",
-      "text": "A week later, I get a note."
+      "text": "A week later and the pantry has been busy. After they've reached a milestone, in part thanks to my contributions, I get an email."
     },
     {
       "id": "d2a",
       "speaker": "A",
       "visual": "clip:d2a",
-      "text": "The page rearranged around me: what the pantry did, and my share. All from one line of script on the charity's site."
+      "text": "I click through, and the page rearranged itself around me: what the pantry did since I gave, and how my money was spent. All from one line of script on the charity's own website."
     },
     {
       "id": "d2b",
       "speaker": "A",
       "visual": "clip:d2b",
-      "text": "Now staff post eighty meals. I don't reload anything. In a few seconds the page shows it, and my share moves."
+      "text": "Now watch. This is what happens when the charity hits a milestone. I don't reload anything. The site updates dynamically to show the charity's progress."
     },
     {
       "id": "d2c",
       "speaker": "A",
       "visual": "clip:d2c",
-      "text": "Giving again is one click."
+      "text": "And if I want to give again, it's one click, and it welcomes me back."
     },
     {
       "id": "dash",
       "speaker": "A",
       "visual": "clip:d3",
-      "text": "Now the charity's side. One view shows who needs a thank-you, who's gone quiet, what was spent, and cost per meal. One click marks a donor thanked."
+      "text": "Now the charity's side. One view shows who needs a thank-you, who has gone quiet, what was spent, and what a meal costs. One click marks a donor thanked."
     },
     {
       "id": "c1",
       "speaker": "A",
       "visual": "card:compare",
-      "text": "Before: a page that never changes. After: a page that shows what happened, and what to do next."
+      "text": "Before: a page that never changes, and a black hole where your money goes. After: a page that shows what happened, and how you can help next."
     },
     {
       "id": "s06",
       "speaker": "B",
       "visual": "slide:6",
-      "text": "Donors stay when they can see the impact, and charities can reach out before they leave. Chartitable: donor retention you can chart. Thank you. Please clap. Please fund us."
+      "text": "Donors stay when they can see the impact, and charities can reach out before they leave. Chartitable makes your giving chart-it-able. Thank you. Please clap. Please fund us."
     }
   ]
 }
