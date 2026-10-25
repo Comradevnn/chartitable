@@ -1,10 +1,36 @@
 # Handoff: Teammate 1 (Lane B: dashboard + demo sites)
 
-Last updated: Sat Oct 24, afternoon PT (Teammate 1's Claude Code session, Opus orchestrator; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
+Last updated: Sat Oct 24, evening PT (dashboard v2) (Teammate 1's Claude Code session, Opus orchestrator; update when you resume). Update this file whenever you stop or switch tools (Figma ↔ Cursor ↔ Claude Code). Team-wide status lives in `PROGRESS.md`.
 
 ## Status (Sat): TEAMMATE_NEXT_PROMPT items done and merged or committed: ct-slots.css fitted and bundled into layer.js, Figma at link in docs/DASHBOARD_SPEC.md, dashboard MVP + donor detail, T21 /frontend rename (649bbe4), dashboard adapter (d0ef8a2). Waiting on Revnn: T22 DEV ?ct= link, dashboard:donorDetail / removeExpense / restoreExpense (T19), deploy of /dashboard
 
-**Newest, self-contained session handoff (Sat Oct 24): `docs/handoff/teammate1-session-handoff.md`. Read it first.**
+**`docs/handoff/teammate1-session-handoff.md` is the older (Sat morning) session handoff: good background for T22 and the dashboard MVP, but this file is the current one. Read the "Dashboard v2" section right below first.**
+
+## Dashboard v2 (Sat evening, branch `dashboard`, commits a162011..860b107, NOT pushed or deployed)
+Checked in demo mode (1280 and 390) plus build, root tests, both tsc projects and the detector. **Not verified live**: the new features need Lane A's functions (Blockers row "Lane B dashboard v2" in PROGRESS.md), and the lead has not yet signed in with the real PIN to check the existing live features and receipt upload.
+
+**New controls and where they live**
+- Donors (`dashboard/src/Donors.tsx`): per-row "Send thank-you" opens the one-donor dialog; "Thank everyone who needs it (N)" opens the bulk dialog; "Mark thanked" (no email) stays. Both dialogs are in `dashboard/src/ThankYouDialog.tsx` (native modal `<dialog>`, focus returns to the opener). The one-donor dialog shows the draft (address always hidden), an optional staff note (max 500 chars, sent as `body`), and a plain reason for every outcome; the bulk dialog sends one at a time, can be stopped, and lists each donor's result.
+- Donor detail panel: gift history + "what this donor sees" preview, with loading, error and "Try again" states (live: `dashboard:donorDetail`; never mock content in live mode).
+- Expenses (`dashboard/src/Expenses.tsx`): optional receipt photo (JPEG, PNG, WebP, HEIC, up to 5 MB; checks in `receipt.ts`), a "Receipt" link in the ledger's category cell, and Remove / Undo per row.
+- Header (`App.tsx`): "Refresh" re-probes the backend and re-reads every screen; the data-mode badge is Live / Demo / Sample-data fallback.
+- All data access stays in `dashboard/src/data.ts` (adapters, capability probe, error text); `dashboard/src/mock/data.ts` is the demo source (`overviewFor(ledger)` makes the demo Overview follow the in-memory ledger).
+
+**Capability probe (live mode only)**: after sign-in and on Refresh, `data.ts` calls `removeExpense`, `donorDetail`, `previewThankYou` and `sendThankYou` with `{pin, charityId}` and no `id` / `donorId`. An argument-validation error means "deployed, nothing ran"; "Could not find public function" means missing. `restoreExpense` is assumed to ship with `removeExpense`. So Lane A must keep `id` / `donorId` REQUIRED in those validators, or the probe would execute for real (noted in the Blockers row). Exact reason strings the UI shows:
+- Backend function missing: `Needs a backend update that isn't deployed yet.` (the control is disabled, or Remove/Undo hidden, not dead)
+- Live data failed and sample data stands in: `Showing sample data because live data didn't load. Refresh to try again.` (every write control is off; writes throw instead of faking success)
+- Demo mode (no `VITE_CONVEX_URL`) has every capability, in memory: add / remove / undo change the ledger and the Overview, "Send thank-you" runs the flow but reports "Demo mode: no email is sent." and never changes `thankedAt`.
+
+**Demo-only vs live-ready**: live-ready (written to the contract, unverified against a real backend): thank-you preview/send, donor detail, Remove/Undo, receipt upload (`generateReceiptUploadUrl` -> POST -> `receiptStorageId`), Refresh and the fallback guards. Demo-only: the receipt "photo" is a local object URL; thank-you never sends. All user-visible error and reason text passes through `hideEmails`.
+
+**Known gaps**
+- Live is unverified end to end (see above); `sendThankYou`'s `body?` as the staff note is Lane A to confirm.
+- A HEIC receipt can't be previewed in most browsers: the chosen-file row shows the file name instead of a thumbnail.
+- At 390px the Donors "Thanked" column wraps (two buttons stack).
+- Remove is hidden (not disabled) when the backend lacks `removeExpense`: intentional, the brief says to show it only when supported.
+- `npm run typecheck` fails under cmd.exe because of `ls convex/*.ts`. Run the two commands in Git Bash: `npx tsc --noEmit -p tsconfig.json` and `npx tsc --noEmit -p convex/tsconfig.json`.
+- Root `npm test`: 403 pass; the 6 layer errors are `happy-dom` not installed (pre-existing; `npm i -D happy-dom` if you need them green).
+- Checks to rerun: `cd dashboard && npm run build`; `npx impeccable detect --json dashboard/src` (expect `[]`); dev server `cd dashboard && npm run dev` (port 5175, no `.env.local` needed for demo mode).
 
 ## State (Sat afternoon): landing + dashboard live mode
 - **Landing** (`landing/`, served at `/` by Lane A's `scripts/build-site.mjs`): static HTML/CSS/JS, self-hosted Barlow Condensed + Commissioner (OFL texts in `landing/fonts/`), no external requests. Impeccable direction "Stockroom Labels" (contract `.impeccable/surfaces/landing-index-html.md`; design system recorded in `DESIGN.md` + `.impeccable/design.json`). Sections: hero, the idea in one picture (stranger vs returning donor), live demo (`/staff/demo` as text, no PIN), 3 steps + embed snippet with Copy, honesty rule + guard visual, dashboard teaser, footer (fictional/test-mode notice). Finish review round 3: disposition ship (R1–R3 fixed: phone hero shows only the donor capture, step measures sit under each h3, the 1280x800 step rail fits above the fold). Detector ignores (confirmed in rendered tiles): `cramped-padding` and `tight-leading` on `landing/index.html`.
