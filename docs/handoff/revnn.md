@@ -16,7 +16,7 @@ Last updated: Sat Oct 24, ~1:30 PM PT (Opus prompt #4, plug-and-play demo). Upda
    - Open Cinderwell as **Mira** (story donor) → her story, records vs estimates ("about").
    - Click **Served 80 meals** (Cinderwell). Within ~6 s Mira's tab shows "Just logged: 80 meals" and about 22 → about 26 meals. The milestone email goes to the demo inbox by itself (button **Send Mira's milestone email** reports "Already sent").
    - Open Brindlecote as **Lena** (repeat donor): different site, same embed.
-   - Dashboard: https://chartitable.vercel.app/dashboard/ (Lane B; still on mock data until their adapter is wired).
+   - Dashboard: https://chartitable.vercel.app/dashboard/ (Lane B; live data from Convex behind the same PIN).
 4. Afterwards: **Reset demo**.
 - Each persona button opens a named tab; clicking again reuses that tab and restages the persona, so the state is always the one on the card. If the browser blocks popups, the panel shows an "Open the tab" link instead.
 - Personas: Cinderwell = Mira (first impact, story donor, email), Wren (just gave), Teo (news since last visit), Jonas (repeat), Hollis (lapsed); Brindlecote = Felix (first impact), Rhea (just gave), Sana (news), Lena (repeat, story donor), Juno (lapsed). Plus a first-time visitor per site. All fictional.

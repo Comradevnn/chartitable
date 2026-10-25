@@ -32,12 +32,12 @@
     { id: "repeat", title: "Repeat donor" },
     { id: "lapsed", title: "Lapsed donor" }
   ];
-  // The run-sheet story, in order. Persona steps open a donor tab; the preset step logs an update.
+  // The run-sheet story, in order. Persona steps open a donor tab; the preset step logs an update; the href step opens the dashboard.
   var STORY = [
     { time: "0:00", label: "Cinderwell as a first-time visitor", persona: "a-stranger" },
-    { time: "0:50", label: "Cinderwell as Mira", persona: "a-first-impact" },
-    { time: "1:20", label: "Served 80 meals (Cinderwell)", charity: 0, preset: 0, primary: true },
-    { time: "2:20", label: "Brindlecote as Lena", persona: "b-repeat" }
+    { time: "0:30", label: "Cinderwell as Mira", persona: "a-first-impact" },
+    { time: "0:40", label: "Served 80 meals (Cinderwell)", charity: 0, preset: 0, primary: true },
+    { time: "1:05", label: "Staff dashboard", href: "/dashboard/" }
   ];
   var PRESETS = [
     { id: "meals80", label: "Served 80 meals" },
@@ -433,7 +433,9 @@
       var note = el("p", "msg");
       note.hidden = true;
       note.setAttribute("role", "status");
-      if (st.persona) {
+      if (st.href) {
+        btn.addEventListener("click", function () { window.open(st.href, "ct-dashboard"); });
+      } else if (st.persona) {
         btn.disabled = true; // enabled once the donor list has loaded
         btn.addEventListener("click", function () {
           var p = findPersonaById(st.persona);

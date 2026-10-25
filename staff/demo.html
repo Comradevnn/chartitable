@@ -13,7 +13,7 @@
   <main id="lock" class="lock">
     <div class="lock-inner">
       <h1>Chartitable demo control</h1>
-      <p class="lede">One screen to run the three-minute story. Enter the demo PIN once.</p>
+      <p class="lede">One screen to run the live demo. Enter the demo PIN once.</p>
       <form id="pin-form" method="post" action="#" autocomplete="off">
         <label for="pin">Demo PIN</label>
         <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64">
@@ -49,16 +49,15 @@
     <div class="layout">
       <aside class="sheet">
         <details id="runsheet">
-          <summary><span class="sum-title">3-minute story</span><span class="sum-note">Run sheet</span></summary>
+          <summary><span class="sum-title">Demo run sheet</span><span class="sum-note">Run sheet</span></summary>
           <ol class="steps">
-            <li><time>0:00</time><p>Open Cinderwell as a first-time visitor: the plain site, no personalization, no request to Chartitable.</p></li>
-            <li><time>0:20</time><p>On that tab click Donate, give the test $25, return: the page now thanks you ("just gave").</p></li>
-            <li><time>0:50</time><p>Open Cinderwell as Mira (first impact): her story, records vs estimates labeled "about".</p></li>
-            <li><time>1:20</time><p>Click Served 80 meals (Cinderwell) here. Within about 6 s Mira's tab shows "Just logged: 80 meals" and her estimate moves from about 22 to about 26 meals, no reload.</p></li>
-            <li><time>1:50</time><p>The milestone email lands in the demo inbox (or click Send Mira's milestone email). Open its link: the "news" page.</p></li>
-            <li><time>2:20</time><p>Open Brindlecote as Lena (repeat): a different site, same one-line embed.</p></li>
-            <li><time>2:40</time><p>Show the staff dashboard at /dashboard/ (if published) and close on the honesty rule: estimates are labeled, Claude only narrates logged facts.</p></li>
-            <li class="after-step"><time>After</time><p>Reset demo.</p></li>
+            <li><time>0:00</time><p>Open Cinderwell as a first-time visitor: the plain site, nothing personalized.</p></li>
+            <li><time>0:10</time><p>On that same tab click Donate and give the test $25: the page comes back and thanks you ("just gave").</p></li>
+            <li><time>0:30</time><p>Open Cinderwell as Mira: the page has rearranged around her, with what the pantry did and her share.</p></li>
+            <li><time>0:40</time><p>Click Served 80 meals (Cinderwell) here. Within about 6 s Mira's tab shows "Just logged: 80 meals" and her share moves, no reload.</p></li>
+            <li><time>0:55</time><p>On Mira's tab click Give again: the donate page welcomes her back as the same donor (stop there).</p></li>
+            <li><time>1:05</time><p>Open the staff dashboard (live data, same PIN): Overview, See who, Mark thanked.</p></li>
+            <li class="after-step"><time>After</time><p>Reset demo. Optional extras for questions: Brindlecote as Lena (second site), the milestone email in the demo inbox.</p></li>
           </ol>
         </details>
       </aside>
