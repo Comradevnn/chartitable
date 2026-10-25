@@ -11,7 +11,7 @@ import { useSyncExternalStore } from "react";
 import { ConvexHttpClient } from "convex/browser";
 import { anyApi } from "convex/server";
 import type { Capabilities, DashDonor, DashExpense, DashOverview, DonorDetail, NewExpense, ThankYouPreview, ThankYouResult, ThankYouStatus } from "./types";
-import { NOW, charityName, donorDetail, donors, expenses, overview } from "./mock/data";
+import { NOW, charityName, donorDetail, donors, expenses, overviewFor } from "./mock/data";
 import { money } from "./format";
 import { receiptType } from "./receipt";
 
@@ -115,7 +115,8 @@ const errText = (e: unknown): string => {
   return (typeof data === "string" ? data : e instanceof Error ? e.message : "").toLowerCase();
 };
 const isUnauthorized = (e: unknown) => errText(e).includes("unauthorized");
-const isLocked = (e: unknown) => /lock|too many|attempt|rate/.test(errText(e));
+// Lockout only: the backend says exactly "locked". Word-ish matches so "rate_limited" or "generate" never count.
+const isLocked = (e: unknown) => /locked|too many (wrong )?(pin )?(attempts|tries)/.test(errText(e));
 
 /** A specific, plain-language reason for a failed write, safe to show next to the control. */
 export function describeError(e: unknown): string {
@@ -123,8 +124,8 @@ export function describeError(e: unknown): string {
   if (isUnauthorized(e)) return "The PIN was not accepted. Sign out and sign in again.";
   if (isLocked(e)) return "Too many wrong PIN tries. Wait a few minutes, then try again.";
   const data = (e as { data?: unknown } | null)?.data;
-  if (typeof data === "string" && data.trim()) return data;
-  if (e instanceof Error && e.message && !/server error|request id|failed to fetch|networkerror|load failed/i.test(e.message)) return e.message;
+  if (typeof data === "string" && data.trim()) return hideEmails(data);
+  if (e instanceof Error && e.message && !/server error|request id|failed to fetch|networkerror|load failed/i.test(e.message)) return hideEmails(e.message);
   return "The server couldn't be reached. Check your connection and try again.";
 }
 
@@ -201,7 +202,7 @@ export async function refresh(): Promise<void> {
 }
 
 export const getOverview = (): Promise<DashOverview> =>
-  read(() => client!.query(api.overview, auth()), () => delay(overview));
+  read(() => client!.query(api.overview, auth()), () => delay(overviewFor(ledger)));
 
 export const getDonors = (): Promise<DashDonor[]> =>
   read<DashDonor[]>(() => client!.query(api.donors, auth()), () => delay([...donors])).then((rows) => rows.map(safeDonor));
@@ -250,7 +251,7 @@ export async function markThanked(id: string): Promise<DashDonor[]> {
   assertWritable();
   if (dataMode() === "live") {
     const res: { ok: true } | { ok: false; error: string } = await client!.mutation(api.markThanked, { ...auth(), donorId: id });
-    if (!res.ok) throw new Error(res.error);
+    if (!res.ok) throw new Error(hideEmails(res.error));
     return getDonors();
   }
   const d = donors.find((x) => x.id === id);
@@ -266,7 +267,7 @@ export async function removeExpense(id: string): Promise<DashExpense | null> {
     const row = lastRows.find((x) => x.id === id) ?? null;
     let res: { ok: true } | { ok: false; error: string };
     try { res = await client!.mutation(api.removeExpense, { ...auth(), id }); } catch (e) { noteMissing(e, "removeExpense"); throw e; }
-    if (!res.ok) throw new Error(res.error);
+    if (!res.ok) throw new Error(hideEmails(res.error));
     return row;
   }
   const i = ledger.findIndex((x) => x.id === id);
@@ -281,7 +282,7 @@ export async function restoreExpense(row: DashExpense): Promise<void> {
     if (!caps.removeExpense) throw new Error(UNSUPPORTED_REASON);
     let res: { ok: true } | { ok: false; error: string };
     try { res = await client!.mutation(api.restoreExpense, { ...auth(), id: row.id }); } catch (e) { noteMissing(e, "removeExpense"); throw e; }
-    if (!res.ok) throw new Error(res.error);
+    if (!res.ok) throw new Error(hideEmails(res.error));
     return;
   }
   ledger.push(row);
@@ -318,7 +319,7 @@ export async function addExpense(e: NewExpense, receiptFile?: File | null): Prom
       ...(e.note ? { note: e.note } : {}),
       ...(receiptStorageId ? { receiptStorageId } : {}),
     });
-    if (!res.ok) throw new Error(res.error);
+    if (!res.ok) throw new Error(hideEmails(res.error));
     return { ...e, id: res.id };
   }
   const row: DashExpense = { ...e, id: "e" + (ledger.length + 1) + "_" + Date.now(), ...(receiptFile ? { receiptPhotoUrl: URL.createObjectURL(receiptFile) } : {}) };
