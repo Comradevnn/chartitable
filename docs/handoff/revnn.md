@@ -1,6 +1,7 @@
 # Handoff: Revnn (Lane A: product)
 
 Last updated: Sat Oct 24, ~1:30 PM PT (Opus prompt #4, plug-and-play demo). Update this file whenever you stop or switch tools. Team-wide status lives in `PROGRESS.md`.
+> Dashboard launch steps: [docs/handoff/dashboard-launch.md](dashboard-launch.md)
 
 ## Where things stand
 - **Everything on the donor path is live and gated** on Convex dev `acoustic-donkey-399` + Vercel https://chartitable.vercel.app (469 tests).
