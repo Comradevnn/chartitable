@@ -44,7 +44,11 @@ for f in files:
             border=f"border:{w}px {style} {color(ln)};"
         geom=sp.find('a:prstGeom',ns).get('prst')
         if geom=='line':
-            items.append(f'<div style="position:absolute;{st}height:0;border-top:{max(2,px(ln.get("w","12700")) if ln is not None else 3)}px solid {color(ln) or "#000"};"></div>'); continue
+            lw=max(2,px(ln.get('w','12700'))) if ln is not None else 3
+            col=color(ln) or '#000'
+            fh=xf.get('flipH')=='1'; fv=xf.get('flipV')=='1'
+            x1,x2=(100,0) if fh else (0,100); y1,y2=(100,0) if fv else (0,100)
+            items.append(f'<svg style="position:absolute;{st}overflow:visible" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{col}" stroke-width="{lw}" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>'); continue
         body=el.find('p:txBody',ns)
         inner=''; anchor='center'
         if body is not None:

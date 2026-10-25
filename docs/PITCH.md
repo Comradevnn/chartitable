@@ -1,23 +1,26 @@
-# Pitch plan (about 2:25 video; 3 min live + 2 min Q&A)
+# Pitch plan (about 2:57 video; 3 min live + 2 min Q&A)
 
 Deck: `docs/presentation/Chartitable.pptx` (6 slides; closing slide has the "built with" logo strip). Video: `video/` (see its README). Updated Sat Oct 24, late afternoon. Framing: **donor retention in one platform, two sides**: donors see their impact on the charity's own site; charities get a dashboard showing who to thank and who has gone quiet. Honesty caveats are deliberately **not** in the spoken script (they live in the Q&A list below); the product itself still labels estimates on screen.
 
-## Script (Lead = A, Teammate = B)
+## Script (Lead = A, Teammate = B) — video v3, about 2:57
 | Scene | Who | Say |
 |---|---|---|
-| Slide 1 | A | "Hi, we're [team]. This is Chartitable, as in chart-it-able. If your donation does good, you should be able to chart it." |
-| Slide 2 | A | "I give twenty-five dollars to a small food pantry and feel great. A month later: same photo, same Donate Now button. Where did my money go? Did it buy a pizza for the intern? Black hole." |
-| Slide 3 | B | "It's not just me. Less than half of donors ever give again, forty-three percent. Small pantries have no fundraising staff to write back, so donors quietly leave." |
-| Slide 4 | B | "Chartitable is donor retention in one platform. Donors see their impact on the charity's own website. Charities get a dashboard showing who to thank and who's gone quiet. Claude writes the stories." |
-| Slide 5 | A | "Okay. Same donation, now with Chartitable." |
-| Stranger, then donate | A | "A stranger sees the normal site. I give twenty-five dollars, and the site knows I just gave." |
-| One week later | A | "A week later, I get a note." |
-| Personalized page | A | "The page rearranged around me: what the pantry did, and my share. All from one line of script on the charity's site." |
-| Live update | A | "Now staff post eighty meals. I don't reload anything. In a few seconds the page shows it, and my share moves." |
-| Give again | A | "Giving again is one click." |
-| Dashboard | A | "Now the charity's side. One view shows who needs a thank-you, who's gone quiet, what was spent, and cost per meal. One click marks a donor thanked." |
-| Before / after | A | "Before: a page that never changes. After: a page that shows what happened, and what to do next." |
-| Slide 6 | B | "Donors stay when they can see the impact, and charities can reach out before they leave. Chartitable: donor retention you can chart. Thank you. Please clap. Please fund us." |
+| Slide 1 | A | "Hi, we're the Chartitable team. This is Chartitable. Not charitable, chart-it-able. If your donation does good, you should be able to chart it. Not with an actual chart. We checked, nobody wants a chart. It's a pun. We're very proud of it." |
+| Extra slide: the same page twice (not in the .pptx; PNG in docs/presentation) | A | "Here's me giving to a small food pantry the normal way. Day one, I give twenty five dollars and feel great. A month later I go back, and it's the exact same page. Same photo, same Donate Now button." |
+| Slide 2 | A | "So where did my money go? Did it help? Did it buy a pizza for the intern? I'll never know. Black hole." |
+| Slide 3 | B | "It's not just me. Charities struggle with donor retention: less than half of donors ever give again, forty three percent. In a single year, billions in giving were lost to donors who left or gave less. Small pantries have no fundraising staff to write back, so the bucket leaks." |
+| Slide 4 | B | "Chartitable closes the loop. It's donor retention in one platform, with two sides. Donors see what their giving did, on the charity's own website. Charities get a dashboard showing who to thank and who has gone quiet. Claude writes the stories." |
+| Slide 5 | A | "Okay, let me show you. Same donation, now with Chartitable." |
+| Stranger, then donate as Mira (email typed, shown as dots) | A | "Same pantry. First I'm a stranger, so it's just their normal site. Now I give twenty five dollars, and add my email. When I land back on the site, it thanks me by name." |
+| One week later (notification) | A | "A week later, the pantry has been busy. When my share of what they've done crosses a milestone, I get a note." |
+| Personalized page | A | "I click through, and the page rearranged itself around me: what the pantry did since I gave, and my share. All from one line of script on the charity's own website." |
+| Live update | A | "Now watch. Staff post that they served eighty meals. I don't reload anything. In a few seconds the page shows it, and my share moves." |
+| Give again | A | "And if I want to give again, it's one click, and it welcomes me back." |
+| Dashboard | A | "Now the charity's side. One view shows who needs a thank-you, who has gone quiet, what was spent, and what a meal costs. One click marks a donor thanked." |
+| Before / after card | A | "Before: a page that never changes, and a black hole where your money goes. After: a page that shows what happened, and what to do next." |
+| Slide 6 | B | "Donors stay when they can see the impact, and charities can reach out before they leave. Chartitable makes your giving chart-it-able. Thank you. Please clap. Please fund us." |
+
+Notes: the donor in the stranger-then-donate scene is named Mira so the later email and pages are about the same person (the later scenes use the seeded Mira profile, whose first gift shows an earlier date).
 
 ## Live demo order (panel `/staff/demo`, readiness green, Reset demo first)
 1. Window A (private): Cinderwell as a first-time visitor → Donate → $25 → "Thank you".
