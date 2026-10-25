@@ -24,7 +24,7 @@ mkdir x && (cd x && unzip -oq ../../docs/presentation/Chartitable.pptx)
 python3 -I pptx2html.py x slides && node shot-slides.mjs "$PWD/slides"
 # 2. reset the demo to its start state, then record the live scenes (needs the Convex dev login or STAFF_PIN)
 (cd .. && npm run demo:reset)
-node record.mjs d1 && node record.mjs d2a && node record.mjs d2b && node record.mjs d2c
+node record.mjs d1 && node record.mjs d2a && node record.mjs d2b && node record.mjs d2c && node record.mjs d3
 node fetch-view.mjs && node cards.mjs && node anim.mjs
 # 3. assemble
 node build.mjs
@@ -33,6 +33,7 @@ node build.mjs
 `record.mjs d2b` posts "Served 80 meals" through the demo panel's function, which really sends the milestone email to the configured demo inbox (once; later runs report `already_sent` until a reset).
 
 ## Notes and caveats
+- Scene `d3` records the live dashboard (it clicks "Mark thanked", which saves for real on the dev deployment).
 - The "one week later" notification and email are an animation rendered from the product's email template; the real email is sent but its contents are not screen-captured.
 - Slides are rendered by our own converter from the deck's XML, so line breaks may differ slightly from PowerPoint. Slide 3's embedded chart screenshot contains a "CapCut.com" watermark and a "Activate Windows" notice; re-crop that image in the deck.
 - Never show tokens: the scripts do not print them and no link is on screen.

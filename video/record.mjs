@@ -66,16 +66,16 @@ if (scene === 'd1') {
   const s = await newScene('d1'); const { page } = s;
   await page.goto(`${SITE}/sites/cinderwell/`); await sleep(2200);
   await page.screenshot({ path: join(HERE, 'shots', 'before-stranger.png') });
-  await smoothScrollTo(page, 650, 2000); await sleep(900); await smoothScrollTo(page, 0, 1500); await sleep(600);
+  await smoothScrollTo(page, 420, 1200); await sleep(400); await smoothScrollTo(page, 0, 900); await sleep(300);
   await clickEl(page, page.locator('a[data-impact-donate]:visible').first());
   await page.waitForURL(/\/staff\/donate/, { timeout: 20000 });
-  await page.waitForSelector('#donate-form:not([hidden])', { timeout: 20000 }); await sleep(1500);
+  await page.waitForSelector('#donate-form:not([hidden])', { timeout: 20000 }); await sleep(800);
   await clickEl(page, page.locator('label.chip:has(input[value="25"])'));
   await sleep(400); await clickEl(page, page.locator('#firstName'));
   await page.keyboard.type('Sam', { delay: 140 }); await sleep(700);
   await clickEl(page, page.locator('#submit'));
   await page.waitForURL(/\/sites\/cinderwell\//, { timeout: 30000 });
-  await waitActive(page); await sleep(4500);
+  await waitActive(page); await sleep(3200);
   await finish(s);
 } else if (scene === 'd2a') {
   const s = await newScene('d2a'); const { page } = s; const url = await mira();
@@ -103,5 +103,17 @@ if (scene === 'd1') {
   await clickEl(page, page.locator('a[data-impact-donate]:visible', { hasText: /give again/i }).first());
   await page.waitForURL(/\/staff\/donate/, { timeout: 20000 });
   await page.waitForSelector('#welcome:not([hidden])', { timeout: 20000 }); await sleep(4500);
+  await finish(s);
+} else if (scene === 'd3') {
+  const s = await newScene('d3'); const { page } = s;
+  await page.goto(`${SITE}/dashboard/`); await sleep(1200);
+  await clickEl(page, page.locator('input[type=password]'));
+  await page.keyboard.type('6767', { delay: 160 }); await sleep(500);
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('text=Overview', { timeout: 20000 }); await page.waitForSelector('text=Cost per meal', { timeout: 20000 }); await sleep(3000);
+  await clickEl(page, page.getByRole('button', { name: 'See who' }));
+  await page.waitForSelector('text=Mark thanked', { timeout: 20000 }); await sleep(2600);
+  await clickEl(page, page.locator('button', { hasText: 'Mark thanked' }).first());
+  await page.waitForSelector('text=/Marked .* as thanked/', { timeout: 20000 }); await sleep(2800);
   await finish(s);
 } else { console.log('unknown scene'); process.exit(2); }

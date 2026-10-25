@@ -12,7 +12,9 @@ const require = createRequire(import.meta.url);
 const FF = require('ffmpeg-static');
 const cfg = JSON.parse(readFileSync(join(HERE, 'script.json'), 'utf8'));
 const OUT = process.env.CT_OUT || join(HERE, 'out'); const WORK = join(HERE, 'work');
-const HEAD_TRIM = { d2a: 1.2, d2b: 2.2, d2c: 1.5, d1: 0, t1: 0 };   // seconds of un-personalized load to cut
+const HEAD_TRIM = { d2a: 1.2, d2b: 2.2, d2c: 1.5, d1: 0, t1: 0, d3: 5.8 };
+const SPEED = { d1: 1.5 };
+const CLIP_MAX = { d2a: 7.5, d2c: 8 };   // seconds of un-personalized load to cut
 const LEAD_IN = 0.3, TAIL = { slide: 0.55, card: 0.45, clip: 0.2 };
 for (const d of [OUT, WORK, join(WORK, 'seg'), join(WORK, 'aud'), join(WORK, 'ov')]) mkdirSync(d, { recursive: true });
 const ff = (...a) => execFileSync(FF, ['-hide_banner', '-loglevel', 'error', '-y', ...a], { stdio: ['ignore', 'inherit', 'inherit'] });
@@ -29,7 +31,7 @@ for (const s of cfg.segments) {
 const slideImg = n => join(HERE, 'slides', `slide${n}.png`);
 for (const s of cfg.segments) {
   const [kind, name] = s.visual.split(':'); s.kind = kind; s.name = name;
-  if (kind === 'clip') { const raw = probeDur(join(HERE, 'clips', `${name}.webm`)); s.clipStart = HEAD_TRIM[name] || 0; s.clipDur = raw - s.clipStart; s.dur = Math.max(s.audioDur + LEAD_IN + TAIL.clip, s.clipDur); }
+  if (kind === 'clip') { const raw = probeDur(join(HERE, 'clips', `${name}.webm`)); s.clipStart = HEAD_TRIM[name] || 0; s.speed = SPEED[name] || 1; s.clipDur = Math.min((raw - s.clipStart) / s.speed, CLIP_MAX[name] ?? 1e9); s.dur = Math.max(s.audioDur + LEAD_IN + TAIL.clip, s.clipDur); }
   else s.dur = s.audioDur + LEAD_IN + TAIL[kind];
   s.dur = Math.ceil(s.dur * 30) / 30;
 }
@@ -58,7 +60,7 @@ for (const s of cfg.segments) {
     ff('-loop', '1', '-framerate', '30', '-t', t1, '-i', join(HERE, 'cards', 'oneweek.png'), '-loop', '1', '-framerate', '30', '-t', t2, '-i', join(HERE, 'cards', 'email.png'),
       '-filter_complex', `[0:v]${VF}[a];[1:v]${VF}[b];[a][b]concat=n=2:v=1:a=0[v]`, '-map', '[v]', ...enc, clean);
   } else if (s.kind === 'card') ff('-loop', '1', '-framerate', '30', '-t', String(s.dur), '-i', join(HERE, 'cards', `${s.name}.png`), '-vf', VF, ...enc, clean);
-  else ff('-ss', String(s.clipStart), '-i', join(HERE, 'clips', `${s.name}.webm`), '-t', String(s.dur), '-vf', `${VF},tpad=stop_mode=clone:stop_duration=${Math.max(0, s.dur - s.clipDur + 0.5).toFixed(2)}`, '-t', String(s.dur), ...enc, clean);
+  else ff('-ss', String(s.clipStart), '-i', join(HERE, 'clips', `${s.name}.webm`), '-t', String(s.dur), '-vf', `setpts=PTS/${s.speed},${VF},tpad=stop_mode=clone:stop_duration=${Math.max(0, s.dur - s.clipDur + 0.5).toFixed(2)}`, '-t', String(s.dur), ...enc, clean);
   ff('-i', clean, '-i', join(WORK, 'ov', `${s.id}.png`), '-filter_complex', '[0:v][1:v]overlay=0:0:format=auto,format=yuv420p[v]', '-map', '[v]', ...enc, prac);
 }
 const list = (suffix) => { const p = join(WORK, `list${suffix}.txt`); writeFileSync(p, cfg.segments.map(s => `file '${join(WORK, 'seg', `${s.id}${suffix ? '.practice' : ''}.mp4`)}'`).join('\n')); return p; };
