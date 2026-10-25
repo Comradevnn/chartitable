@@ -47,7 +47,7 @@
       "id": "s05",
       "speaker": "A",
       "visual": "slide:5",
-      "text": "Okay, let me show you. Same donation, now with Chartitable."
+      "text": "Now, let's see what happens with Chartitable."
     },
     {
       "id": "d1",
@@ -59,19 +59,19 @@
       "id": "t1",
       "speaker": "A",
       "visual": "clip:t1",
-      "text": "A week later, the pantry has been busy. When my share of what they've done crosses a milestone, I get a note."
+      "text": "A week later and the pantry has been busy. After they've reached a milestone, in part thanks to my contributions, I get an email."
     },
     {
       "id": "d2a",
       "speaker": "A",
       "visual": "clip:d2a",
-      "text": "I click through, and the page rearranged itself around me: what the pantry did since I gave, and my share. All from one line of script on the charity's own website."
+      "text": "I click through, and the page rearranged itself around me: what the pantry did since I gave, and how my money was spent. All from one line of script on the charity's own website."
     },
     {
       "id": "d2b",
       "speaker": "A",
       "visual": "clip:d2b",
-      "text": "Now watch. Staff post that they served eighty meals. I don't reload anything. In a few seconds the page shows it, and my share moves."
+      "text": "Now watch. This is what happens when the charity hits a milestone. I don't reload anything. The site updates dynamically to show the charity's progress."
     },
     {
       "id": "d2c",
@@ -89,7 +89,7 @@
       "id": "c1",
       "speaker": "A",
       "visual": "card:compare",
-      "text": "Before: a page that never changes, and a black hole where your money goes. After: a page that shows what happened, and what to do next."
+      "text": "Before: a page that never changes, and a black hole where your money goes. After: a page that shows what happened, and how you can help next."
     },
     {
       "id": "s06",
