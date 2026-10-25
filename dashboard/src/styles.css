@@ -224,5 +224,36 @@ button:disabled { opacity: .6; cursor: progress; }
 .receipt-chosen { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .9rem; padding: .5rem 0; }
 .receipt-chosen img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--rule); }
 .receipt-name { font-size: .9rem; font-weight: 600; overflow-wrap: anywhere; }
-.receipt-link { color: var(--brand-strong); font-weight: 700; text-underline-offset: 3px; display: inline-block; padding: .6rem 0; }
+.receipt-link { color: var(--brand-strong); font-weight: 700; text-underline-offset: 3px; display: block; padding: .35rem 0; font-size: .9rem; }
 .blocked-why { flex-basis: 100%; font-size: .9rem; margin: 0; }
+
+/* Donors: send thank-you, bulk thank, detail states */
+.bulk { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .9rem; margin-bottom: .75rem; }
+.bulk .blocked-why { flex-basis: 100%; }
+.row-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.detail-err { padding: .8rem 1rem; border: 1.5px solid var(--risk); border-radius: var(--radius); background: var(--risk-tint); color: var(--risk); font-weight: 600; display: grid; gap: .5rem; justify-items: start; margin-top: 1rem; }
+.gift-skel { margin-top: 1rem; }
+
+/* Modal dialogs (native <dialog>) */
+.modal { width: min(36rem, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; padding: 1.4rem 1.4rem 1.2rem; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); color: var(--ink); box-shadow: 0 12px 32px rgba(20, 35, 26, .25); }
+.modal::backdrop { background: rgba(20, 35, 26, .5); }
+.modal h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
+.modal > * + * { margin-top: .8rem; }
+.modal-k { font-size: .8rem; font-weight: 800; color: var(--ink-soft); margin-right: .5rem; }
+.modal-note { padding: .5rem .75rem; background: var(--accent-tint); color: var(--accent-ink); border-radius: 8px; font-weight: 600; font-size: .9rem; }
+.modal-subject { font-weight: 600; }
+.draft { white-space: pre-wrap; padding: .85rem 1rem; border: 1px solid var(--rule); border-radius: var(--radius); background: #fcfbf7; max-height: 14rem; overflow: auto; line-height: 1.55; }
+.modal-note-field textarea { font: inherit; font-weight: 400; border: 1px solid var(--field); border-radius: 8px; padding: .5rem .65rem; resize: vertical; min-height: 5rem; width: 100%; }
+.modal-count { font-size: .8rem; font-weight: 400; }
+.modal-why { color: var(--risk); font-weight: 600; }
+.modal-err { color: var(--risk); font-weight: 600; display: grid; gap: .5rem; justify-items: start; }
+.modal-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; margin-top: 1.1rem; }
+.results { list-style: none; margin: .8rem 0 0; padding: 0; border-top: 1px solid var(--rule); max-height: 40vh; overflow: auto; }
+.results li { display: flex; flex-wrap: wrap; gap: .1rem .9rem; padding: .55rem 0; border-bottom: 1px solid var(--rule); }
+.results-name { font-weight: 600; flex: 1 1 10rem; }
+.results-out { font-weight: 700; }
+.results-why { flex-basis: 100%; color: var(--ink-soft); font-size: .9rem; }
+@media (max-width: 640px) {
+  .modal { padding: 1.1rem 1rem; }
+  .modal-actions > * { flex: 1 1 8rem; }
+}
