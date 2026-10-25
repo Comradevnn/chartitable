@@ -14,3 +14,6 @@ cd edit && ../../.venv/bin/python edit.py [picks.json]   # writes sec/*.mp4 and 
 
 ## Flow-first picks
 `score.py` re-scores both takes per section on stumbles (repeats, mid-phrase hesitations, unclear words), pace and smoothness, not on script adherence, and writes `picks_flow.json`. Render it with `SECDIR=sec_flow OUTNAME=demo-section-flow ../../.venv/bin/python edit.py picks_flow.json` then `TAG=-flow SECDIR=sec_flow ./finish.sh`. Note: the transcriber can invent repeats at its 30 s chunk boundaries (0, 30, 60 s); verify a flagged stumble by re-transcribing a short slice before cutting it.
+
+## Balanced version and cut points
+`ranges.py` recomputes each section's cut range from where the speech really ends (energy-based), so no word is clipped; the first edit cut Huey's live-update line 0.45 s early ("progress"). `picks_balanced.json` splits the demo between both speakers. `cuts_balanced.json` removes a filler "uh" (found as an untranscribed 0.3 s voiced burst). Render: `RNGFILE=ranges_fixed.json CUTS=cuts_balanced.json SECDIR=sec_bal OUTNAME=demo-section-balanced ../../.venv/bin/python edit.py picks_balanced.json`, then `TAG=-bal SECDIR=sec_bal ./finish.sh`.

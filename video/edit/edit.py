@@ -14,6 +14,8 @@ GAIN={'huey':2.0,'nat':0.0}  # dB, brings both voices to a similar level
 SCENE={'d1':(0.0,15.38),'t1':(15.38,25.36),'d2a':(25.36,38.24),'d2b':(38.24,52.55),'d2c':(52.55,57.16),'dash':(57.16,72.61),'c1':(72.61,83.92)}
 RNG={'huey':{'d1':(0.6,14.5),'t1':(15.0,23.5),'d2a':(24.0,36.6),'d2b':(37.2,46.6),'d2c':(51.5,56.2),'dash':(57.3,69.0),'c1':(70.3,80.5)},
      'nat':{'d1':(0.0,14.9),'t1':(15.5,21.7),'d2a':(25.8,35.2),'d2b':(38.3,46.3),'d2c':(52.7,57.0),'dash':(61.0,69.6),'c1':(73.0,80.8)}}
+if os.environ.get('RNGFILE'):
+    RNG={w:{k:tuple(v) for k,v in d.items()} for w,d in json.load(open(os.environ['RNGFILE'])).items()}
 PICKS={'d1':'huey','t1':'nat','d2a':'nat','d2b':'nat','d2c':'nat','dash':'nat','c1':'huey'}
 if len(sys.argv)>1: PICKS.update(json.load(open(sys.argv[1])))
 GAP=0.30; KEEP=0.10; TAIL=0.25; MAXSPEED=2.4; PIP=320
