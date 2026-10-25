@@ -48,3 +48,13 @@ export type DonorDetail = {
 };
 
 export type NewExpense = Omit<DashExpense, "id">;
+
+/** Draft of a donor thank-you email. `canSend` is false (with a plain `reason`) when the backend knows it can't send. The donor's address is never part of it. */
+export type ThankYouPreview = { subject: string; body: string; canSend: boolean; reason: string | null };
+
+export type ThankYouStatus = "sent" | "skipped_not_allowlisted" | "skipped_no_email" | "skipped_rate_limited" | "failed" | "not_configured";
+/** Outcome of one send attempt. `reason` is plain language for every status except "sent". `donors` is the refreshed list after a "sent". */
+export type ThankYouResult = { status: ThankYouStatus; reason: string; donors?: DashDonor[] };
+
+/** Backend features that may not be deployed yet. Resolved after live sign-in (see data.ts). */
+export type Capabilities = { removeExpense: boolean; donorDetail: boolean; thankYou: boolean };
