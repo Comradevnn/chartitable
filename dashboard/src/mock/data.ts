@@ -58,25 +58,33 @@ const overviewRecords = [
 ];
 
 const mealsServed = 520;
-const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);
+const periodFrom = ago(30);
 
-export const overview: DashOverview = {
-  period: { from: ago(30), to: NOW, label: "Last 30 days" },
-  totalRaised: 24500,
-  prevPeriodRaised: 19000,
-  donorCounts: { total: donors.length, new: 2, returning: 5, lapsed: 1 }, // returning = active + at risk, so the parts sum to the total
-  mealsServed,
-  expensesTotal,
-  costPerMeal: {
-    value: Math.round(expensesTotal / mealsServed),
-    isEstimate: true,
-    formula: "Expenses in the period ($" + (expensesTotal / 100).toFixed(2) + ") ÷ meals served logged by staff (" + mealsServed + ")",
-  },
-  recentUpdates: [
-    { id: "u1", kind: "meals", count: 86, unit: "meals", note: "Hot supper in the side room.", loggedAt: ago(3) },
-    { id: "u2", kind: "produce", count: 140, unit: "pounds of produce", note: "Apples and squash from the Saturday farm drop.", loggedAt: ago(7) },
-    { id: "u3", kind: "volunteer_shifts", count: 11, unit: "volunteer shifts", note: "Evening restock crew.", loggedAt: ago(8) },
-    { id: "u4", kind: "meals", count: 94, unit: "meals", loggedAt: ago(10) },
-    { id: "u5", kind: "meals", count: 78, unit: "meals", loggedAt: ago(14) },
-  ],
-};
+/**
+ * The demo overview for a given ledger. Expenses in the period and cost per meal are worked out from `rows`, so the
+ * overview moves with Add expense / Remove / Undo. Same window as the period label (the last 30 days; the demo "now"
+ * is fixed, so nothing logged is ever after it) and same formula: expenses in the period ÷ meals served, rounded to cents.
+ */
+export function overviewFor(rows: DashExpense[]): DashOverview {
+  const expensesTotal = rows.filter((e) => e.date >= periodFrom).reduce((s, e) => s + e.amount, 0);
+  return {
+    period: { from: periodFrom, to: NOW, label: "Last 30 days" },
+    totalRaised: 24500,
+    prevPeriodRaised: 19000,
+    donorCounts: { total: donors.length, new: 2, returning: 5, lapsed: 1 }, // returning = active + at risk, so the parts sum to the total
+    mealsServed,
+    expensesTotal,
+    costPerMeal: {
+      value: Math.round(expensesTotal / mealsServed),
+      isEstimate: true,
+      formula: "Expenses in the period ($" + (expensesTotal / 100).toFixed(2) + ") ÷ meals served logged by staff (" + mealsServed + ")",
+    },
+    recentUpdates: [
+      { id: "u1", kind: "meals", count: 86, unit: "meals", note: "Hot supper in the side room.", loggedAt: ago(3) },
+      { id: "u2", kind: "produce", count: 140, unit: "pounds of produce", note: "Apples and squash from the Saturday farm drop.", loggedAt: ago(7) },
+      { id: "u3", kind: "volunteer_shifts", count: 11, unit: "volunteer shifts", note: "Evening restock crew.", loggedAt: ago(8) },
+      { id: "u4", kind: "meals", count: 94, unit: "meals", loggedAt: ago(10) },
+      { id: "u5", kind: "meals", count: 78, unit: "meals", loggedAt: ago(14) },
+    ],
+  };
+}
