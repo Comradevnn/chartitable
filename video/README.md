@@ -35,5 +35,5 @@ node build.mjs
 ## Notes and caveats
 - Scene `d3` records the live dashboard (it clicks "Mark thanked", which saves for real on the dev deployment).
 - The "one week later" notification and email are an animation rendered from the product's email template; the real email is sent but its contents are not screen-captured.
-- Slides are rendered by our own converter from the deck's XML, so line breaks may differ slightly from PowerPoint. Slide 3's embedded chart screenshot contains a "CapCut.com" watermark and a "Activate Windows" notice; re-crop that image in the deck.
+- Slides are rendered by our own converter from the deck's XML, so line breaks may differ slightly from PowerPoint. The "CapCut.com" and "Activate Windows" marks on slide 3 are intentional jokes.
 - Never show tokens: the scripts do not print them and no link is on screen.

@@ -40,7 +40,7 @@ Deck: `docs/presentation/Chartitable.pptx` (6 slides; closing slide has the "bui
 - **Meta theme:** the product connects small charities and their donors after the gift.
 
 ## Checklist
-- [ ] Team name in the script; confirm the 43.3% source (Fundraising Effectiveness Project) and re-crop slide 3's chart screenshot (it shows a "CapCut.com" watermark and an "Activate Windows" notice).
+- [ ] Team name in the script. (Slide 3's "CapCut.com" watermark and "Activate Windows" notice are intentional jokes; the 43.3% source has been checked.)
 - [ ] One real milestone email rehearsed and confirmed in the inbox (one was sent during the video recording).
 - [ ] `npm run demo:check` green; Reset demo done; windows laid out as above.
 - [ ] Practice with videos 2 and 3 in `video/out/`, then present over `5-final-silent.mp4` or live.
