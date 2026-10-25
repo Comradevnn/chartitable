@@ -66,6 +66,8 @@ export function ThankYouDialog({ donorId, name, onSent, onClose, returnTo, fallb
   const blocked = useSendBlocked();
   const { ref, props } = useModal(onClose, !sending, returnTo, fallbackFocus);
   const titleId = useId();
+  const closeBtn = useRef<HTMLButtonElement>(null);
+  const sendBtn = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let alive = true;
@@ -79,6 +81,12 @@ export function ThankYouDialog({ donorId, name, onSent, onClose, returnTo, fallb
   const final = out?.kind === "result" && out.r.status !== "failed";
   const disabledWhy = blocked ?? (draft && !draft.canSend ? draft.reason || "This email can't be sent right now." : null);
   const cantSend = sending || !draft || !!disabledWhy || sent || final;
+
+  // The Send button is disabled while sending, which drops focus. Afterwards: Close if we're done, Send again if a retry makes sense.
+  useEffect(() => {
+    if (!out || sending) return;
+    (sent || final ? closeBtn : sendBtn).current?.focus();
+  }, [out, sending, sent, final]);
 
   async function send() {
     if (cantSend) return;
@@ -123,8 +131,8 @@ export function ThankYouDialog({ donorId, name, onSent, onClose, returnTo, fallb
         ? <p className="ok" role="status">Sent. {name} is now marked as thanked.</p>
         : <p className="err" role="alert">{OUTCOME[out.r.status]}: {out.r.reason} Nothing was marked as thanked.</p>)}
       <div className="modal-actions">
-        <button type="button" className="mini" onClick={() => ref.current?.close()} disabled={sending}>{out && (sent || final) ? "Close" : "Cancel"}</button>
-        <button type="button" className="primary" onClick={send} disabled={cantSend} aria-busy={sending}>{sending ? "Sending…" : "Send thank-you"}</button>
+        <button type="button" className="mini" ref={closeBtn} onClick={() => ref.current?.close()} disabled={sending}>{out && (sent || final) ? "Close" : "Cancel"}</button>
+        <button type="button" className="primary" ref={sendBtn} onClick={send} disabled={cantSend} aria-busy={sending}>{sending ? "Sending…" : "Send thank-you"}</button>
       </div>
     </dialog>
   );
@@ -145,7 +153,14 @@ export function ThankEveryoneDialog({ people: initial, onDone, onClose, returnTo
   const blocked = useSendBlocked();
   const { ref, props } = useModal(onClose, phase !== "running", returnTo, fallbackFocus);
   const titleId = useId();
+  const title = useRef<HTMLHeadingElement>(null);
+  const actionBtn = useRef<HTMLButtonElement>(null);
   const n = people.length;
+  // "Send N emails" unmounts when sending starts: park focus on the heading, then on Close when the results are in.
+  useEffect(() => {
+    if (phase === "running") title.current?.focus();
+    else if (phase === "done") actionBtn.current?.focus();
+  }, [phase]);
 
   async function run() {
     if (phase !== "confirm" || blocked) return;
@@ -176,7 +191,7 @@ export function ThankEveryoneDialog({ people: initial, onDone, onClose, returnTo
 
   return (
     <dialog ref={ref} className="modal" aria-labelledby={titleId} {...props}>
-      <h3 id={titleId}>Thank everyone who needs it</h3>
+      <h3 id={titleId} ref={title} tabIndex={-1}>Thank everyone who needs it</h3>
       {phase === "confirm" && (
         <>
           <p>This sends a thank-you email to <strong>{n} {n === 1 ? "donor" : "donors"}</strong>, one at a time, using each one's standard draft (no staff note). Addresses stay hidden.</p>
@@ -210,8 +225,8 @@ export function ThankEveryoneDialog({ people: initial, onDone, onClose, returnTo
       )}
       <div className="modal-actions">
         {phase === "running"
-          ? <button type="button" className="mini" onClick={() => { stop.current = true; }}>Stop after this one</button>
-          : <button type="button" className="mini" onClick={() => ref.current?.close()}>{phase === "done" ? "Close" : "Cancel"}</button>}
+          ? <button type="button" className="mini" ref={actionBtn} onClick={() => { stop.current = true; }}>Stop after this one</button>
+          : <button type="button" className="mini" ref={actionBtn} onClick={() => ref.current?.close()}>{phase === "done" ? "Close" : "Cancel"}</button>}
         {phase === "confirm" && <button type="button" className="primary" onClick={run} disabled={!!blocked || n === 0}>Send {n} {n === 1 ? "email" : "emails"}</button>}
       </div>
     </dialog>

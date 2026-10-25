@@ -51,7 +51,10 @@ export function Donors() {
   const detail = useRef<HTMLElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   const search = useRef<HTMLInputElement>(null);
+  const saidMsg = useRef<HTMLParagraphElement>(null);
+  const focusSaid = useRef(false); // after "Mark thanked" the clicked button is gone: focus the confirmation instead of <body>
   useEffect(() => { askDonorView(null); }, []);
+  useEffect(() => { if (focusSaid.current && said) { focusSaid.current = false; saidMsg.current?.focus(); } }, [said, rows]);
   useEffect(() => { getDonors().then(setRows); }, []);
   // Gift history + preview: loading, loaded, or a plain-language failure. Never invented content.
   type Info = { s: "loading" } | { s: "error"; msg: string } | { s: "ok"; d: DonorDetail };
@@ -105,6 +108,7 @@ export function Donors() {
     setSaid("");
     try {
       setRows(await markThanked(d.id));
+      focusSaid.current = true;
       setSaid(`Marked ${isAnonymous(d) ? "the anonymous donor" : d.displayName} as thanked.`);
     } catch (e) {
       setThankErr({ id: d.id, msg: "Couldn't mark as thanked. " + describeError(e) });
@@ -144,7 +148,7 @@ export function Donors() {
         {blocked && <p className="muted blocked-why" id="mark-why">Marking donors as thanked is off: {blocked}</p>}
       </div>
       <p className="count muted" role="status" aria-live="polite">Showing {shown.length} of {rows.length} {rows.length === 1 ? "donor" : "donors"}</p>
-      <p className="ok" role="status">{said}</p>
+      <p className="ok" role="status" ref={saidMsg} tabIndex={-1}>{said}</p>
       {shown.length === 0 ? (
         searching ? (
           <div className="empty">
