@@ -8,7 +8,6 @@ Built at Cal Hacks 13.0 (Oct 23–25, 2026) by a **two-person team**. Live demo 
 Staff pages are PIN-protected. Demo PIN: **`6767`** (demo data only, test mode, no real payments).
 
 - Charity dashboard: https://chartitable.vercel.app/dashboard/
-- Staff update page: https://chartitable.vercel.app/staff/update.html
 - Demo panel: https://chartitable.vercel.app/staff/demo.html
 
 ## The problem
