@@ -237,14 +237,14 @@ export function Donors() {
       <ThankYouDialog
         donorId={mailing.id} name={mailing.name}
         onSent={(next) => { setRows(next); setSaid(`Sent a thank-you to ${mailing.name}.`); }}
-        onClose={() => setMailing(null)} fallbackFocus={() => heading.current?.focus()}
+        onClose={() => setMailing(null)} returnTo={opener.current} fallbackFocus={() => heading.current?.focus()}
       />
     )}
     {bulk && (
       <ThankEveryoneDialog
         people={needs.map((d) => ({ id: d.id, name: label(d) }))}
         onDone={(next) => { setRows(next); setSaid("Thank-you emails finished. See the results list for each donor."); }}
-        onClose={() => setBulk(false)} fallbackFocus={() => heading.current?.focus()}
+        onClose={() => setBulk(false)} returnTo={opener.current} fallbackFocus={() => heading.current?.focus()}
       />
     )}
     </>

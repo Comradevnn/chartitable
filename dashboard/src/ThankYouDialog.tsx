@@ -19,9 +19,9 @@ export function useSendBlocked(): string | null {
  * (or to `fallback` if that control is gone, e.g. the row stopped showing the button once the donor was thanked).
  * `canDismiss` false blocks Esc while a send is in flight.
  */
-function useModal(onClose: () => void, canDismiss: boolean, fallback?: () => void): { ref: RefObject<HTMLDialogElement | null>; props: object } {
+function useModal(onClose: () => void, canDismiss: boolean, returnTo?: HTMLElement | null, fallback?: () => void): { ref: RefObject<HTMLDialogElement | null>; props: object } {
   const ref = useRef<HTMLDialogElement>(null);
-  const opener = useRef<Element | null>(document.activeElement);
+  const opener = useRef<Element | null>(returnTo ?? document.activeElement); // Safari doesn't focus a button on click, so the caller passes it
   useEffect(() => {
     const d = ref.current;
     if (d && !d.open) d.showModal();
@@ -53,8 +53,8 @@ const OUTCOME: Record<ThankYouStatus, string> = {
 type Outcome = { kind: "result"; r: ThankYouResult } | { kind: "error"; msg: string };
 
 /** One donor: review the draft, add an optional staff note, send. Every outcome is shown in plain words. */
-export function ThankYouDialog({ donorId, name, onSent, onClose, fallbackFocus }: {
-  donorId: string; name: string; onSent: (donors: DashDonor[]) => void; onClose: () => void; fallbackFocus?: () => void;
+export function ThankYouDialog({ donorId, name, onSent, onClose, returnTo, fallbackFocus }: {
+  donorId: string; name: string; onSent: (donors: DashDonor[]) => void; onClose: () => void; returnTo?: HTMLElement | null; fallbackFocus?: () => void;
 }) {
   const [draft, setDraft] = useState<ThankYouPreview | null>(null);
   const [loadErr, setLoadErr] = useState("");
@@ -64,7 +64,7 @@ export function ThankYouDialog({ donorId, name, onSent, onClose, fallbackFocus }
   const [out, setOut] = useState<Outcome | null>(null);
   const mode = useDataMode();
   const blocked = useSendBlocked();
-  const { ref, props } = useModal(onClose, !sending, fallbackFocus);
+  const { ref, props } = useModal(onClose, !sending, returnTo, fallbackFocus);
   const titleId = useId();
 
   useEffect(() => {
@@ -133,8 +133,8 @@ export function ThankYouDialog({ donorId, name, onSent, onClose, fallbackFocus }
 type Row = { id: string; name: string; res?: Outcome | "skipped" };
 
 /** Confirm, then send to each donor who still needs a thank-you, one at a time, and list what happened to each. */
-export function ThankEveryoneDialog({ people: initial, onDone, onClose, fallbackFocus }: {
-  people: { id: string; name: string }[]; onDone: (donors: DashDonor[]) => void; onClose: () => void; fallbackFocus?: () => void;
+export function ThankEveryoneDialog({ people: initial, onDone, onClose, returnTo, fallbackFocus }: {
+  people: { id: string; name: string }[]; onDone: (donors: DashDonor[]) => void; onClose: () => void; returnTo?: HTMLElement | null; fallbackFocus?: () => void;
 }) {
   const [people] = useState(initial); // frozen: the donor list changes underneath once emails go out
   const [rows, setRows] = useState<Row[]>(() => people.map((p) => ({ ...p })));
@@ -143,7 +143,7 @@ export function ThankEveryoneDialog({ people: initial, onDone, onClose, fallback
   const stop = useRef(false);
   const mode = useDataMode();
   const blocked = useSendBlocked();
-  const { ref, props } = useModal(onClose, phase !== "running", fallbackFocus);
+  const { ref, props } = useModal(onClose, phase !== "running", returnTo, fallbackFocus);
   const titleId = useId();
   const n = people.length;
 
