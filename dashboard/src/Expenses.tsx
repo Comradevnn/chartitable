@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { addExpense, canRemoveExpense, describeError, getExpenses, removeExpense, restoreExpense, useCapabilities, useDataMode, writeBlockedReason } from "./data";
 import type { DashExpense, ExpenseCategory } from "./types";
-import { money, day, dayYear } from "./format";
+import { money, day, dayYear, localDate } from "./format";
 import { Busy, Empty, Skel } from "./components";
 import { RECEIPT_ACCEPT, canPreview, checkReceipt } from "./receipt";
 
@@ -12,7 +12,7 @@ export function Expenses() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("food");
   const [note, setNote] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(localDate());
   const [err, setErr] = useState<{ field: "amount" | "date"; msg: string } | null>(null);
   const [done, setDone] = useState("");
   const [undo, setUndo] = useState<DashExpense | null>(null);
@@ -23,10 +23,21 @@ export function Expenses() {
   const [thumb, setThumb] = useState("");
   const [removing, setRemoving] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const undoLink = useRef<HTMLButtonElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const nextFocus = useRef<"undo" | { row: string } | null>(null); // where focus goes once the list below has re-rendered
   useDataMode(); useCapabilities(); // re-render when the data mode or backend features change
   const removable = canRemoveExpense(); // hidden (not dead) when the backend has no remove/restore or sample data stands in for live
   const blocked = writeBlockedReason(); // fallback mode: every write is off, with this reason shown
   useEffect(() => { getExpenses().then(setRows); }, []);
+  // The button that was clicked (Remove, Undo) is gone after the list updates: put focus somewhere stable instead of <body>.
+  useEffect(() => {
+    const want = nextFocus.current;
+    if (!want) return;
+    nextFocus.current = null;
+    if (want === "undo") undoLink.current?.focus();
+    else (document.getElementById("rm-" + want.row) ?? heading.current)?.focus();
+  }, [rows, undo]);
   // Preview thumbnail for the chosen photo (HEIC usually can't be previewed: the file name is shown instead).
   useEffect(() => {
     if (!receipt || !canPreview(receipt)) { setThumb(""); return; }
@@ -56,13 +67,12 @@ export function Expenses() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (busy || blocked) return;
-    setUndo(null);
     // Accept what people actually type: "$1,200", "24.5", "40 ".
     const clean = amount.replace(/[$,\s]/g, "");
     if (!/^\d+(\.\d{1,2})?$/.test(clean)) { setErr({ field: "amount", msg: clean === "" ? "Enter an amount, like 24.50." : "Use numbers only, like 24.50 (no words, at most two decimals)." }); return; }
     const cents = Math.round(parseFloat(clean) * 100);
     if (cents < 1) { setErr({ field: "amount", msg: "Amount must be at least $0.01." }); return; }
-    if (date > new Date().toISOString().slice(0, 10)) { setErr({ field: "date", msg: "That date is in the future. Pick today or earlier." }); return; }
+    if (date > localDate()) { setErr({ field: "date", msg: "That date is in the future. Pick today or earlier." }); return; }
     setErr(null);
     setSaveErr("");
     setDone("");
@@ -78,6 +88,7 @@ export function Expenses() {
     setAmount(""); setNote(""); setReceipt(null); setReceiptErr("");
     if (fileInput.current) fileInput.current.value = "";
     setDone(`Added ${money(cents)} for ${CATS[category]}.`);
+    setUndo(null); // only once the new expense is saved, so a typo or failed save keeps the Undo link
     setRows(await getExpenses());
     setBusy(false);
   }
@@ -89,6 +100,7 @@ export function Expenses() {
     setRemoving(null);
     if (!row) { setSaveErr("Couldn't remove that expense. It may already be gone. The list is refreshed."); setRows(await getExpenses()); return; }
     setSaveErr("");
+    nextFocus.current = "undo";
     setRows(await getExpenses());
     setDone("");
     setUndo(row);
@@ -97,6 +109,7 @@ export function Expenses() {
     if (!undo) return;
     try { await restoreExpense(undo); } catch (e) { setSaveErr("Couldn't undo that removal. " + describeError(e)); return; }
     setSaveErr("");
+    nextFocus.current = { row: undo.id };
     setRows(await getExpenses());
     setDone(`Restored ${money(undo.amount)} for ${CATS[undo.category]}.`);
     setUndo(null);
@@ -104,7 +117,7 @@ export function Expenses() {
 
   return (
     <section aria-labelledby="h-exp">
-      <h2 id="h-exp">Expenses {rows && rows.length > 0 && <span className="period">All logged expenses, {dayYear(Math.min(...rows.map((r) => r.date)))} to {dayYear(Math.max(...rows.map((r) => r.date)))}</span>}</h2>
+      <h2 id="h-exp" ref={heading} tabIndex={-1}>Expenses {rows && rows.length > 0 && <span className="period">All logged expenses, {dayYear(Math.min(...rows.map((r) => r.date)))} to {dayYear(Math.max(...rows.map((r) => r.date)))}</span>}</h2>
       <form className="addform" onSubmit={submit} noValidate>
         <label>Date<input type="date" value={date} onChange={(e) => { setDate(e.target.value); setDone(""); }} required aria-invalid={err?.field === "date"} aria-describedby={err?.field === "date" ? "exp-err" : undefined} />{err?.field === "date" && <span className="field-err" id="exp-err" role="alert">{err.msg}</span>}</label>
         <label>Amount ($)<input inputMode="decimal" value={amount} onChange={(e) => { setAmount(e.target.value); setDone(""); }} placeholder="0.00" aria-invalid={err?.field === "amount"} aria-describedby={err?.field === "amount" ? "exp-err" : undefined} />{err?.field === "amount" && <span className="field-err" id="exp-err" role="alert">{err.msg}</span>}</label>
@@ -127,7 +140,7 @@ export function Expenses() {
         {blocked && <p className="muted blocked-why" id="exp-blocked">{blocked}</p>}
         {saveErr && <p className="err" role="alert">{saveErr}</p>}
         <p className="ok" role="status">{done}</p>
-        {undo && <p className="ok" role="status">Removed {money(undo.amount)} for {CATS[undo.category]}. <button type="button" className="link" onClick={undoRemove}>Undo</button></p>}
+        {undo && <p className="ok" role="status">Removed {money(undo.amount)} for {CATS[undo.category]}. <button type="button" className="link" ref={undoLink} onClick={undoRemove}>Undo</button></p>}
       </form>
 
       {!rows ? (
@@ -153,7 +166,7 @@ export function Expenses() {
             <table>
               <caption className="tbl-cap"><span className="tag tag-rec">Record</span> Expense ledger, newest first.</caption>
               <thead><tr><th scope="col">Date</th><th scope="col">Category</th><th scope="col" className="hide-sm">Note</th><th scope="col" className="num">Amount</th>{removable && <th scope="col"><span className="sr-only">Remove</span></th>}</tr></thead>
-              <tbody>{rows.map((r) => <tr key={r.id}><td>{day(r.date)}</td><td>{CATS[r.category]}{r.receiptPhotoUrl && /^(https?:|blob:)/.test(r.receiptPhotoUrl) ? <a className="receipt-link" href={r.receiptPhotoUrl} target="_blank" rel="noopener noreferrer" aria-label={"Receipt for " + money(r.amount) + " " + CATS[r.category] + " expense from " + day(r.date) + " (opens in a new tab)"}>Receipt</a> : null}</td><td className="hide-sm">{r.note ?? ""}</td><td className="num rec">{money(r.amount)}</td>{removable && <td><button className="mini" disabled={removing !== null} onClick={() => remove(r)} aria-label={"Remove " + money(r.amount) + " " + CATS[r.category] + " expense from " + day(r.date)}>Remove</button></td>}</tr>)}</tbody>
+              <tbody>{rows.map((r) => <tr key={r.id}><td>{day(r.date)}</td><td>{CATS[r.category]}{r.receiptPhotoUrl && /^(https?:|blob:)/.test(r.receiptPhotoUrl) ? <a className="receipt-link" href={r.receiptPhotoUrl} target="_blank" rel="noopener noreferrer" aria-label={"Receipt for " + money(r.amount) + " " + CATS[r.category] + " expense from " + day(r.date) + " (opens in a new tab)"}>Receipt</a> : null}</td><td className="hide-sm">{r.note ?? ""}</td><td className="num rec">{money(r.amount)}</td>{removable && <td><button className="mini" id={"rm-" + r.id} disabled={removing !== null} onClick={() => remove(r)} aria-label={"Remove " + money(r.amount) + " " + CATS[r.category] + " expense from " + day(r.date)}>Remove</button></td>}</tr>)}</tbody>
               <tfoot><tr><th scope="row" colSpan={3} className="total-label">Total</th><td className="num rec">{money(total)}</td>{removable && <td></td>}</tr></tfoot>
             </table>
           </div>
