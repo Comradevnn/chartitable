@@ -4,6 +4,13 @@
 
 Built at Cal Hacks 13.0 (Oct 23–25, 2026) by a **two-person team**. Live demo hosts and backend: https://chartitable.vercel.app (Convex dev deployment behind it). This README describes what exists and what doesn't.
 
+## For judges: try the staff side
+Staff pages are PIN-protected. Demo PIN: **`6767`** (demo data only, test mode, no real payments).
+
+- Charity dashboard: https://chartitable.vercel.app/dashboard/
+- Staff update page: https://chartitable.vercel.app/staff/update.html
+- Demo panel: https://chartitable.vercel.app/staff/demo.html
+
 ## The problem
 Small food pantries and food banks run on volunteers and have no fundraising staff. They can't afford to thank and update donors personally, so donors drift away. Donors rarely hear what their gift did.
 
