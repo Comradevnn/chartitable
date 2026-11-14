@@ -11,3 +11,8 @@ dist-site
 
 # Impeccable engine binary (per-machine download)
 .claude/skills/impeccable/scripts/bin/
+
+# Local-only files: never commit
+Claude outputs/
+.claude/settings.local.json
+docs/proof/convex-dashboard.jpg
